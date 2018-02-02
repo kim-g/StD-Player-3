@@ -78,6 +78,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Desk.cs" />
     <Compile Include="SoundChannel.cs" />
     <Compile Include="SQLiteDataBase.cs" />
     <Page Include="MainWindow.xaml">
