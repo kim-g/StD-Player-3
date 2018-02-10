@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -22,6 +23,7 @@ namespace StD_Player_3
     public partial class MainWindow : Window
     {
         Desk Channel_1;
+        Desk Channel_2;
         System.Windows.Threading.DispatcherTimer timer;
 
         public MainWindow()
@@ -31,11 +33,16 @@ namespace StD_Player_3
 
             timer = new System.Windows.Threading.DispatcherTimer(System.Windows.Threading.DispatcherPriority.Normal);
             timer.Tick += new EventHandler(timerTick);
-            timer.Interval = new TimeSpan(0, 0, 0, 0, 500);
+            timer.Interval = new TimeSpan(0, 0, 0, 0, 100);
             timer.Start();
 
-            Channel_1 = new Desk(Pos, Bkgd, Position, Length);
+            Channel_1 = new Desk(Desk1, -1, 100);
+            Stream File1 = new FileStream(@"d:\Женитьба\Sound\G 5 2m21s.mp3", FileMode.Open);
             Channel_1.Open(@"d:\Женитьба\Sound\G 5 2m21s.mp3");
+
+            Channel_2 = new Desk(Desk2,1,100);
+            Stream File2 = new FileStream(@"d:\Женитьба\Sound\G 7 2m20s.mp3", FileMode.Open, FileAccess.Read);
+            Channel_2.Open(File2);
         }
 
         private void timerTick(object sender, EventArgs e)
@@ -46,6 +53,7 @@ namespace StD_Player_3
         private void Update()
         {
             Channel_1.UpdateVisualElements();
+            Channel_2.UpdateVisualElements();
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)

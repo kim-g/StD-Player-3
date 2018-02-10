@@ -6,20 +6,18 @@
         xmlns:local="clr-namespace:StD_Player_3"
         xmlns:System="clr-namespace:System;assembly=mscorlib" x:Class="StD_Player_3.MainWindow"
         mc:Ignorable="d"
-        Title="MainWindow" Height="348.91" Width="521.729">
+        Title="MainWindow" Height="348.91" Width="655.423">
     <Window.Resources>
 
     </Window.Resources>
     <Grid>
-        <Button Content="Button" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click"/>
-        <Button Content="Button" HorizontalAlignment="Left" Margin="80,0,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click_1"/>
-        <Button Content="Button" HorizontalAlignment="Left" Margin="160,0,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click_2"/>
-        <Label x:Name="Position" Content="Label" HorizontalAlignment="Left" Margin="0,25,0,0" VerticalAlignment="Top"/>
-        <Label x:Name="Length" Content="Label" HorizontalAlignment="Left" Margin="43,25,0,0" VerticalAlignment="Top"/>
-        <Canvas x:Name="PositionLine" Height="26" Margin="10,56,10,0" VerticalAlignment="Top">
-            <Rectangle x:Name="Bkgd" Margin="0,0,0,0" Fill="#FF004D00" Canvas.Left="0" Canvas.Top="0" Height="{Binding ActualHeight, ElementName=PositionLine, Mode=OneWay}" Width="{Binding ActualWidth, ElementName=PositionLine, Mode=OneWay}"/>
-            <Rectangle x:Name="Pos" Margin="0,0,0,0" Fill="Lime" Canvas.Left="0" Canvas.Top="0" Height="{Binding ActualHeight, ElementName=PositionLine, Mode=OneWay}"/>
-        </Canvas>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition></ColumnDefinition>
+            <ColumnDefinition></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <Grid Grid.Column="1" x:Name="Desk2" Margin="0,0,0,0"/>
+        <Grid Grid.Column="0" x:Name="Desk1" Margin="0,0,0,0">
+        </Grid>
 
     </Grid>
 </Window>
