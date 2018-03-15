@@ -79,6 +79,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Desk.cs" />
+    <Compile Include="MisicDB.cs" />
     <Compile Include="SoundChannel.cs" />
     <Compile Include="SQLiteDataBase.cs" />
     <Page Include="MainWindow.xaml">

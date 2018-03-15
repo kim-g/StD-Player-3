@@ -25,10 +25,18 @@ namespace StD_Player_3
         Desk Channel_1;
         Desk Channel_2;
         System.Windows.Threading.DispatcherTimer timer;
+        SQLite.SQLiteConfig Config = new SQLite.SQLiteConfig("Config.db");
 
         public MainWindow()
         {
             InitializeComponent();
+
+            Left = 0;
+            Top = 0;
+            Width = SystemParameters.WorkArea.Width;
+            Height = SystemParameters.WorkArea.Height;
+
+
             SoundChannel.Initiate();
 
             timer = new System.Windows.Threading.DispatcherTimer(System.Windows.Threading.DispatcherPriority.Normal);
@@ -36,13 +44,13 @@ namespace StD_Player_3
             timer.Interval = new TimeSpan(0, 0, 0, 0, 100);
             timer.Start();
 
+            MusicDB MDB = new MusicDB(Config.GetConfigValue("file"));
+
             Channel_1 = new Desk(Desk1, -1, 100);
-            Stream File1 = new FileStream(@"d:\Женитьба\Sound\G 5 2m21s.mp3", FileMode.Open);
-            Channel_1.Open(@"d:\Женитьба\Sound\G 5 2m21s.mp3");
+            Channel_1.LoadTrackList(MDB.LoadDesk(1));
 
             Channel_2 = new Desk(Desk2,1,100);
-            Stream File2 = new FileStream(@"d:\Женитьба\Sound\G 7 2m20s.mp3", FileMode.Open, FileAccess.Read);
-            Channel_2.Open(File2);
+            Channel_2.LoadTrackList(MDB.LoadDesk(2));
         }
 
         private void timerTick(object sender, EventArgs e)

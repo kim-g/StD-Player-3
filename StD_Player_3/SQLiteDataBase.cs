@@ -163,31 +163,21 @@ namespace SQLite
 
     public class SQLiteConfig : SQLiteDataBase
     {
-        public SQLiteConfig(string FileName)
+        public SQLiteConfig(string FileName) : base (FileName)
         {
-            dbFileName = FileName;
-            Connection = new SQLiteConnection();
-            Command = new SQLiteCommand();
+            if (File.Exists(FileName))
+            {
+                OpenDB();
+            }
+            else
+            {
+                CreateDB("CREATE TABLE `config` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `name`	TEXT NOT NULL, `value` TEXT); ");
+            }
         }
 
         public static new SQLiteConfig Open(string FileName)
         {
-            if (File.Exists(FileName))
-            {
-                SQLiteConfig NewConf = new SQLiteConfig(FileName);
-                if (NewConf.OpenDB())
-                    return NewConf;
-                else
-                    return null;
-            }
-            else
-            {
-                SQLiteConfig NewConf = new SQLiteConfig(FileName);
-                if (NewConf.CreateDB("CREATE TABLE `config` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `name`	TEXT NOT NULL, `value` TEXT); "))
-                    return NewConf;
-                else
-                    return null;
-            }
+            return new SQLiteConfig(FileName);
         }
 
         //Работа с конфигом, получение значения
