@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
 using Un4seen.Bass;
@@ -34,6 +35,7 @@ namespace StD_Player_3
         protected Canvas ProgressCanvas;
         protected Canvas ListCanvas;
         protected Label[] ListLabels;
+        protected ListClick LabelClick = new ListClick();
         protected List<MusicTrack> TrackList
         {
             get { return tracklist; }
@@ -44,7 +46,6 @@ namespace StD_Player_3
                 CurrentTrack = 0;
             }
         }
-
         protected int CurrentTrack
         {
             get
@@ -144,6 +145,7 @@ namespace StD_Player_3
             Canvas SetCanvasList(Grid Parent, Thickness Margin)
             {
                 Canvas CurCan = SetCanvas(Parent, Margin, (ListElementsToShow * 2 + 1) * 25, double.NaN);
+                CurCan.MouseLeave += List_MouseLeave;
 
                 Rectangle Rect = SetRectangle(CurCan, Colors.White, Colors.Black, true);
                 Rect.StrokeThickness = 1;
@@ -157,10 +159,14 @@ namespace StD_Player_3
                     SetBinding(CurCan, ListLabels[i], "ActualWidth", FrameworkElement.WidthProperty);
                     ListLabels[i].Tag = i - ListElementsToShow;
                     ListLabels[i].MouseLeftButtonUp += ListElement_Click;
+                    ListLabels[i].MouseLeftButtonDown += ListElement_MouseDown;
+                    ListLabels[i].MouseEnter += ListElement_MouseEnter;
                 }
 
-                ListLabels[ListElementsToShow].Background = new SolidColorBrush(Color.FromRgb(0x00,0x00, 0x88));
-                ListLabels[ListElementsToShow].Foreground = new SolidColorBrush(Color.FromRgb(0xFF, 0xFF, 0xFF));
+                ListLabels[ListElementsToShow].Background = 
+                    new SolidColorBrush(Color.FromRgb(0x00,0x00, 0x88));
+                ListLabels[ListElementsToShow].Foreground = 
+                    new SolidColorBrush(Colors.White);
                 ListLabels[ListElementsToShow].FontWeight = FontWeights.Bold;
 
                 return CurCan;
@@ -185,7 +191,7 @@ namespace StD_Player_3
                 ParentGrid.Children.Add(LabelGrig);
                 ParentGrid.Children.Add(ProgressGrid);
                 ParentGrid.Children.Add(ListGrid);
-                for (int i=0; i<5; i++)
+                for (int i=0; i < ButtonGrids.Length; i++)
                 {
                     ButtonsGrid.ColumnDefinitions.Add(new ColumnDefinition());
                     ButtonGrids[i] = new Grid();
@@ -295,10 +301,36 @@ namespace StD_Player_3
         // События нажатия на элементы списка
         private void ListElement_Click(object sender, RoutedEventArgs e)
         {
-            if ((string)((Label)sender).Content == "") return;
+            if (!LabelClick.MouseDown) return;
+            LabelClick.Free();
 
+            if ((string)((Label)sender).Content == "") return;
+            if ((int)((Label)sender).Tag == 0) return;
             CurrentTrack += (int)((Label)sender).Tag;
         }
+
+        private void ListElement_MouseDown(object sender, RoutedEventArgs e)
+        {
+            if ((string)((Label)sender).Content == "") return;
+
+            LabelClick.Set((Label)sender);
+        }
+
+        private void ListElement_MouseEnter(object sender, MouseEventArgs e)
+        {
+            if ((string)((Label)sender).Content == "") return;
+            if (e.LeftButton == MouseButtonState.Pressed)
+                LabelClick.Element = (Label)sender;
+            else
+                LabelClick.Free();
+        }
+
+        private void List_MouseLeave(object sender, RoutedEventArgs e)
+        {
+            if (LabelClick.MouseDown) LabelClick.Bleach();
+        }
+
+
 
         /// <summary>
         /// Добавить файл в список из файла
@@ -398,6 +430,60 @@ namespace StD_Player_3
         public string FullName()
         {
             return Number + " — " + Name;
+        }
+    }
+
+    class ListClick
+    {
+        private Label element = null;
+        private bool mousedown = false;
+        
+        // Свойства
+        public bool MouseDown
+        {
+            get { return mousedown; }
+        }
+
+        public Label Element
+        {
+            get { return element; }
+            set
+            {
+                if (!MouseDown) return;
+                if (element != null && (int)element.Tag != 0) Bleach();
+                element = value;
+                if (element != null && (int)element.Tag != 0) Colorize();
+            }
+        }
+        private Brush ColoredBrush = new SolidColorBrush(Colors.Yellow);
+        private Brush TransparentBrush = new SolidColorBrush(Colors.Transparent);
+
+        /// <summary>
+        /// Окрашивает выделяемый элемент в определённый цвет
+        /// </summary>
+        public void Colorize()
+        {
+            Element.Background = ColoredBrush;
+        }
+
+        /// <summary>
+        /// Возвращает выделенному элементу прозрачность.
+        /// </summary>
+        public void Bleach()
+        {
+            Element.Background = TransparentBrush;
+        }
+
+        public void Set(Label LabelToSet)
+        {
+            mousedown = true;
+            Element = LabelToSet;
+        }
+
+        public void Free()
+        {
+            Element = null;
+            mousedown = false;
         }
     }
 }
