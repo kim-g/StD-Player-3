@@ -1,14 +1,18 @@
-﻿using System;
+﻿using StD_Player_3.Properties;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Resources;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using Un4seen.Bass;
 
@@ -20,10 +24,15 @@ namespace StD_Player_3
         private int сurrentrack = 0;
         private List<MusicTrack> tracklist = new List<MusicTrack>();
         private int ListElementsToShow = 8; // Сколько элементов в списке показывать до и после текущего
+        private int ListHeight = 25; // Высота элемента
+        private int ListHeightMargin = 3; // Сдвиг элемента сверху
 
         // Наследуемые внешние свойства
         protected Rectangle PositionRect;
         protected Rectangle BackgroundRect;
+        protected Rectangle CurrentTrackRect;
+        protected Rectangle PressedTrackRect;
+        protected Rectangle StatusColorRect;
         protected Label PositionLabel;
         protected Label LengthLabel;
         protected Label NameLabel;
@@ -34,8 +43,9 @@ namespace StD_Player_3
         protected Button PreviosButton;
         protected Canvas ProgressCanvas;
         protected Canvas ListCanvas;
+        protected PlayState DeskState;
         protected Label[] ListLabels;
-        protected ListClick LabelClick = new ListClick();
+        protected ListClick LabelClick;
         protected List<MusicTrack> TrackList
         {
             get { return tracklist; }
@@ -89,7 +99,8 @@ namespace StD_Player_3
                 Element.SetBinding(DP, binding);
             }
 
-            Button SetButton(Panel Parent, int Left, object Content, RoutedEventHandler OnClick)
+            Button SetButton(Panel Parent, int Left, object Content, RoutedEventHandler OnClick, 
+                string Image="")
             {
                 Button NewButton = new Button();
                 Parent.Children.Add(NewButton);
@@ -97,7 +108,29 @@ namespace StD_Player_3
                 NewButton.HorizontalAlignment = HorizontalAlignment.Center;
                 NewButton.VerticalAlignment = VerticalAlignment.Center;
                 NewButton.Width = 75;
-                NewButton.Content = Content;
+                StackPanel stackPnl = new StackPanel();
+                stackPnl.Orientation = Orientation.Horizontal;
+                stackPnl.Margin = new Thickness(0);
+                if (Image!="")
+                {
+                    NewButton.Width = 32;
+                    NewButton.Height = 32;
+                    //ResourceManager rm = Resources.ResourceManager;
+                    //BitmapImage myImage = (BitmapImage)rm.GetObject(Image);
+                    Image img = new Image();
+                    img.Source = new BitmapImage(new Uri(Image + ".png", UriKind.Relative))
+                        { CreateOptions = BitmapCreateOptions.IgnoreImageCache };
+                    stackPnl.Children.Add(img);
+                    NewButton.BorderBrush = new SolidColorBrush(Colors.Transparent);
+                    NewButton.Background = new SolidColorBrush(Colors.White);
+                }
+                if ((string)Content != "")
+                {
+                    Label ButtonLabel = SetLabel(stackPnl, 0, 0);
+                    ButtonLabel.Content = Content;
+                }
+
+                NewButton.Content = stackPnl;
                 NewButton.Click += OnClick;
                 return NewButton;
             }
@@ -122,14 +155,17 @@ namespace StD_Player_3
                 return NewCanvas;
             }
 
-            Rectangle SetRectangle(Panel Parent, Color Fill, Color Stroke, bool BindWidth)
+            Rectangle SetRectangle(Panel Parent, Color Fill, Color Stroke, bool BindWidth, 
+                bool BindHeight = true)
             {
                 Rectangle NewRect = new Rectangle();
                 NewRect.Fill = new SolidColorBrush(Fill);
                 NewRect.Stroke = new SolidColorBrush(Stroke);
-                SetBinding(Parent, NewRect, "Height", FrameworkElement.HeightProperty);
+                if (BindHeight)
+                    SetBinding(Parent, NewRect, "Height", FrameworkElement.HeightProperty);
                 if (BindWidth)
                     SetBinding(Parent, NewRect, "ActualWidth", FrameworkElement.WidthProperty);
+                Parent.Children.Add(NewRect);
                 return NewRect;
             }
 
@@ -149,11 +185,22 @@ namespace StD_Player_3
 
                 Rectangle Rect = SetRectangle(CurCan, Colors.White, Colors.Black, true);
                 Rect.StrokeThickness = 1;
-                CurCan.Children.Add(Rect);
-                
+
+                CurrentTrackRect = SetRectangle(CurCan, Color.FromRgb(0x00, 0x00, 0x88), 
+                    Colors.Black, true, false);
+                CurrentTrackRect.Height = ListHeight;
+                CurrentTrackRect.Margin = new Thickness(0, (ListElementsToShow) * ListHeight + 
+                    ListHeightMargin, 0, 0);
+
+                PressedTrackRect = SetRectangle(CurCan, Colors.Yellow,
+                    Colors.Black, true, false);
+                PressedTrackRect.Height = ListHeight;
+                PressedTrackRect.Margin = new Thickness(0, 0 + ListHeightMargin, 0, 0);
+                PressedTrackRect.Visibility = Visibility.Hidden;
+
                 for (int i = 0; i < ListElementsToShow * 2 + 1; i++)
                 {
-                    ListLabels[i] = SetLabel(CurCan, 0, i * 25);
+                    ListLabels[i] = SetLabel(CurCan, 0, i * ListHeight);
                     ListLabels[i].FontFamily = new FontFamily("Courier New");
                     ListLabels[i].FontSize = 20;
                     SetBinding(CurCan, ListLabels[i], "ActualWidth", FrameworkElement.WidthProperty);
@@ -162,25 +209,42 @@ namespace StD_Player_3
                     ListLabels[i].MouseLeftButtonDown += ListElement_MouseDown;
                     ListLabels[i].MouseEnter += ListElement_MouseEnter;
                 }
-
-                ListLabels[ListElementsToShow].Background = 
-                    new SolidColorBrush(Color.FromRgb(0x00,0x00, 0x88));
-                ListLabels[ListElementsToShow].Foreground = 
-                    new SolidColorBrush(Colors.White);
+                ListLabels[ListElementsToShow].Foreground = new SolidColorBrush(Colors.White);
                 ListLabels[ListElementsToShow].FontWeight = FontWeights.Bold;
 
                 return CurCan;
             }
 
+            void SetLabelGrid()
+            {
+                LabelGrig = new Grid();
+                LabelGrig.RowDefinitions.Add(RowDefenitionHeight(52));
+                LabelGrig.RowDefinitions.Add(RowDefenitionHeight(42));
+                LabelGrig.RowDefinitions.Add(RowDefenitionHeight(80));
+                Grid[] Lines = new Grid[3];
+                for (int i = 0; i < Lines.Count(); i++)
+                {
+                    Lines[i] = new Grid();
+                    Grid.SetRow(Lines[i], i);
+                    LabelGrig.Children.Add(Lines[i]);
+                }
+                Lines[0].Margin = new Thickness(10);
+                StatusColorRect = SetRectangle(Lines[0], Color.FromRgb(0x86, 0x28, 0x28),
+                    Colors.Black, true, true);
+                NameLabel = SetLabel(Lines[1], 0, 0);
+                PositionLabel = SetLabel(Lines[2], 0, 0);
+                LengthLabel = SetLabel(Lines[2], 45, 0);
+            }
+
             void MakeGridStructure(Grid ParentGrid)
             {
-                ParentGrid.RowDefinitions.Add(RowDefenitionHeight(30));
+                ParentGrid.RowDefinitions.Add(RowDefenitionHeight());
                 ParentGrid.RowDefinitions.Add(RowDefenitionHeight(25));
                 ParentGrid.RowDefinitions.Add(RowDefenitionHeight(31));
                 ParentGrid.RowDefinitions.Add(RowDefenitionHeight());
 
                 ButtonsGrid = new Grid();
-                LabelGrig = new Grid();
+                SetLabelGrid();
                 ProgressGrid = new Grid();
                 ListGrid = new Grid();
                 Grid.SetRow(ButtonsGrid, 2);
@@ -191,7 +255,7 @@ namespace StD_Player_3
                 ParentGrid.Children.Add(LabelGrig);
                 ParentGrid.Children.Add(ProgressGrid);
                 ParentGrid.Children.Add(ListGrid);
-                for (int i=0; i < ButtonGrids.Length; i++)
+                for (int i = 0; i < ButtonGrids.Length; i++)
                 {
                     ButtonsGrid.ColumnDefinitions.Add(new ColumnDefinition());
                     ButtonGrids[i] = new Grid();
@@ -201,25 +265,20 @@ namespace StD_Player_3
             }
 
             MakeGridStructure(CurGrid);
-            PlayButton = SetButton(ButtonGrids[0], 0, "Play", PlayButton_Click);
-            PauseButton = SetButton(ButtonGrids[1], 0, "Pause", PauseButton_Click);
-            StopButton = SetButton(ButtonGrids[2], 0, "Stop", StopButton_Click);
+            PlayButton = SetButton(ButtonGrids[0], 0, "", PlayButton_Click, "Play");
+            PauseButton = SetButton(ButtonGrids[1], 0, "", PauseButton_Click, "Pause");
+            StopButton = SetButton(ButtonGrids[2], 0, "", StopButton_Click, "Stop");
             NextButton = SetButton(ButtonGrids[4], 0, "Next", NextButton_Click);
             PreviosButton = SetButton(ButtonGrids[3], 0, "Prev", PreviosButton_Click);
-            PositionLabel = SetLabel(LabelGrig, 0, 0);
-            LengthLabel = SetLabel(LabelGrig, 45, 0);
-            NameLabel = SetLabel(LabelGrig, 90, 0);
             ProgressCanvas = SetCanvas(ProgressGrid, new Thickness(10, 0, 10, 0), 25);
             BackgroundRect = SetRectangle(ProgressCanvas, Color.FromRgb(0, 77, 0), Colors.Black, true);
             PositionRect = SetRectangle(ProgressCanvas, Color.FromRgb(0, 255, 0), Colors.Black, false);
             ListCanvas = SetCanvasList(ListGrid, new Thickness(10, 0, 10, 0));
 
-            //Добавление в Canvas
-            ProgressCanvas.Children.Add(BackgroundRect);
-            ProgressCanvas.Children.Add(PositionRect);
-
+            DeskState = new PlayState(StatusColorRect);
             Balance = balance;
             Volume = volume;
+            LabelClick = new ListClick(PressedTrackRect, ListHeightMargin);
             UpdateList();
         }
 
@@ -379,6 +438,21 @@ namespace StD_Player_3
         {
             TrackList = InTrackList;
         }
+
+        protected override void DoOnPlay(object InObject)
+        {
+            DeskState.State = PlayState.Play;
+        }
+
+        protected override void DoOnPause(object InObject)
+        {
+            DeskState.State = PlayState.Pause;
+        }
+
+        protected override void DoOnStop(object InObject)
+        {
+            DeskState.State = PlayState.Stop;
+        }
     }
 
     //Класс одного муз. файла
@@ -437,6 +511,14 @@ namespace StD_Player_3
     {
         private Label element = null;
         private bool mousedown = false;
+        private Rectangle PressedRect;
+        private int ListHeightMargin;
+
+        public ListClick(Rectangle MovableRect, int TopMargin)
+        {
+            PressedRect = MovableRect;
+            ListHeightMargin = TopMargin;
+        }
         
         // Свойства
         public bool MouseDown
@@ -455,15 +537,15 @@ namespace StD_Player_3
                 if (element != null && (int)element.Tag != 0) Colorize();
             }
         }
-        private Brush ColoredBrush = new SolidColorBrush(Colors.Yellow);
-        private Brush TransparentBrush = new SolidColorBrush(Colors.Transparent);
 
         /// <summary>
         /// Окрашивает выделяемый элемент в определённый цвет
         /// </summary>
         public void Colorize()
         {
-            Element.Background = ColoredBrush;
+            PressedRect.Margin = new Thickness(Element.Margin.Left, Element.Margin.Top + ListHeightMargin,
+                Element.Margin.Right, Element.Margin.Bottom);
+            PressedRect.Visibility = Visibility.Visible;
         }
 
         /// <summary>
@@ -471,7 +553,7 @@ namespace StD_Player_3
         /// </summary>
         public void Bleach()
         {
-            Element.Background = TransparentBrush;
+            PressedRect.Visibility = Visibility.Hidden;
         }
 
         public void Set(Label LabelToSet)
@@ -484,6 +566,62 @@ namespace StD_Player_3
         {
             Element = null;
             mousedown = false;
+        }
+    }
+
+    /// <summary>
+    /// Показывает состояние плеера (Играет, пауза, остановка) 
+    /// и управляет графическими элементами интерфейса
+    /// </summary>
+    class PlayState
+    {
+        // Внутренние параметры
+        private byte state = 0;
+        private Rectangle Rect;
+        private Brush StopBrush = new SolidColorBrush(Color.FromRgb(0x86, 0x28, 0x28));
+        private Brush PlayBrush = new SolidColorBrush(Color.FromRgb(0x25, 0x5b, 0x25));
+        private Brush PauseBrush = new SolidColorBrush(Color.FromRgb(0x9D, 0x99, 0x00));
+
+        // Константы
+        public const byte Stop = 0;
+        public const byte Play = 1;
+        public const byte Pause = 2;
+
+        public PlayState(Rectangle StateRect)
+        {
+            Rect = StateRect;
+        }
+
+        public byte State
+        {
+            get
+            {
+                return state;
+            }
+
+            set
+            {
+                if (value < 0) return;
+                if (value > 2) return;
+
+                if (value == Stop)
+                {
+                    Rect.Fill = StopBrush;
+                    return;
+                }
+
+                if (value == Play)
+                {
+                    Rect.Fill = PlayBrush;
+                    return;
+                }
+
+                if (value == Pause)
+                {
+                    Rect.Fill = PauseBrush;
+                    return;
+                }
+            }
         }
     }
 }

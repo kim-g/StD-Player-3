@@ -45,6 +45,7 @@ namespace StD_Player_3
             timer.Start();
 
             MusicDB MDB = new MusicDB(Config.GetConfigValue("file"));
+            SpNameLabel.Content = MDB.Name;
 
             Channel_1 = new Desk(Desk1, -1, 100);
             Channel_1.LoadTrackList(MDB.LoadDesk(1));

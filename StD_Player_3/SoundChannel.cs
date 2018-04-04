@@ -121,6 +121,12 @@ namespace StD_Player_3
             if (Channel == 0) return;
             Bass.BASS_ChannelPlay(Channel, false);
             State = true;
+            DoOnPlay(null);
+        }
+
+        protected virtual void DoOnPlay(object InObject)
+        {
+            // May be used in child classes
         }
 
         public void Pause()
@@ -129,12 +135,19 @@ namespace StD_Player_3
             {
                 Bass.BASS_ChannelPause(Channel);
                 State = false;
+                DoOnPause(null);
             }
             else
             {
                 Bass.BASS_ChannelPlay(Channel, false);
                 State = true;
+                DoOnPlay(null);
             }
+        }
+
+        protected virtual void DoOnPause(object InObject)
+        {
+            // May be used in child classes
         }
 
         public void Stop()
@@ -146,6 +159,12 @@ namespace StD_Player_3
             }
 
             Bass.BASS_ChannelSetPosition(Channel, 0f);
+            DoOnStop(null);
+        }
+
+        protected virtual void DoOnStop(object InObject)
+        {
+            // May be used in child classes
         }
 
         protected long BytePosition()
