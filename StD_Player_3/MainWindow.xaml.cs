@@ -31,6 +31,8 @@ namespace StD_Player_3
         {
             InitializeComponent();
 
+            Background = new SolidColorBrush(ProjectColors.Background);
+
             Left = 0;
             Top = 0;
             Width = SystemParameters.WorkArea.Width;
@@ -47,11 +49,11 @@ namespace StD_Player_3
             MusicDB MDB = new MusicDB(Config.GetConfigValue("file"));
             SpNameLabel.Content = MDB.Name;
 
-            Channel_1 = new Desk(Desk1, -1, 100);
-            Channel_1.LoadTrackList(MDB.LoadDesk(1));
+            Channel_1 = new Desk(Desk1, -1, 100, 1);
+            Channel_1.LoadTrackList(MDB.LoadDesk(Channel_1.DeskN));
 
-            Channel_2 = new Desk(Desk2,1,100);
-            Channel_2.LoadTrackList(MDB.LoadDesk(2));
+            Channel_2 = new Desk(Desk2,1,100, 2);
+            Channel_2.LoadTrackList(MDB.LoadDesk(Channel_2.DeskN));
         }
 
         private void timerTick(object sender, EventArgs e)

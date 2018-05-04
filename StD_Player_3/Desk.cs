@@ -67,10 +67,13 @@ namespace StD_Player_3
                 сurrentrack = value;
                 if (value < 0) сurrentrack = 0;
                 if (value >= TrackList.Count) сurrentrack = TrackList.Count - 1;
+                DeskState.State = PlayState.Stop;
                 Open(TrackList[сurrentrack].Data, TrackList[сurrentrack].Repeat);
                 UpdateList();
             }
         }
+
+        public byte DeskN { get; protected set; }
 
 
         void DeskAutoStop(object sender, EventArgs e)
@@ -78,7 +81,7 @@ namespace StD_Player_3
             MessageBox.Show("Стоп");
         }
 
-        public Desk(Grid CurGrid, int balance, int volume)
+        public Desk(Grid CurGrid, int balance, int volume, byte N)
         {
             Grid ButtonsGrid;
             Grid LabelGrig;
@@ -115,14 +118,12 @@ namespace StD_Player_3
                 {
                     NewButton.Width = 32;
                     NewButton.Height = 32;
-                    //ResourceManager rm = Resources.ResourceManager;
-                    //BitmapImage myImage = (BitmapImage)rm.GetObject(Image);
                     Image img = new Image();
                     img.Source = new BitmapImage(new Uri(Image + ".png", UriKind.Relative))
                         { CreateOptions = BitmapCreateOptions.IgnoreImageCache };
                     stackPnl.Children.Add(img);
                     NewButton.BorderBrush = new SolidColorBrush(Colors.Transparent);
-                    NewButton.Background = new SolidColorBrush(Colors.White);
+                    NewButton.Background = new SolidColorBrush(Colors.Transparent);
                 }
                 if ((string)Content != "")
                 {
@@ -178,6 +179,15 @@ namespace StD_Player_3
                 return RD;
             }
 
+            ColumnDefinition ColumnDefenitionWidth(int width = 0)
+            {
+                ColumnDefinition CD = new ColumnDefinition();
+                CD.Width = width == 0
+                    ? GridLength.Auto
+                    : new GridLength(width);
+                return CD;
+            }
+
             Canvas SetCanvasList(Grid Parent, Thickness Margin)
             {
                 Canvas CurCan = SetCanvas(Parent, Margin, (ListElementsToShow * 2 + 1) * 25, double.NaN);
@@ -186,7 +196,7 @@ namespace StD_Player_3
                 Rectangle Rect = SetRectangle(CurCan, Colors.White, Colors.Black, true);
                 Rect.StrokeThickness = 1;
 
-                CurrentTrackRect = SetRectangle(CurCan, Color.FromRgb(0x00, 0x00, 0x88), 
+                CurrentTrackRect = SetRectangle(CurCan, ProjectColors.SelectedElement, 
                     Colors.Black, true, false);
                 CurrentTrackRect.Height = ListHeight;
                 CurrentTrackRect.Margin = new Thickness(0, (ListElementsToShow) * ListHeight + 
@@ -200,27 +210,73 @@ namespace StD_Player_3
 
                 for (int i = 0; i < ListElementsToShow * 2 + 1; i++)
                 {
-                    ListLabels[i] = SetLabel(CurCan, 0, i * ListHeight);
-                    ListLabels[i].FontFamily = new FontFamily("Courier New");
-                    ListLabels[i].FontSize = 20;
+                    ListLabels[i] = SetFont(SetLabel(CurCan, 0, i * ListHeight), "Courier New", 20,
+                        ProjectColors.FontColor, FontWeights.Normal);
                     SetBinding(CurCan, ListLabels[i], "ActualWidth", FrameworkElement.WidthProperty);
                     ListLabels[i].Tag = i - ListElementsToShow;
                     ListLabels[i].MouseLeftButtonUp += ListElement_Click;
                     ListLabels[i].MouseLeftButtonDown += ListElement_MouseDown;
                     ListLabels[i].MouseEnter += ListElement_MouseEnter;
                 }
-                ListLabels[ListElementsToShow].Foreground = new SolidColorBrush(Colors.White);
+                ListLabels[ListElementsToShow].Foreground = 
+                    new SolidColorBrush(ProjectColors.SelectedElementFont);
                 ListLabels[ListElementsToShow].FontWeight = FontWeights.Bold;
 
                 return CurCan;
             }
 
+            Label SetFont(Label Input, string FontName, int FontSize, Color FontColor, 
+                FontWeight Weight)
+            {
+                Input.FontFamily = new FontFamily(FontName);
+                Input.FontSize = FontSize;
+                Input.Foreground = new SolidColorBrush(FontColor);
+                Input.FontWeight = Weight;
+                return Input;
+            }
+
             void SetLabelGrid()
             {
+                Label SetTimeLabel(Panel Parent, string Title, Color Background)
+                {
+                    
+                    Canvas MainCanvas = SetCanvas(Parent, new Thickness(0), 80);
+                    Thickness Margin = new Thickness(10);
+                    MainCanvas.Margin = Margin;
+                    SetBinding(Parent, MainCanvas, "ActualWidth", FrameworkElement.WidthProperty);
+
+                    Rectangle Ground = SetRectangle(MainCanvas, Background, Colors.Black, 
+                        true, true);
+                    //Ground.Margin = Margin;
+                    Label TimeLabel = SetLabel(MainCanvas, 0, 0);
+                    Label TitleLabel = SetLabel(MainCanvas, 0, 0);
+                    SetBinding(MainCanvas, TimeLabel, "Height", FrameworkElement.HeightProperty);
+                    SetBinding(MainCanvas, TimeLabel, "Width", FrameworkElement.WidthProperty);
+                    SetBinding(MainCanvas, TitleLabel, "Width", FrameworkElement.WidthProperty);
+                    //SetBinding(MainCanvas, Ground, "Margin", FrameworkElement.MarginProperty);
+
+                    TimeLabel = SetFont(TimeLabel, "Courier New", 60, ProjectColors.TimeFont, 
+                        FontWeights.Bold);
+                    TimeLabel.Padding = new Thickness(0, 15, 0, 0);
+                    TitleLabel = SetFont(TitleLabel, "Courier New", 12, ProjectColors.TimeFont,
+                        FontWeights.Normal);
+                    TitleLabel.Padding = new Thickness(0, 5, 0, 0);
+                    MainCanvas.HorizontalAlignment = HorizontalAlignment.Center;
+                    TimeLabel.HorizontalContentAlignment = HorizontalAlignment.Center;
+                    TimeLabel.VerticalContentAlignment = VerticalAlignment.Center;
+                    TitleLabel.HorizontalContentAlignment = HorizontalAlignment.Center;
+
+                    TitleLabel.Foreground = new SolidColorBrush(Colors.White);
+                    TimeLabel.Foreground = new SolidColorBrush(Colors.White);
+
+                    TitleLabel.Content = Title;
+                    return TimeLabel;
+                }
+
                 LabelGrig = new Grid();
                 LabelGrig.RowDefinitions.Add(RowDefenitionHeight(52));
-                LabelGrig.RowDefinitions.Add(RowDefenitionHeight(42));
-                LabelGrig.RowDefinitions.Add(RowDefenitionHeight(80));
+                LabelGrig.RowDefinitions.Add(RowDefenitionHeight(40));
+                LabelGrig.RowDefinitions.Add(RowDefenitionHeight(100));
                 Grid[] Lines = new Grid[3];
                 for (int i = 0; i < Lines.Count(); i++)
                 {
@@ -229,11 +285,39 @@ namespace StD_Player_3
                     LabelGrig.Children.Add(Lines[i]);
                 }
                 Lines[0].Margin = new Thickness(10);
-                StatusColorRect = SetRectangle(Lines[0], Color.FromRgb(0x86, 0x28, 0x28),
+                StatusColorRect = SetRectangle(Lines[0], ProjectColors.Red,
                     Colors.Black, true, true);
-                NameLabel = SetLabel(Lines[1], 0, 0);
-                PositionLabel = SetLabel(Lines[2], 0, 0);
-                LengthLabel = SetLabel(Lines[2], 45, 0);
+                Label DeskName = SetFont(SetLabel(Lines[0], 5, 0), "TimesNewRoman", 14, Colors.White, 
+                    FontWeights.Normal);
+                DeskName.Content = "дека " + DeskN.ToString();
+
+                Lines[1].Margin = new Thickness(10,0,10,0);
+                SetRectangle(Lines[1], ProjectColors.TitleRect,
+                    ProjectColors.Border, true, true);
+                NameLabel = SetFont(SetLabel(Lines[1], 0, 0), "Courier New", 20, ProjectColors.FontColor,
+                    FontWeights.Normal);
+
+                Grid[] L2 = new Grid[2];
+
+                Lines[2].ColumnDefinitions.Add(ColumnDefenitionWidth(10));
+                for (int i = 0; i < L2.Count(); i++)
+                {
+                    ColumnDefinition CD = new ColumnDefinition();
+                    CD.Width = new GridLength(50, GridUnitType.Star);
+                    Lines[2].ColumnDefinitions.Add(CD);
+                    Lines[2].ColumnDefinitions.Add(ColumnDefenitionWidth(10));
+                }
+
+                for (int i = 0; i < L2.Count(); i++)
+                {
+                    L2[i] = new Grid();
+                    L2[i].Margin = new Thickness(0);
+                    Grid.SetColumn(L2[i], i*2+1);
+                    Lines[2].Children.Add(L2[i]);
+                }
+                PositionLabel = SetTimeLabel(L2[0], "Прошло", ProjectColors.Green);
+                LengthLabel = SetTimeLabel(L2[1], "Всего", ProjectColors.Red);
+
             }
 
             void MakeGridStructure(Grid ParentGrid)
@@ -264,6 +348,7 @@ namespace StD_Player_3
                 }
             }
 
+            DeskN = N;
             MakeGridStructure(CurGrid);
             PlayButton = SetButton(ButtonGrids[0], 0, "", PlayButton_Click, "Play");
             PauseButton = SetButton(ButtonGrids[1], 0, "", PauseButton_Click, "Pause");
@@ -271,8 +356,8 @@ namespace StD_Player_3
             NextButton = SetButton(ButtonGrids[4], 0, "Next", NextButton_Click);
             PreviosButton = SetButton(ButtonGrids[3], 0, "Prev", PreviosButton_Click);
             ProgressCanvas = SetCanvas(ProgressGrid, new Thickness(10, 0, 10, 0), 25);
-            BackgroundRect = SetRectangle(ProgressCanvas, Color.FromRgb(0, 77, 0), Colors.Black, true);
-            PositionRect = SetRectangle(ProgressCanvas, Color.FromRgb(0, 255, 0), Colors.Black, false);
+            BackgroundRect = SetRectangle(ProgressCanvas, ProjectColors.Green, Colors.Black, true);
+            PositionRect = SetRectangle(ProgressCanvas, ProjectColors.GreenLight, Colors.Black, false);
             ListCanvas = SetCanvasList(ListGrid, new Thickness(10, 0, 10, 0));
 
             DeskState = new PlayState(StatusColorRect);
@@ -578,9 +663,9 @@ namespace StD_Player_3
         // Внутренние параметры
         private byte state = 0;
         private Rectangle Rect;
-        private Brush StopBrush = new SolidColorBrush(Color.FromRgb(0x86, 0x28, 0x28));
-        private Brush PlayBrush = new SolidColorBrush(Color.FromRgb(0x25, 0x5b, 0x25));
-        private Brush PauseBrush = new SolidColorBrush(Color.FromRgb(0x9D, 0x99, 0x00));
+        private Brush StopBrush = new SolidColorBrush(ProjectColors.Red);
+        private Brush PlayBrush = new SolidColorBrush(ProjectColors.Green);
+        private Brush PauseBrush = new SolidColorBrush(ProjectColors.Yellow);
 
         // Константы
         public const byte Stop = 0;
