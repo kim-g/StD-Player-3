@@ -1,16 +1,11 @@
-﻿using StD_Player_3.Properties;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Resources;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
-using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
@@ -27,7 +22,7 @@ namespace StD_Player_3
         private int ListHeight = 25; // Высота элемента
         private int ListHeightMargin = 3; // Сдвиг элемента сверху
 
-        // Наследуемые внешние свойства
+        // Элементы интерфейса
         protected Rectangle PositionRect;
         protected Rectangle BackgroundRect;
         protected Rectangle CurrentTrackRect;
@@ -46,6 +41,8 @@ namespace StD_Player_3
         protected PlayState DeskState;
         protected Label[] ListLabels;
         protected ListClick LabelClick;
+
+        // Наследуемые внешние свойства
         protected List<MusicTrack> TrackList
         {
             get { return tracklist; }
@@ -75,23 +72,32 @@ namespace StD_Player_3
 
         public byte DeskN { get; protected set; }
 
-
-        void DeskAutoStop(object sender, EventArgs e)
-        {
-            MessageBox.Show("Стоп");
-        }
-
+        /// <summary>
+        /// Создание новой деки и её интерфейса
+        /// </summary>
+        /// <param name="CurGrid">Панель Grid для размещения интерфейса деки</param>
+        /// <param name="balance">Баланс звука (левая -1, правая 1)</param>
+        /// <param name="volume">Громкость трека (0..100)</param>
+        /// <param name="N">Номер деки</param>
         public Desk(Grid CurGrid, int balance, int volume, byte N)
         {
+            // Панели
             Grid ButtonsGrid;
             Grid LabelGrig;
             Grid ProgressGrid;
             Grid ListGrid;
             Grid[] ButtonGrids = new Grid[5];
 
+            // Элементы в списке для выбора 
             ListLabels = new Label[ListElementsToShow * 2 + 1];
 
-
+            /// <summary>
+            /// Привязка свойства объекта к свойству другого объекта OneWay
+            /// </summary>
+            /// <param name="BindSource">Элемент, с которого копируем свойства</param>
+            /// <param name="Element">Элемент, которому устанавливаем привязку</param>
+            /// <param name="Property">Свойство, откуда берём значение</param>
+            /// <param name="DP">Свойство, которому устанавливается зависимость</param>
             void SetBinding(object BindSource, FrameworkElement Element, string Property, 
                 DependencyProperty DP)
             {
@@ -102,6 +108,14 @@ namespace StD_Player_3
                 Element.SetBinding(DP, binding);
             }
 
+            /// <summary>
+            /// Создание кнопки и привязка её к родителю
+            /// </summary>
+            /// <param name="Parent">Родительский элемент</param>
+            /// <param name="Left">Отступ слева</param>
+            /// <param name="Content">Надпись</param>
+            /// <param name="OnClick">Событие нажатия на кнопку</param>
+            /// <param name="Image">Изображение</param>
             Button SetButton(Panel Parent, int Left, object Content, RoutedEventHandler OnClick, 
                 string Image="")
             {
@@ -136,6 +150,12 @@ namespace StD_Player_3
                 return NewButton;
             }
 
+            /// <summary>
+            /// Создание надписи и привязка её к родителю
+            /// </summary>
+            /// <param name="Parent">Родительский элемент</param>
+            /// <param name="Left">Отступ слева</param>
+            /// <param name="Top">Отступ сверху</param>
             Label SetLabel(Panel Parent, int Left, int Top)
             {
                 Label NewLabel = new Label();
@@ -146,6 +166,13 @@ namespace StD_Player_3
                 return NewLabel;
             }
 
+            /// <summary>
+            /// Создание холста и привязка его к родителю
+            /// </summary>
+            /// <param name="Parent">Родительский элемент</param>
+            /// <param name="Margin">Отступы</param>
+            /// <param name="Height">Высота</param>
+            /// <param name="Width">Ширина</param>
             Canvas SetCanvas(Panel Parent, Thickness Margin, double Height, double Width = double.NaN)
             {
                 Canvas NewCanvas = new Canvas();
@@ -156,6 +183,14 @@ namespace StD_Player_3
                 return NewCanvas;
             }
 
+            /// <summary>
+            /// Создание прямоугольника и привязка его к родителю
+            /// </summary>
+            /// <param name="Parent">Родительский элемент</param>
+            /// <param name="Fill">Цвет заливки</param>
+            /// <param name="Stroke">Цвет обводки</param>
+            /// <param name="BindWidth">Привязывать ли по ширине к родителю</param>
+            /// <param name="BindHeight">Привязывать ли по высоте к родителю</param>
             Rectangle SetRectangle(Panel Parent, Color Fill, Color Stroke, bool BindWidth, 
                 bool BindHeight = true)
             {
@@ -170,6 +205,10 @@ namespace StD_Player_3
                 return NewRect;
             }
 
+            /// <summary>
+            /// Создание разметки строки
+            /// </summary>
+            /// <param name="height">Высота строки</param>
             RowDefinition RowDefenitionHeight(int height = 0)
             {
                 RowDefinition RD = new RowDefinition();
@@ -179,6 +218,10 @@ namespace StD_Player_3
                 return RD;
             }
 
+            /// <summary>
+            /// Создание разметки столбца
+            /// </summary>
+            /// <param name="width">Ширина столбца</param>
             ColumnDefinition ColumnDefenitionWidth(int width = 0)
             {
                 ColumnDefinition CD = new ColumnDefinition();
@@ -188,6 +231,11 @@ namespace StD_Player_3
                 return CD;
             }
 
+            /// <summary>
+            /// Создание списка треков на основе Canvas
+            /// </summary>
+            /// <param name="Parent">Родительский элемент</param>
+            /// <param name="Margin">Отступы</param>
             Canvas SetCanvasList(Grid Parent, Thickness Margin)
             {
                 Canvas CurCan = SetCanvas(Parent, Margin, (ListElementsToShow * 2 + 1) * 25, double.NaN);
@@ -225,6 +273,14 @@ namespace StD_Player_3
                 return CurCan;
             }
 
+            /// <summary>
+            /// Настройка шрифта надписи и вывод в Label
+            /// </summary>
+            /// <param name="Input">Входящий Label</param>
+            /// <param name="FontName">Имя шрифта</param>
+            /// <param name="FontSize">Размер шрифта</param>
+            /// <param name="FontColor">Цвет шрифта</param>
+            /// <param name="Weight">Вес шрифта</param>
             Label SetFont(Label Input, string FontName, int FontSize, Color FontColor, 
                 FontWeight Weight)
             {
@@ -235,12 +291,22 @@ namespace StD_Player_3
                 return Input;
             }
 
+            /// <summary>
+            /// Настройка блока вывода информации о проигрываемом треке
+            /// </summary>
             void SetLabelGrid()
             {
+
+                /// <summary>
+                /// Создание блока вывода времени
+                /// </summary>
+                /// <param name="Parent">Родительский элемент</param>
+                /// <param name="Title">Текст заголовка сверху</param>
+                /// <param name="Background">Цвет фона</param>
                 Label SetTimeLabel(Panel Parent, string Title, Color Background)
                 {
                     
-                    Canvas MainCanvas = SetCanvas(Parent, new Thickness(0), 80);
+                    Canvas MainCanvas = SetCanvas(Parent, new Thickness(0), 110);
                     Thickness Margin = new Thickness(10);
                     MainCanvas.Margin = Margin;
                     SetBinding(Parent, MainCanvas, "ActualWidth", FrameworkElement.WidthProperty);
@@ -255,7 +321,7 @@ namespace StD_Player_3
                     SetBinding(MainCanvas, TitleLabel, "Width", FrameworkElement.WidthProperty);
                     //SetBinding(MainCanvas, Ground, "Margin", FrameworkElement.MarginProperty);
 
-                    TimeLabel = SetFont(TimeLabel, "Courier New", 60, ProjectColors.TimeFont, 
+                    TimeLabel = SetFont(TimeLabel, "Courier New", 70, ProjectColors.TimeFont, 
                         FontWeights.Bold);
                     TimeLabel.Padding = new Thickness(0, 15, 0, 0);
                     TitleLabel = SetFont(TitleLabel, "Courier New", 12, ProjectColors.TimeFont,
@@ -276,7 +342,7 @@ namespace StD_Player_3
                 LabelGrig = new Grid();
                 LabelGrig.RowDefinitions.Add(RowDefenitionHeight(52));
                 LabelGrig.RowDefinitions.Add(RowDefenitionHeight(40));
-                LabelGrig.RowDefinitions.Add(RowDefenitionHeight(100));
+                LabelGrig.RowDefinitions.Add(RowDefenitionHeight(130));
                 Grid[] Lines = new Grid[3];
                 for (int i = 0; i < Lines.Count(); i++)
                 {
@@ -320,6 +386,10 @@ namespace StD_Player_3
 
             }
 
+            /// <summary>
+            /// Создание разметки деки
+            /// </summary>
+            /// <param name="ParentGrid">Родительский элемент</param>
             void MakeGridStructure(Grid ParentGrid)
             {
                 ParentGrid.RowDefinitions.Add(RowDefenitionHeight());
@@ -367,6 +437,9 @@ namespace StD_Player_3
             UpdateList();
         }
 
+        /// <summary>
+        /// Обновление списка треков
+        /// </summary>
         protected void UpdateList()
         {
             for (int i = 0; i < ListElementsToShow * 2 + 1; i++)
@@ -385,6 +458,9 @@ namespace StD_Player_3
             }
         }
 
+        /// <summary>
+        /// Обновление всех изменяющихся элементов интерфейса
+        /// </summary>
         public void UpdateVisualElements()
         {
             // Вычисление текущего времени
@@ -409,25 +485,44 @@ namespace StD_Player_3
             if ((string)NameLabel.Content != NewName) NameLabel.Content = NewName;
         }
 
-        // События кнопок
+        /// <summary>
+        /// Событие нажатия на кнопку Play
+        /// </summary>
+        /// <param name="sender">Элемент, выдающий событие</param>
+        /// <param name="e">параметры события</param>
         private void PlayButton_Click(object sender, RoutedEventArgs e)
         {
             Play();
             UpdateVisualElements();
         }
 
+        /// <summary>
+        /// Событие нажатия на кнопку Pause
+        /// </summary>
+        /// <param name="sender">Элемент, выдающий событие</param>
+        /// <param name="e">параметры события</param>
         private void PauseButton_Click(object sender, RoutedEventArgs e)
         {
             Pause();
             UpdateVisualElements();
         }
 
+        /// <summary>
+        /// Событие нажатия на кнопку Stop
+        /// </summary>
+        /// <param name="sender">Элемент, выдающий событие</param>
+        /// <param name="e">параметры события</param>
         private void StopButton_Click(object sender, RoutedEventArgs e)
         {
             Stop();
             UpdateVisualElements();
         }
 
+        /// <summary>
+        /// Событие нажатия на кнопку Next
+        /// </summary>
+        /// <param name="sender">Элемент, выдающий событие</param>
+        /// <param name="e">параметры события</param>
         private void NextButton_Click(object sender, RoutedEventArgs e)
         {
             Stop();
@@ -435,6 +530,11 @@ namespace StD_Player_3
             UpdateVisualElements();
         }
 
+        /// <summary>
+        /// Событие нажатия на кнопку Previous
+        /// </summary>
+        /// <param name="sender">Элемент, выдающий событие</param>
+        /// <param name="e">параметры события</param>
         private void PreviosButton_Click(object sender, RoutedEventArgs e)
         {
             Stop();
@@ -442,7 +542,11 @@ namespace StD_Player_3
             UpdateVisualElements();
         }
 
-        // События нажатия на элементы списка
+        /// <summary>
+        /// Событие списка треков. OnMouseUp
+        /// </summary>
+        /// <param name="sender">Элемент, выдающий событие</param>
+        /// <param name="e">параметры события</param>
         private void ListElement_Click(object sender, RoutedEventArgs e)
         {
             if (!LabelClick.MouseDown) return;
@@ -453,6 +557,11 @@ namespace StD_Player_3
             CurrentTrack += (int)((Label)sender).Tag;
         }
 
+        /// <summary>
+        /// Событие списка треков. OnMouseDown
+        /// </summary>
+        /// <param name="sender">Элемент, выдающий событие</param>
+        /// <param name="e">параметры события</param>
         private void ListElement_MouseDown(object sender, RoutedEventArgs e)
         {
             if ((string)((Label)sender).Content == "") return;
@@ -460,6 +569,11 @@ namespace StD_Player_3
             LabelClick.Set((Label)sender);
         }
 
+        /// <summary>
+        /// Событие списка треков. OnMouseEnter
+        /// </summary>
+        /// <param name="sender">Элемент, выдающий событие</param>
+        /// <param name="e">параметры события</param>
         private void ListElement_MouseEnter(object sender, MouseEventArgs e)
         {
             if ((string)((Label)sender).Content == "") return;
@@ -469,6 +583,11 @@ namespace StD_Player_3
                 LabelClick.Free();
         }
 
+        /// <summary>
+        /// Событие списка треков. OnMouseLeave
+        /// </summary>
+        /// <param name="sender">Элемент, выдающий событие</param>
+        /// <param name="e">параметры события</param>
         private void List_MouseLeave(object sender, RoutedEventArgs e)
         {
             if (LabelClick.MouseDown) LabelClick.Bleach();
@@ -524,16 +643,28 @@ namespace StD_Player_3
             TrackList = InTrackList;
         }
 
+        /// <summary>
+        /// Событие Bass.dll. OnPlay
+        /// </summary>
+        /// <param name="InObject">Внутренний параметр</param>
         protected override void DoOnPlay(object InObject)
         {
             DeskState.State = PlayState.Play;
         }
 
+        /// <summary>
+        /// Событие Bass.dll. OnPause
+        /// </summary>
+        /// <param name="InObject">Внутренний параметр</param>
         protected override void DoOnPause(object InObject)
         {
             DeskState.State = PlayState.Pause;
         }
 
+        /// <summary>
+        /// Событие Bass.dll. OnStop
+        /// </summary>
+        /// <param name="InObject">Внутренний параметр</param>
         protected override void DoOnStop(object InObject)
         {
             DeskState.State = PlayState.Stop;
