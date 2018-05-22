@@ -20,17 +20,22 @@ namespace StD_Player_3
         private List<MusicTrack> tracklist = new List<MusicTrack>();
         private int ListElementsToShow = 8; // Сколько элементов в списке показывать до и после текущего
         private int ListHeight = 25; // Высота элемента
-        private int ListHeightMargin = 3; // Сдвиг элемента сверху
+        private int ListHeightMargin = 3; // Сдвиг элемента сверху 
+        private bool PositionTrackShow = false; // Показывать в треке Label и позицию к мышке
+        private string PositionTrackLabel = "";
+        private double MouseX;
 
         // Элементы интерфейса
         protected Rectangle PositionRect;
         protected Rectangle BackgroundRect;
+        protected Rectangle MiddleRect;
         protected Rectangle CurrentTrackRect;
         protected Rectangle PressedTrackRect;
         protected Rectangle StatusColorRect;
         protected Label PositionLabel;
         protected Label LengthLabel;
         protected Label NameLabel;
+        protected Label TrackTimeLabel;
         protected Button PlayButton;
         protected Button PauseButton;
         protected Button StopButton;
@@ -41,6 +46,7 @@ namespace StD_Player_3
         protected PlayState DeskState;
         protected Label[] ListLabels;
         protected ListClick LabelClick;
+        
 
         // Наследуемые внешние свойства
         protected List<MusicTrack> TrackList
@@ -324,7 +330,7 @@ namespace StD_Player_3
                     TimeLabel = SetFont(TimeLabel, "Courier New", 70, ProjectColors.TimeFont, 
                         FontWeights.Bold);
                     TimeLabel.Padding = new Thickness(0, 15, 0, 0);
-                    TitleLabel = SetFont(TitleLabel, "Courier New", 12, ProjectColors.TimeFont,
+                    TitleLabel = SetFont(TitleLabel, "Cambria", 12, ProjectColors.TimeFont,
                         FontWeights.Normal);
                     TitleLabel.Padding = new Thickness(0, 5, 0, 0);
                     MainCanvas.HorizontalAlignment = HorizontalAlignment.Center;
@@ -428,7 +434,17 @@ namespace StD_Player_3
             ProgressCanvas = SetCanvas(ProgressGrid, new Thickness(10, 0, 10, 0), 25);
             BackgroundRect = SetRectangle(ProgressCanvas, ProjectColors.Green, Colors.Black, true);
             PositionRect = SetRectangle(ProgressCanvas, ProjectColors.GreenLight, Colors.Black, false);
+            MiddleRect = SetRectangle(ProgressCanvas, ProjectColors.GreenSemiLight, Colors.Black, false);
             ListCanvas = SetCanvasList(ListGrid, new Thickness(10, 0, 10, 0));
+            TrackTimeLabel = SetLabel(ProgressCanvas,0,0);
+
+            // Применение событий
+            ProgressCanvas.MouseDown += TrackLabel_MouseDown;
+            ProgressCanvas.MouseDown += TrackLabel_MouseMove;
+            ProgressCanvas.MouseUp += TrackLabel_MouseUp;
+            ProgressCanvas.MouseMove += TrackLabel_MouseMove;
+            ProgressCanvas.MouseEnter += TrackLabel_MouseEnter;
+            ProgressCanvas.MouseLeave += TrackLabel_MouseLeave;
 
             DeskState = new PlayState(StatusColorRect);
             Balance = balance;
@@ -464,25 +480,51 @@ namespace StD_Player_3
         public void UpdateVisualElements()
         {
             // Вычисление текущего времени
-            double PosSeconds = Bass.BASS_ChannelBytes2Seconds(Channel, BytePosition());
-            int PosMinute = Convert.ToInt32(Math.Floor(PosSeconds / 60f));
-            int PosSecond = Convert.ToInt32(Math.Round(PosSeconds - (PosMinute * 60)));
-            string Pos = PosMinute.ToString("D2") + ":" + PosSecond.ToString("D2");
+            string Pos = PositionTime();
             if (Pos != PositionLabel.Content.ToString()) PositionLabel.Content = Pos;
 
             //Вычисление времени длины
-            PosSeconds = Bass.BASS_ChannelBytes2Seconds(Channel, Length);
-            PosMinute = Convert.ToInt32(Math.Floor(PosSeconds / 60f));
-            PosSecond = Convert.ToInt32(Math.Round(PosSeconds - (PosMinute * 60)));
-            Pos = PosMinute.ToString("D2") + ":" + PosSecond.ToString("D2");
+            Pos = LengthTime();
             if (Pos != LengthLabel.Content.ToString()) LengthLabel.Content = Pos;
 
             //Отображение позиции трека
-            PositionRect.Width = BackgroundRect.Width * Position() / 1000;
+            long PositionT = Position;
+            PositionRect.Width = BackgroundRect.Width * PositionT / 1000;
+            UpdateMiddleRect();
 
             // Отображение названия трека
             string NewName = TrackList[CurrentTrack].FullName();
             if ((string)NameLabel.Content != NewName) NameLabel.Content = NewName;
+        }
+
+        /// <summary>
+        /// Обновление промежуточного прямугольника трека
+        /// </summary>
+        private void UpdateMiddleRect()
+        {
+            TrackTimeLabel.Content = PositionTrackShow
+                            ? PositionTrackLabel
+                            : "";
+
+            if (PositionTrackShow)
+            {
+                double NewPosition = MouseX * 1000 / ProgressCanvas.ActualWidth;
+                TrackTimeLabel.Foreground = Position < (NewPosition)
+                    ? ProjectColors.Solids.White
+                    : ProjectColors.Solids.Black;
+
+                MiddleRect.Margin = Position < (NewPosition)
+                    ? new Thickness(Position * ProgressCanvas.ActualWidth / 1000 - 0.5, 0, 0, 0)
+                    : new Thickness(MouseX, 0, 0, 0);
+
+                MiddleRect.Width = Position < (NewPosition)
+                    ? MouseX - Position * ProgressCanvas.ActualWidth / 1000
+                    : Position * ProgressCanvas.ActualWidth / 1000 - MouseX + 0.5;
+            }
+            else
+            {
+                MiddleRect.Width = 0;
+            }
         }
 
         /// <summary>
@@ -591,6 +633,70 @@ namespace StD_Player_3
         private void List_MouseLeave(object sender, RoutedEventArgs e)
         {
             if (LabelClick.MouseDown) LabelClick.Bleach();
+        }
+
+        /// <summary>
+        /// Событие полосы трекинга. OnMouseUp
+        /// </summary>
+        /// <param name="sender">Элемент, выдающий событие</param>
+        /// <param name="e">параметры события</param>
+        private void TrackLabel_MouseUp(object sender, MouseEventArgs e)
+        {
+            PositionTrackShow = false;
+            Position = Convert.ToInt32(e.GetPosition((Canvas)sender).X *
+                1000 / ((Canvas)sender).ActualWidth);
+        }
+
+        /// <summary>
+        /// Событие полосы трекинга. OnMouseDown
+        /// </summary>
+        /// <param name="sender">Элемент, выдающий событие</param>
+        /// <param name="e">параметры события</param>
+        private void TrackLabel_MouseDown(object sender, MouseEventArgs e)
+        {
+            PositionTrackShow = true;
+        }
+
+        /// <summary>
+        /// Событие полосы трекинга. OnMouseEnter
+        /// </summary>
+        /// <param name="sender">Элемент, выдающий событие</param>
+        /// <param name="e">параметры события</param>
+        private void TrackLabel_MouseEnter(object sender, MouseEventArgs e)
+        {
+            PositionTrackShow = e.LeftButton == MouseButtonState.Pressed;
+        }
+
+        /// <summary>
+        /// Событие полосы трекинга. OnMouseLeave
+        /// </summary>
+        /// <param name="sender">Элемент, выдающий событие</param>
+        /// <param name="e">параметры события</param>
+        private void TrackLabel_MouseLeave(object sender, MouseEventArgs e)
+        {
+            PositionTrackShow = false;
+        }
+
+        /// <summary>
+        /// Событие полосы трекинга. OnMouseMove
+        /// </summary>
+        /// <param name="sender">Элемент, выдающий событие</param>
+        /// <param name="e">параметры события</param>
+        private void TrackLabel_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (e.LeftButton == MouseButtonState.Released) return;
+
+            MouseX = e.GetPosition((Canvas)sender).X;
+            bool LabelPos = MouseX < TrackTimeLabel.ActualWidth + 10;
+            double NewPosition = MouseX * 1000 / ((Canvas)sender).ActualWidth;
+
+            PositionTrackLabel = PositionTime(Convert.ToInt32(NewPosition));
+            UpdateMiddleRect();
+
+            TrackTimeLabel.Margin = LabelPos
+                ? new Thickness(MouseX + 5, 0, 0, 0)
+                : new Thickness(MouseX - 5 - TrackTimeLabel.ActualWidth, 0, 0, 0);
+            
         }
 
 

@@ -20,6 +20,28 @@ namespace StD_Player_3
         System.Windows.Threading.DispatcherTimer timer;
         public event EventHandler AutoStop;
 
+        /// <summary>
+        /// Определяет позицию трека в промилле (десятые процента)
+        /// </summary>
+        public int Position
+        {
+            get
+            {
+                if (Channel == 0) return 0;
+                return Convert.ToInt32(Bass.BASS_ChannelGetPosition(Channel) * 1000 / Length);
+            }
+
+            set
+            {
+                if (Channel == 0) return;
+                int Pos = value;
+                if (value < 0) Pos = 0;
+                if (value > 1000) Pos = 1000;
+
+                Bass.BASS_ChannelSetPosition(Channel, Pos * Length / 1000);
+            }
+        }
+
         public static void Initiate(int SoundCard = -1, int BitRate = 44100,
             BASSInit DeviceProperties = BASSInit.BASS_DEVICE_DEFAULT)
         {
@@ -41,7 +63,7 @@ namespace StD_Player_3
         {
             if (!State) return;
 
-            if (Position() >= 1000)
+            if (Position >= 1000)
             {
                 State = false;
                 Stop();
@@ -172,17 +194,50 @@ namespace StD_Player_3
             return Bass.BASS_ChannelGetPosition(Channel);
         }
 
-        public long Position()
+        /// <summary>
+        /// Возвращает текщее время трека в формате MM:SS или "--:--", если трек не загружен
+        /// </summary>
+        /// <returns></returns>
+        public string PositionTime()
         {
-            if (Channel == 0) return 0;
-            return Convert.ToInt32(Bass.BASS_ChannelGetPosition(Channel) * 1000 / Length);
+            if (Channel == 0) return "--:--";
+
+            double PosSeconds = Bass.BASS_ChannelBytes2Seconds(Channel, BytePosition());
+            int PosMinute = Convert.ToInt32(Math.Floor(PosSeconds / 60f));
+            int PosSecond = Convert.ToInt32(Math.Round(PosSeconds - (PosMinute * 60)));
+            string Pos = PosMinute.ToString("D2") + ":" + PosSecond.ToString("D2");
+            return Pos;
         }
 
+        /// <summary>
+        /// Возвращает время трека в формате MM:SS или "--:--", если трек не загружен
+        /// </summary>
+        /// <param name="position">Время в промилле (десятые процента)</param>
+        public string PositionTime(int position)
+        {
+            if (Channel == 0) return "--:--";
+
+            double PosSeconds = Bass.BASS_ChannelBytes2Seconds(Channel,
+                position * Length / 1000);
+            int PosMinute = Convert.ToInt32(Math.Floor(PosSeconds / 60f));
+            int PosSecond = Convert.ToInt32(Math.Round(PosSeconds - (PosMinute * 60)));
+            string Pos = PosMinute.ToString("D2") + ":" + PosSecond.ToString("D2");
+            return Pos;
+        }
+
+        /// <summary>
+        /// Возвращает длину трека в формате MM:SS или "--:--", если трек не загружен
+        /// </summary>
+        /// <returns></returns>
         public string LengthTime()
         {
             if (Channel == 0) return "--:--";
 
-            return "";
+            double PosSeconds = Bass.BASS_ChannelBytes2Seconds(Channel, Length);
+            int PosMinute = Convert.ToInt32(Math.Floor(PosSeconds / 60f));
+            int PosSecond = Convert.ToInt32(Math.Round(PosSeconds - (PosMinute * 60)));
+            string Pos = PosMinute.ToString("D2") + ":" + PosSecond.ToString("D2");
+            return Pos;
         }
 
         public void SetVolume(int volume)

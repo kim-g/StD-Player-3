@@ -25,6 +25,7 @@ namespace StD_Player_3
         Desk Channel_1;
         Desk Channel_2;
         System.Windows.Threading.DispatcherTimer timer;
+        System.Windows.Threading.DispatcherTimer TimeTimer;
         SQLite.SQLiteConfig Config = new SQLite.SQLiteConfig("Config.db");
 
         public MainWindow()
@@ -37,7 +38,7 @@ namespace StD_Player_3
             Top = 0;
             Width = SystemParameters.WorkArea.Width;
             Height = SystemParameters.WorkArea.Height;
-
+            TitleRect.Fill = new SolidColorBrush(ProjectColors.Gray);
 
             SoundChannel.Initiate();
 
@@ -45,6 +46,11 @@ namespace StD_Player_3
             timer.Tick += new EventHandler(timerTick);
             timer.Interval = new TimeSpan(0, 0, 0, 0, 100);
             timer.Start();
+
+            TimeTimer = new System.Windows.Threading.DispatcherTimer(System.Windows.Threading.DispatcherPriority.Normal);
+            TimeTimer.Tick += new EventHandler(TimeTimerTick);
+            TimeTimer.Interval = new TimeSpan(0, 0, 0, 0, 500);
+            TimeTimer.Start();
 
             MusicDB MDB = new MusicDB(Config.GetConfigValue("file"));
             SpNameLabel.Content = MDB.Name;
@@ -59,6 +65,11 @@ namespace StD_Player_3
         private void timerTick(object sender, EventArgs e)
         {
             Update();
+        }
+
+        private void TimeTimerTick(object sender, EventArgs e)
+        {
+            TimeLabel.Content = DateTime.Now.Hour.ToString() + ":" + DateTime.Now.Minute.ToString();
         }
 
         private void Update()
@@ -84,6 +95,11 @@ namespace StD_Player_3
         {
             Channel_1.Stop();
             Update();
+        }
+
+        private void Button_Click_3(object sender, RoutedEventArgs e)
+        {
+            Application.Current.Shutdown();
         }
     }
 }

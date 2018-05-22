@@ -16,14 +16,38 @@
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
+            <RowDefinition Height="120"/>
+            <RowDefinition />
             <RowDefinition Height="70"/>
-            <RowDefinition/>
         </Grid.RowDefinitions>
         <Grid Grid.Column="0" Grid.Row="0" x:Name="Info" Margin="0,0,0,0" Grid.ColumnSpan="2">
-            <Label x:Name="SpNameLabel" FontSize="48" FontWeight="Bold" TextOptions.TextHintingMode="Fixed" HorizontalAlignment="Center"/>
+            <Rectangle x:Name="TitleRect" Margin="10" Fill="Gray" />
+            <Label x:Name="SpNameLabel" FontSize="60" TextOptions.TextHintingMode="Fixed" HorizontalAlignment="Center" Margin="10" Background="#00808080" BorderBrush="Gray" FontFamily="Times New Roman" Content="Тест" FontWeight="Bold" Foreground="White" VerticalAlignment="Center"/>
         </Grid>
-        <Grid Grid.Column="0" Grid.Row="1" x:Name="Desk1" Margin="0,0,0,0"/>
+        <Grid Grid.Column="0" Grid.Row="1" x:Name="Desk1" Margin="0"/>
         <Grid Grid.Column="1" Grid.Row="1" x:Name="Desk2" Margin="0,0,0,0"/>
+        <Grid Grid.Column="0" Grid.Row="2" x:Name="BottomPanel" Margin="0,0,0,0" Grid.ColumnSpan="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Grid Margin="0">
+                <Button x:Name="button" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="24" Padding="10,1" Height="46">
+                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Horizontal">
+                        <Image Source="images/Open.png" Stretch="Fill" Width="32" HorizontalAlignment="Center" VerticalAlignment="Center" Height="32" />
+                        <Label HorizontalAlignment="Center" VerticalAlignment="Center">Выбрать спектакль</Label>
 
+
+                    </StackPanel>
+                </Button>
+            </Grid>
+            <Grid Grid.Column="1" Margin="0" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Label x:Name="TimeLabel" Content="12:00" HorizontalAlignment="Center" VerticalAlignment="Center" FontFamily="Tahoma" FontSize="48"/>
+            </Grid>
+            <Grid Grid.Column="2" Margin="0">
+                <Button Content="Выключить плеер" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="24" Margin="0" Padding="10,1,16,1" Height="{Binding ActualHeight, ElementName=button}" Click="Button_Click_3" Width="{Binding ActualWidth, ElementName=button}"/>
+            </Grid>
+        </Grid>
     </Grid>
 </Window>
