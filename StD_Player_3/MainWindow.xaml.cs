@@ -101,5 +101,10 @@ namespace StD_Player_3
         {
             Application.Current.Shutdown();
         }
+
+        private void button_Click_4(object sender, RoutedEventArgs e)
+        {
+            string LoadSp = OpenSpectacle.Open(this, "E:\\Temp");
+        }
     }
 }

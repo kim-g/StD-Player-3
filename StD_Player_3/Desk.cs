@@ -346,7 +346,7 @@ namespace StD_Player_3
                 }
 
                 LabelGrig = new Grid();
-                LabelGrig.RowDefinitions.Add(RowDefenitionHeight(52));
+                LabelGrig.RowDefinitions.Add(RowDefenitionHeight(60));
                 LabelGrig.RowDefinitions.Add(RowDefenitionHeight(40));
                 LabelGrig.RowDefinitions.Add(RowDefenitionHeight(130));
                 Grid[] Lines = new Grid[3];
