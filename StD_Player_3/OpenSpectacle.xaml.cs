@@ -34,7 +34,7 @@ namespace StD_Player_3
         public static string Open(Window ParentWindow, string FilesDir)
         {
             OpenSpectacle OS = new OpenSpectacle(ParentWindow);
-
+            if (!(Directory.Exists(FilesDir))) Directory.CreateDirectory(FilesDir);
             OS.Files = Directory.EnumerateFiles(FilesDir,"*.sdb").ToList<string>();
             foreach (string FileToAdd in OS.Files)
             {
@@ -93,6 +93,24 @@ namespace StD_Player_3
                     Left = NewPos.X - WindowDrag.X;
                     Top = NewPos.Y - WindowDrag.Y;
                 }
+        }
+
+        private void LoadButton_Click(object sender, RoutedEventArgs e)
+        {
+            LoadSp();
+        }
+
+        private void LoadSp()
+        {
+            if (FileList.SelectedItem == null) return;
+
+            Result = (string)FileList.SelectedItem;
+            Close();
+        }
+
+        private void LoadButton_Click(object sender, MouseButtonEventArgs e)
+        {
+            LoadSp();
         }
     }
 }

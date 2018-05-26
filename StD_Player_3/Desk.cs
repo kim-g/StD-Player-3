@@ -54,7 +54,13 @@ namespace StD_Player_3
             get { return tracklist; }
             set
             {
-                tracklist.RemoveRange(0, tracklist.Count);
+                foreach (MusicTrack MT in tracklist)
+                {
+                    MT.Dispose();
+                }
+
+                tracklist.Clear();
+                GC.Collect();
                 tracklist = value;
                 CurrentTrack = 0;
             }
@@ -778,7 +784,7 @@ namespace StD_Player_3
     }
 
     //Класс одного муз. файла
-    public class MusicTrack
+    public class MusicTrack : IDisposable
     {
         public string Number { get; set; }
         public string Name { get; set; }
@@ -826,6 +832,23 @@ namespace StD_Player_3
         public string FullName()
         {
             return Number + " — " + Name;
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                Data.Dispose();
+                Data = null;
+                this.Name = null;
+                this.Number = null;
+            }
         }
     }
 

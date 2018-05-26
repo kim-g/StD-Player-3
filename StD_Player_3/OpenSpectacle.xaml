@@ -18,11 +18,11 @@
             <Label Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="20" Content="Открыть спектакль"/>
         </Grid>
         <Grid Grid.Row="1">
-            <ListBox x:Name="FileList" Margin="5" Width="520" Height="330"/>
+            <ListBox x:Name="FileList" Margin="5" Width="520" Height="330" FontSize="20" MouseDoubleClick="LoadButton_Click"/>
         </Grid>
         <Grid Grid.Row="2">
             <StackPanel HorizontalAlignment="Center" Margin="0" VerticalAlignment="Center" Orientation="Horizontal">
-                <Button x:Name="LoadButton" Content="Загрузить" Margin="0,0,10,0" FontSize="20" Padding="20,1"/>
+                <Button x:Name="LoadButton" Content="Загрузить" Margin="0,0,10,0" FontSize="20" Padding="20,1" Click="LoadButton_Click"/>
                 <Button Content="Закрыть" Width="{Binding ActualWidth, ElementName=LoadButton, Mode=OneWay}" FontSize="20" Height="{Binding ActualHeight, ElementName=LoadButton, Mode=OneWay}" Click="Button_Click"/>
 
             </StackPanel>
