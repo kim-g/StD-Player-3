@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:StD_Player_3"
         xmlns:System="clr-namespace:System;assembly=mscorlib" x:Class="StD_Player_3.MainWindow"
         mc:Ignorable="d"
-        Title="MainWindow" Height="348.91" Width="655.423" WindowStyle="None" ResizeMode="NoResize" WindowStartupLocation="CenterScreen">
+        Title="MainWindow" Height="348.91" Width="655.423" WindowStyle="None" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" KeyDown="Window_KeyDown">
     <Window.Resources>
 
     </Window.Resources>
@@ -16,9 +16,9 @@
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="120"/>
+            <RowDefinition x:Name="TopRow" Height="120"/>
             <RowDefinition />
-            <RowDefinition Height="70"/>
+            <RowDefinition x:Name="BottomRow" Height="70"/>
         </Grid.RowDefinitions>
         <Grid Grid.Column="0" Grid.Row="0" x:Name="Info" Margin="0,0,0,0" Grid.ColumnSpan="2">
             <Rectangle x:Name="TitleRect" Margin="10" Fill="Gray" />
@@ -33,10 +33,10 @@
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
             <Grid Margin="0">
-                <Button x:Name="button" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="24" Padding="10,1" Height="{Binding ActualHeight, ElementName=button1, Mode=OneWay}" Width="{Binding ActualWidth, ElementName=button1, Mode=OneWay}" Margin="20,0" Click="button_Click_4">
+                <Button x:Name="button" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="24" Padding="10,1" Height="{Binding ActualHeight, ElementName=CloseButton, Mode=OneWay}" Width="{Binding ActualWidth, ElementName=CloseButton, Mode=OneWay}" Margin="20,0" Click="button_Click_4">
                     <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Horizontal">
                         <Image Source="images/Open.png" Stretch="Fill" Width="32" HorizontalAlignment="Center" VerticalAlignment="Center" Height="32" />
-                        <Label HorizontalAlignment="Center" VerticalAlignment="Center">Выбрать спектакль</Label>
+                        <Label x:Name="LoadButton" HorizontalAlignment="Center" VerticalAlignment="Center">Выбрать спектакль</Label>
 
 
                     </StackPanel>
@@ -46,7 +46,7 @@
                 <Label x:Name="TimeLabel" Content="12:00" HorizontalAlignment="Center" VerticalAlignment="Center" FontFamily="Tahoma" FontSize="48"/>
             </Grid>
             <Grid Grid.Column="2" Margin="0">
-                <Button x:Name="button1" Content="Выключить проигрователь" HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="24" Margin="20,0" Padding="20,1" Click="Button_Click_3" Height="46"/>
+                <Button x:Name="CloseButton" Content="Выключить проигрователь" HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="24" Margin="20,0" Padding="20,1" Click="Button_Click_3" Height="46"/>
             </Grid>
         </Grid>
     </Grid>

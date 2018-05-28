@@ -30,6 +30,7 @@ namespace StD_Player_3
         DispatcherTimer TimeTimer;
         bool Loading = false;
         SQLite.SQLiteConfig Config = new SQLite.SQLiteConfig("Config.db");
+        protected double Scale;
 
         public MainWindow()
         {
@@ -55,16 +56,46 @@ namespace StD_Player_3
             TimeTimer.Interval = new TimeSpan(0, 0, 0, 0, 500);
             TimeTimer.Start();
 
-            Channel_1 = new Desk(Desk1, -1, 100, 1);
-            Channel_2 = new Desk(Desk2, 1, 100, 2);
+            Scale = Height / 984.0; // Масштаб относительно модельного 1024 - панель задач
+
+            TopRow.Height = new GridLength(ScaleTo(120.0));
+            BottomRow.Height = new GridLength(ScaleTo(70.0));
+            CloseButton.FontSize = ScaleTo(24.0);
+            TimeLabel.FontSize = ScaleTo(48.0);
+            SpNameLabel.FontSize = ScaleTo(60.0);
+
+            Channel_1 = new Desk(Desk1, -1, 100, 1, Scale);
+            Channel_2 = new Desk(Desk2, 1, 100, 2, Scale);
             LoadMusic(Config.GetConfigValue("file"));
+        }
+
+        /// <summary>
+        /// Масштабирование значения
+        /// </summary>
+        /// <param name="Value">Значеие модельной позиции для масштабирования</param>
+        /// <returns></returns>
+        private int ScaleTo(int Value)
+        {
+            return Convert.ToInt32(Value * Scale);
+        }
+
+        /// <summary>
+        /// Масштабирование значения
+        /// </summary>
+        /// <param name="Value">Значеие модельной позиции для масштабирования</param>
+        /// <returns></returns>
+        private double ScaleTo(double Value)
+        {
+            if (Value == double.NaN)
+                return double.NaN;
+            return Value * Scale;
         }
 
         private void LoadMusic(string MusicDBFileName)
         {
             Grid LoadGrid = new Grid();
             Rectangle LoadRect = new Rectangle();
-            LoadRect.Fill = new SolidColorBrush(Color.FromArgb(0x80, 0xFF, 0xFF, 0xFF));
+            LoadRect.Fill = ProjectSolids.LoadingBackground;
             LoadRect.Margin = new Thickness(0);
             LoadGrid.Children.Add(LoadRect);
             Label LoadLabel = new Label();
@@ -72,6 +103,8 @@ namespace StD_Player_3
             LoadLabel.HorizontalAlignment = HorizontalAlignment.Center;
             LoadLabel.VerticalAlignment = VerticalAlignment.Center;
             LoadLabel.Content = "Загрузка спектакля";
+            LoadLabel.FontSize = ScaleTo(48.0);
+            LoadLabel.FontWeight = FontWeights.Bold;
             LoadGrid.Children.Add(LoadLabel);
             Grid.SetRow(LoadGrid, 0);
             Grid.SetRowSpan(LoadGrid, 3);
@@ -108,8 +141,7 @@ namespace StD_Player_3
 
         private void TimeTimerTick(object sender, EventArgs e)
         {
-            if (!Loading)
-                TimeLabel.Content = DateTime.Now.Hour.ToString() + ":" + DateTime.Now.Minute.ToString();
+            TimeLabel.Content = DateTime.Now.Hour.ToString("D2") + ":" + DateTime.Now.Minute.ToString("D2");
         }
 
         private void Update()
@@ -118,25 +150,7 @@ namespace StD_Player_3
             Channel_2.UpdateVisualElements();
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
-        {
-            
-            Channel_1.Play();
-            Update();
-        }
-
-        private void Button_Click_1(object sender, RoutedEventArgs e)
-        {
-            Channel_1.Pause();
-            Update();
-        }
-
-        private void Button_Click_2(object sender, RoutedEventArgs e)
-        {
-            Channel_1.Stop();
-            Update();
-        }
-
+        
         private void Button_Click_3(object sender, RoutedEventArgs e)
         {
             Application.Current.Shutdown();
@@ -148,21 +162,34 @@ namespace StD_Player_3
             Config.SetConfigValue("file", LoadSp);
             if (File.Exists(System.IO.Path.Combine(Config.GetConfigValue("MusicDir"), LoadSp+".sdb")))
                 LoadMusic(LoadSp);
-
         }
-    }
 
-    class ToLoadThread
-    {
-        public string Name;
-        public Grid ParentGrid;
-        public Label SpNameLabel;
-
-        public ToLoadThread(string name, Grid parent, Label NameLabel)
+        private void Window_KeyDown(object sender, KeyEventArgs e)
         {
-            Name = name;
-            ParentGrid = parent;
-            SpNameLabel = NameLabel;
+            if (Loading) return;
+
+            switch (e.Key)
+            {
+                case Key.S: Channel_1.Play(); Channel_1.UpdateVisualElements(); break;
+                case Key.D: Channel_1.Pause(); Channel_1.UpdateVisualElements(); break;
+                case Key.F: Channel_1.Stop(); Channel_1.UpdateVisualElements(); break;
+                case Key.E:
+                    Channel_1.Stop(); Channel_1.CurrentTrack--;
+                    Channel_1.UpdateVisualElements(); break;
+                case Key.X:
+                    Channel_1.Stop(); Channel_1.CurrentTrack++;
+                    Channel_1.UpdateVisualElements(); break;
+
+                case Key.K: Channel_2.Play(); Channel_2.UpdateVisualElements(); break;
+                case Key.L: Channel_2.Pause(); Channel_2.UpdateVisualElements(); break;
+                case Key.OemSemicolon: Channel_2.Stop(); Channel_2.UpdateVisualElements(); break;
+                case Key.O:
+                    Channel_2.Stop(); Channel_2.CurrentTrack--;
+                    Channel_2.UpdateVisualElements(); break;
+                case Key.OemComma:
+                    Channel_2.Stop(); Channel_2.CurrentTrack++;
+                    Channel_2.UpdateVisualElements(); break;
+            }
         }
     }
 }

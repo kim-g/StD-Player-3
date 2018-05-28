@@ -18,7 +18,7 @@ namespace StD_Player_3
         // Внутренние свойства
         private int сurrentrack = 0;
         private List<MusicTrack> tracklist = new List<MusicTrack>();
-        private int ListElementsToShow = 8; // Сколько элементов в списке показывать до и после текущего
+        private int ListElementsToShow = 9; // Сколько элементов в списке показывать до и после текущего
         private int ListHeight = 25; // Высота элемента
         private int ListHeightMargin = 3; // Сдвиг элемента сверху 
         private bool PositionTrackShow = false; // Показывать в треке Label и позицию к мышке
@@ -32,6 +32,7 @@ namespace StD_Player_3
         protected Rectangle CurrentTrackRect;
         protected Rectangle PressedTrackRect;
         protected Rectangle StatusColorRect;
+        protected Rectangle ListRect;
         protected Label PositionLabel;
         protected Label LengthLabel;
         protected Label NameLabel;
@@ -46,7 +47,8 @@ namespace StD_Player_3
         protected PlayState DeskState;
         protected Label[] ListLabels;
         protected ListClick LabelClick;
-        
+        protected double Scale = 1.0;
+
 
         // Наследуемые внешние свойства
         protected List<MusicTrack> TrackList
@@ -65,7 +67,7 @@ namespace StD_Player_3
                 CurrentTrack = 0;
             }
         }
-        protected int CurrentTrack
+        public int CurrentTrack
         {
             get
             {
@@ -76,6 +78,16 @@ namespace StD_Player_3
                 сurrentrack = value;
                 if (value < 0) сurrentrack = 0;
                 if (value >= TrackList.Count) сurrentrack = TrackList.Count - 1;
+
+                ListRect.Fill = CurrentTrack < 0
+                    ? ProjectSolids.Gray
+                    : ProjectSolids.White;
+
+                CurrentTrackRect.Visibility = CurrentTrack < 0
+                    ? Visibility.Hidden
+                    : Visibility.Visible;
+
+                if (сurrentrack < 0) return;
                 DeskState.State = PlayState.Stop;
                 Open(TrackList[сurrentrack].Data, TrackList[сurrentrack].Repeat);
                 UpdateList();
@@ -91,7 +103,7 @@ namespace StD_Player_3
         /// <param name="balance">Баланс звука (левая -1, правая 1)</param>
         /// <param name="volume">Громкость трека (0..100)</param>
         /// <param name="N">Номер деки</param>
-        public Desk(Grid CurGrid, int balance, int volume, byte N)
+        public Desk(Grid CurGrid, int balance, int volume, byte N, double scale)
         {
             // Панели
             Grid ButtonsGrid;
@@ -133,17 +145,17 @@ namespace StD_Player_3
             {
                 Button NewButton = new Button();
                 Parent.Children.Add(NewButton);
-                NewButton.Margin = new Thickness(Left, 0, 0, 0);
+                NewButton.Margin = new Thickness(ScaleTo(Left), 0, 0, 0);
                 NewButton.HorizontalAlignment = HorizontalAlignment.Center;
                 NewButton.VerticalAlignment = VerticalAlignment.Center;
-                NewButton.Width = 75;
+                NewButton.Width = ScaleTo(75);
                 StackPanel stackPnl = new StackPanel();
                 stackPnl.Orientation = Orientation.Horizontal;
                 stackPnl.Margin = new Thickness(0);
                 if (Image!="")
                 {
-                    NewButton.Width = 32;
-                    NewButton.Height = 32;
+                    NewButton.Width = ScaleTo(32);
+                    NewButton.Height = ScaleTo(32);
                     Image img = new Image();
                     img.Source = new BitmapImage(new Uri(Image + ".png", UriKind.Relative))
                         { CreateOptions = BitmapCreateOptions.IgnoreImageCache };
@@ -172,7 +184,7 @@ namespace StD_Player_3
             {
                 Label NewLabel = new Label();
                 Parent.Children.Add(NewLabel);
-                NewLabel.Margin = new Thickness(Left, Top, 0, 0);
+                NewLabel.Margin = new Thickness(ScaleTo(Left), ScaleTo(Top), 0, 0);
                 NewLabel.Content = "";
                 NewLabel.VerticalAlignment = VerticalAlignment.Center;
                 return NewLabel;
@@ -190,8 +202,8 @@ namespace StD_Player_3
                 Canvas NewCanvas = new Canvas();
                 Parent.Children.Add(NewCanvas);
                 NewCanvas.Margin = Margin;
-                NewCanvas.Height = Height;
-                NewCanvas.Width = Width;
+                NewCanvas.Height = ScaleTo(Height);
+                NewCanvas.Width = ScaleTo(Width);
                 return NewCanvas;
             }
 
@@ -221,12 +233,12 @@ namespace StD_Player_3
             /// Создание разметки строки
             /// </summary>
             /// <param name="height">Высота строки</param>
-            RowDefinition RowDefenitionHeight(int height = 0)
+            RowDefinition RowDefenitionHeight(double height = 0)
             {
                 RowDefinition RD = new RowDefinition();
                 RD.Height = height == 0
                     ? GridLength.Auto
-                    : new GridLength(height);
+                    : new GridLength(ScaleTo(height));
                 return RD;
             }
 
@@ -239,7 +251,7 @@ namespace StD_Player_3
                 ColumnDefinition CD = new ColumnDefinition();
                 CD.Width = width == 0
                     ? GridLength.Auto
-                    : new GridLength(width);
+                    : new GridLength(ScaleTo(width));
                 return CD;
             }
 
@@ -250,22 +262,27 @@ namespace StD_Player_3
             /// <param name="Margin">Отступы</param>
             Canvas SetCanvasList(Grid Parent, Thickness Margin)
             {
-                Canvas CurCan = SetCanvas(Parent, Margin, (ListElementsToShow * 2 + 1) * 25, double.NaN);
+                Canvas CurCan = SetCanvas(Parent, Margin, (ListElementsToShow * 2 + 1) * 25 + 5, 
+                    double.NaN);
                 CurCan.MouseLeave += List_MouseLeave;
 
-                Rectangle Rect = SetRectangle(CurCan, Colors.White, Colors.Black, true);
-                Rect.StrokeThickness = 1;
+                ListRect = CurrentTrack < 0 
+                    ? SetRectangle(CurCan, ProjectColors.Gray, Colors.Black, true)
+                    : SetRectangle(CurCan, Colors.White, Colors.Black, true);
+                ListRect.StrokeThickness = 1;
 
-                CurrentTrackRect = SetRectangle(CurCan, ProjectColors.SelectedElement, 
+                CurrentTrackRect = CurrentTrack < 0
+                    ? SetRectangle(CurCan, ProjectColors.Gray, Colors.Gray, true)
+                    : SetRectangle(CurCan, ProjectColors.SelectedElement, 
                     Colors.Black, true, false);
-                CurrentTrackRect.Height = ListHeight;
-                CurrentTrackRect.Margin = new Thickness(0, (ListElementsToShow) * ListHeight + 
-                    ListHeightMargin, 0, 0);
+                CurrentTrackRect.Height = ScaleTo(ListHeight);
+                CurrentTrackRect.Margin = new Thickness(0, ScaleTo((ListElementsToShow) * ListHeight + 
+                    ListHeightMargin), 0, 0);
 
                 PressedTrackRect = SetRectangle(CurCan, Colors.Yellow,
                     Colors.Black, true, false);
-                PressedTrackRect.Height = ListHeight;
-                PressedTrackRect.Margin = new Thickness(0, 0 + ListHeightMargin, 0, 0);
+                PressedTrackRect.Height = ScaleTo(ListHeight);
+                PressedTrackRect.Margin = new Thickness(0, ScaleTo(0 + ListHeightMargin), 0, 0);
                 PressedTrackRect.Visibility = Visibility.Hidden;
 
                 for (int i = 0; i < ListElementsToShow * 2 + 1; i++)
@@ -293,11 +310,11 @@ namespace StD_Player_3
             /// <param name="FontSize">Размер шрифта</param>
             /// <param name="FontColor">Цвет шрифта</param>
             /// <param name="Weight">Вес шрифта</param>
-            Label SetFont(Label Input, string FontName, int FontSize, Color FontColor, 
+            Label SetFont(Label Input, string FontName, double FontSize, Color FontColor, 
                 FontWeight Weight)
             {
                 Input.FontFamily = new FontFamily(FontName);
-                Input.FontSize = FontSize;
+                Input.FontSize = ScaleTo(FontSize);
                 Input.Foreground = new SolidColorBrush(FontColor);
                 Input.FontWeight = Weight;
                 return Input;
@@ -319,7 +336,7 @@ namespace StD_Player_3
                 {
                     
                     Canvas MainCanvas = SetCanvas(Parent, new Thickness(0), 110);
-                    Thickness Margin = new Thickness(10);
+                    Thickness Margin = new Thickness(ScaleTo(10));
                     MainCanvas.Margin = Margin;
                     SetBinding(Parent, MainCanvas, "ActualWidth", FrameworkElement.WidthProperty);
 
@@ -335,10 +352,10 @@ namespace StD_Player_3
 
                     TimeLabel = SetFont(TimeLabel, "Courier New", 70, ProjectColors.TimeFont, 
                         FontWeights.Bold);
-                    TimeLabel.Padding = new Thickness(0, 15, 0, 0);
+                    TimeLabel.Padding = new Thickness(0, ScaleTo(15.0), 0, 0);
                     TitleLabel = SetFont(TitleLabel, "Cambria", 12, ProjectColors.TimeFont,
                         FontWeights.Normal);
-                    TitleLabel.Padding = new Thickness(0, 5, 0, 0);
+                    TitleLabel.Padding = new Thickness(0, ScaleTo(5.0), 0, 0);
                     MainCanvas.HorizontalAlignment = HorizontalAlignment.Center;
                     TimeLabel.HorizontalContentAlignment = HorizontalAlignment.Center;
                     TimeLabel.VerticalContentAlignment = VerticalAlignment.Center;
@@ -352,9 +369,9 @@ namespace StD_Player_3
                 }
 
                 LabelGrig = new Grid();
-                LabelGrig.RowDefinitions.Add(RowDefenitionHeight(60));
-                LabelGrig.RowDefinitions.Add(RowDefenitionHeight(40));
-                LabelGrig.RowDefinitions.Add(RowDefenitionHeight(130));
+                LabelGrig.RowDefinitions.Add(RowDefenitionHeight(ScaleTo(60.0)));
+                LabelGrig.RowDefinitions.Add(RowDefenitionHeight(ScaleTo(40.0)));
+                LabelGrig.RowDefinitions.Add(RowDefenitionHeight(ScaleTo(130.0)));
                 Grid[] Lines = new Grid[3];
                 for (int i = 0; i < Lines.Count(); i++)
                 {
@@ -362,14 +379,14 @@ namespace StD_Player_3
                     Grid.SetRow(Lines[i], i);
                     LabelGrig.Children.Add(Lines[i]);
                 }
-                Lines[0].Margin = new Thickness(10);
+                Lines[0].Margin = new Thickness(ScaleTo(10.0));
                 StatusColorRect = SetRectangle(Lines[0], ProjectColors.Red,
                     Colors.Black, true, true);
                 Label DeskName = SetFont(SetLabel(Lines[0], 5, 0), "TimesNewRoman", 14, Colors.White, 
                     FontWeights.Normal);
                 DeskName.Content = "дека " + DeskN.ToString();
 
-                Lines[1].Margin = new Thickness(10,0,10,0);
+                Lines[1].Margin = new Thickness(ScaleTo(10.0),0, ScaleTo(10.0),0);
                 SetRectangle(Lines[1], ProjectColors.TitleRect,
                     ProjectColors.Border, true, true);
                 NameLabel = SetFont(SetLabel(Lines[1], 0, 0), "Courier New", 20, ProjectColors.FontColor,
@@ -377,13 +394,13 @@ namespace StD_Player_3
 
                 Grid[] L2 = new Grid[2];
 
-                Lines[2].ColumnDefinitions.Add(ColumnDefenitionWidth(10));
+                Lines[2].ColumnDefinitions.Add(ColumnDefenitionWidth(ScaleTo(10)));
                 for (int i = 0; i < L2.Count(); i++)
                 {
                     ColumnDefinition CD = new ColumnDefinition();
-                    CD.Width = new GridLength(50, GridUnitType.Star);
+                    CD.Width = new GridLength(ScaleTo(50), GridUnitType.Star);
                     Lines[2].ColumnDefinitions.Add(CD);
-                    Lines[2].ColumnDefinitions.Add(ColumnDefenitionWidth(10));
+                    Lines[2].ColumnDefinitions.Add(ColumnDefenitionWidth(ScaleTo(10)));
                 }
 
                 for (int i = 0; i < L2.Count(); i++)
@@ -405,8 +422,8 @@ namespace StD_Player_3
             void MakeGridStructure(Grid ParentGrid)
             {
                 ParentGrid.RowDefinitions.Add(RowDefenitionHeight());
-                ParentGrid.RowDefinitions.Add(RowDefenitionHeight(25));
-                ParentGrid.RowDefinitions.Add(RowDefenitionHeight(31));
+                ParentGrid.RowDefinitions.Add(RowDefenitionHeight(ScaleTo(25.0)));
+                ParentGrid.RowDefinitions.Add(RowDefenitionHeight(ScaleTo(50.0)));
                 ParentGrid.RowDefinitions.Add(RowDefenitionHeight());
 
                 ButtonsGrid = new Grid();
@@ -431,17 +448,19 @@ namespace StD_Player_3
             }
 
             DeskN = N;
+            Scale = scale;
             MakeGridStructure(CurGrid);
             PlayButton = SetButton(ButtonGrids[0], 0, "", PlayButton_Click, "Play");
             PauseButton = SetButton(ButtonGrids[1], 0, "", PauseButton_Click, "Pause");
             StopButton = SetButton(ButtonGrids[2], 0, "", StopButton_Click, "Stop");
             NextButton = SetButton(ButtonGrids[4], 0, "Next", NextButton_Click);
             PreviosButton = SetButton(ButtonGrids[3], 0, "Prev", PreviosButton_Click);
-            ProgressCanvas = SetCanvas(ProgressGrid, new Thickness(10, 0, 10, 0), 25);
+            ProgressCanvas = SetCanvas(ProgressGrid, new Thickness(ScaleTo(10.0), 0, 0, ScaleTo(0)), 
+                ScaleTo(25));
             BackgroundRect = SetRectangle(ProgressCanvas, ProjectColors.Green, Colors.Black, true);
             PositionRect = SetRectangle(ProgressCanvas, ProjectColors.GreenLight, Colors.Black, false);
             MiddleRect = SetRectangle(ProgressCanvas, ProjectColors.GreenSemiLight, Colors.Black, false);
-            ListCanvas = SetCanvasList(ListGrid, new Thickness(10, 0, 10, 0));
+            ListCanvas = SetCanvasList(ListGrid, new Thickness(ScaleTo(10.0), 0, ScaleTo(10.0), 0));
             TrackTimeLabel = SetLabel(ProgressCanvas,0,0);
 
             // Применение событий
@@ -485,6 +504,16 @@ namespace StD_Player_3
         /// </summary>
         public void UpdateVisualElements()
         {
+            if (CurrentTrack < 0)
+            {
+                if ("--:--" != PositionLabel.Content.ToString()) PositionLabel.Content = "--:--";
+                if ("--:--" != LengthLabel.Content.ToString()) LengthLabel.Content = "--:--";
+                if ((string)NameLabel.Content != "") NameLabel.Content = "";
+                PositionRect.Width = 0;
+                UpdateMiddleRect();
+                return;
+            }
+            
             // Вычисление текущего времени
             string Pos = PositionTime();
             if (Pos != PositionLabel.Content.ToString()) PositionLabel.Content = Pos;
@@ -508,6 +537,13 @@ namespace StD_Player_3
         /// </summary>
         private void UpdateMiddleRect()
         {
+            if (CurrentTrack < 0)
+            {
+                TrackTimeLabel.Content = "";
+                MiddleRect.Width = 0;
+                return;
+            }
+
             TrackTimeLabel.Content = PositionTrackShow
                             ? PositionTrackLabel
                             : "";
@@ -516,8 +552,8 @@ namespace StD_Player_3
             {
                 double NewPosition = MouseX * 1000 / ProgressCanvas.ActualWidth;
                 TrackTimeLabel.Foreground = Position < (NewPosition)
-                    ? ProjectColors.Solids.White
-                    : ProjectColors.Solids.Black;
+                    ? ProjectSolids.White
+                    : ProjectSolids.Black;
 
                 MiddleRect.Margin = Position < (NewPosition)
                     ? new Thickness(Position * ProgressCanvas.ActualWidth / 1000 - 0.5, 0, 0, 0)
@@ -531,6 +567,28 @@ namespace StD_Player_3
             {
                 MiddleRect.Width = 0;
             }
+        }
+
+        /// <summary>
+        /// Масштабирование значения
+        /// </summary>
+        /// <param name="Value">Значеие модельной позиции для масштабирования</param>
+        /// <returns></returns>
+        private int ScaleTo(int Value)
+        {
+            return Convert.ToInt32(Value * Scale);
+        }
+
+        /// <summary>
+        /// Масштабирование значения
+        /// </summary>
+        /// <param name="Value">Значеие модельной позиции для масштабирования</param>
+        /// <returns></returns>
+        private double ScaleTo(double Value)
+        {
+            if (Value == double.NaN)
+                return double.NaN;
+            return Value * Scale;
         }
 
         /// <summary>

@@ -27,12 +27,16 @@ namespace StD_Player_3
         public static Color Background = Color.FromRgb(0xF0, 0xF0, 0xF0);
         public static Color Gray = Color.FromRgb(0x80, 0x80, 0x80);
 
-        public static ProjectSolids Solids = new ProjectSolids();
+        public static Color LoadingBackground = Color.FromArgb(0xA0, 0xFF, 0xFF, 0xFF);
     }
 
     class ProjectSolids
     {
-        public Brush Black = new SolidColorBrush(ProjectColors.Black);
-        public Brush White = new SolidColorBrush(ProjectColors.TimeFont);
+        public static Brush Black = new SolidColorBrush(ProjectColors.Black);
+        public static Brush White = new SolidColorBrush(ProjectColors.TimeFont);
+        public static Brush Gray = new SolidColorBrush(ProjectColors.Gray);
+        public static Brush SelectedElement = new SolidColorBrush(ProjectColors.SelectedElement);
+        public static Brush Transparent = new SolidColorBrush(Colors.Transparent);
+        public static Brush LoadingBackground = new SolidColorBrush(ProjectColors.LoadingBackground);
     }
 }
