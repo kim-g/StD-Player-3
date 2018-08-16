@@ -262,3 +262,5 @@ __pycache__/
 
 # Muic DB Files
 *.sdb
+/StD_Player_3/Bass.Net.dll
+/StD_Player_3/bass.dll
