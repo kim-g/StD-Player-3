@@ -79,8 +79,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Animator.cs" />
     <Compile Include="Desk.cs" />
     <Compile Include="Drag.cs" />
+    <Compile Include="Extentions.cs" />
     <Compile Include="MisicDB.cs" />
     <Compile Include="OpenSpectacle.xaml.cs">
       <DependentUpon>OpenSpectacle.xaml</DependentUpon>

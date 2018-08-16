@@ -10,6 +10,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using Un4seen.Bass;
+using Extentions;
 
 namespace StD_Player_3
 {
@@ -20,7 +21,7 @@ namespace StD_Player_3
         private List<MusicTrack> tracklist = new List<MusicTrack>();
         private int ListElementsToShow = 9; // Сколько элементов в списке показывать до и после текущего
         private int ListHeight = 25; // Высота элемента
-        private int ListHeightMargin = 3; // Сдвиг элемента сверху 
+        private int ListHeightMargin = 6; // Сдвиг элемента сверху 
         private bool PositionTrackShow = false; // Показывать в треке Label и позицию к мышке
         private string PositionTrackLabel = "";
         private double MouseX;
@@ -47,6 +48,8 @@ namespace StD_Player_3
         protected PlayState DeskState;
         protected Label[] ListLabels;
         protected ListClick LabelClick;
+        protected Rectangle Freq;
+        protected Rectangle FreqBkg;
         protected double Scale = 1.0;
 
 
@@ -65,6 +68,7 @@ namespace StD_Player_3
                 GC.Collect();
                 tracklist = value;
                 CurrentTrack = 0;
+                UpdateList();
             }
         }
         public int CurrentTrack
@@ -108,6 +112,8 @@ namespace StD_Player_3
             // Панели
             Grid ButtonsGrid;
             Grid LabelGrig;
+            Grid InfoGrid;
+            Grid FreqGrid;
             Grid ProgressGrid;
             Grid ListGrid;
             Grid[] ButtonGrids = new Grid[5];
@@ -140,7 +146,7 @@ namespace StD_Player_3
             /// <param name="Content">Надпись</param>
             /// <param name="OnClick">Событие нажатия на кнопку</param>
             /// <param name="Image">Изображение</param>
-            Button SetButton(Panel Parent, int Left, object Content, RoutedEventHandler OnClick, 
+            Button SetButton(Panel Parent, double Left, object Content, RoutedEventHandler OnClick, 
                 string Image="")
             {
                 Button NewButton = new Button();
@@ -148,14 +154,14 @@ namespace StD_Player_3
                 NewButton.Margin = new Thickness(ScaleTo(Left), 0, 0, 0);
                 NewButton.HorizontalAlignment = HorizontalAlignment.Center;
                 NewButton.VerticalAlignment = VerticalAlignment.Center;
-                NewButton.Width = ScaleTo(75);
+                NewButton.Width = ScaleTo(75.0);
                 StackPanel stackPnl = new StackPanel();
                 stackPnl.Orientation = Orientation.Horizontal;
                 stackPnl.Margin = new Thickness(0);
                 if (Image!="")
                 {
-                    NewButton.Width = ScaleTo(32);
-                    NewButton.Height = ScaleTo(32);
+                    NewButton.Width = ScaleTo(32.0);
+                    NewButton.Height = ScaleTo(32.0);
                     Image img = new Image();
                     img.Source = new BitmapImage(new Uri(Image + ".png", UriKind.Relative))
                         { CreateOptions = BitmapCreateOptions.IgnoreImageCache };
@@ -180,7 +186,7 @@ namespace StD_Player_3
             /// <param name="Parent">Родительский элемент</param>
             /// <param name="Left">Отступ слева</param>
             /// <param name="Top">Отступ сверху</param>
-            Label SetLabel(Panel Parent, int Left, int Top)
+            Label SetLabel(Panel Parent, double Left, double Top)
             {
                 Label NewLabel = new Label();
                 Parent.Children.Add(NewLabel);
@@ -246,12 +252,25 @@ namespace StD_Player_3
             /// Создание разметки столбца
             /// </summary>
             /// <param name="width">Ширина столбца</param>
-            ColumnDefinition ColumnDefenitionWidth(int width = 0)
+            ColumnDefinition ColumnDefenitionWidth(double width = 0)
             {
                 ColumnDefinition CD = new ColumnDefinition();
                 CD.Width = width == 0
                     ? GridLength.Auto
-                    : new GridLength(ScaleTo(width));
+                    : new GridLength(width);
+                return CD;
+            }
+
+            /// <summary>
+            /// Создание разметки столбца
+            /// </summary>
+            /// <param name="width">Ширина столбца</param>
+            ColumnDefinition ColumnDefenitionWidthStar(double width=0)
+            {
+                ColumnDefinition CD = new ColumnDefinition();
+                CD.Width = width == 0
+                    ? GridLength.Auto
+                    : new GridLength(width, GridUnitType.Star);
                 return CD;
             }
 
@@ -287,7 +306,7 @@ namespace StD_Player_3
 
                 for (int i = 0; i < ListElementsToShow * 2 + 1; i++)
                 {
-                    ListLabels[i] = SetFont(SetLabel(CurCan, 0, i * ListHeight), "Courier New", 20,
+                    ListLabels[i] = SetFont(SetLabel(CurCan, 0, i * ListHeight), "Courier New", 24,
                         ProjectColors.FontColor, FontWeights.Normal);
                     SetBinding(CurCan, ListLabels[i], "ActualWidth", FrameworkElement.WidthProperty);
                     ListLabels[i].Tag = i - ListElementsToShow;
@@ -335,7 +354,7 @@ namespace StD_Player_3
                 Label SetTimeLabel(Panel Parent, string Title, Color Background)
                 {
                     
-                    Canvas MainCanvas = SetCanvas(Parent, new Thickness(0), 110);
+                    Canvas MainCanvas = SetCanvas(Parent, new Thickness(0), ScaleTo(110.0));
                     Thickness Margin = new Thickness(ScaleTo(10));
                     MainCanvas.Margin = Margin;
                     SetBinding(Parent, MainCanvas, "ActualWidth", FrameworkElement.WidthProperty);
@@ -368,6 +387,11 @@ namespace StD_Player_3
                     return TimeLabel;
                 }
 
+                InfoGrid = new Grid();
+                InfoGrid.ColumnDefinitions.Add(ColumnDefenitionWidthStar(50));
+                InfoGrid.ColumnDefinitions.Add(ColumnDefenitionWidth(ScaleTo(35.0)));
+
+
                 LabelGrig = new Grid();
                 LabelGrig.RowDefinitions.Add(RowDefenitionHeight(ScaleTo(60.0)));
                 LabelGrig.RowDefinitions.Add(RowDefenitionHeight(ScaleTo(40.0)));
@@ -379,28 +403,29 @@ namespace StD_Player_3
                     Grid.SetRow(Lines[i], i);
                     LabelGrig.Children.Add(Lines[i]);
                 }
-                Lines[0].Margin = new Thickness(ScaleTo(10.0));
+                Lines[0].Tag = "Status";
+                Lines[0].Margin = new Thickness(10, ScaleTo(10.0), 10, ScaleTo(10.0));
                 StatusColorRect = SetRectangle(Lines[0], ProjectColors.Red,
                     Colors.Black, true, true);
-                Label DeskName = SetFont(SetLabel(Lines[0], 5, 0), "TimesNewRoman", 14, Colors.White, 
-                    FontWeights.Normal);
+                Label DeskName = SetFont(SetLabel(Lines[0], 5, 0), "TimesNewRoman", 14.0, 
+                    Colors.White, FontWeights.Normal);
                 DeskName.Content = "дека " + DeskN.ToString();
 
-                Lines[1].Margin = new Thickness(ScaleTo(10.0),0, ScaleTo(10.0),0);
+                Lines[1].Margin = new Thickness(10, 0, 10, 0);
                 SetRectangle(Lines[1], ProjectColors.TitleRect,
                     ProjectColors.Border, true, true);
-                NameLabel = SetFont(SetLabel(Lines[1], 0, 0), "Courier New", 20, ProjectColors.FontColor,
-                    FontWeights.Normal);
+                NameLabel = SetFont(SetLabel(Lines[1], 0, 0), "Courier New", 20.0, 
+                    ProjectColors.FontColor, FontWeights.Normal);
 
                 Grid[] L2 = new Grid[2];
 
-                Lines[2].ColumnDefinitions.Add(ColumnDefenitionWidth(ScaleTo(10)));
+                Lines[2].ColumnDefinitions.Add(ColumnDefenitionWidth(10));
                 for (int i = 0; i < L2.Count(); i++)
                 {
                     ColumnDefinition CD = new ColumnDefinition();
-                    CD.Width = new GridLength(ScaleTo(50), GridUnitType.Star);
+                    CD.Width = new GridLength(50, GridUnitType.Star);
                     Lines[2].ColumnDefinitions.Add(CD);
-                    Lines[2].ColumnDefinitions.Add(ColumnDefenitionWidth(ScaleTo(10)));
+                    Lines[2].ColumnDefinitions.Add(ColumnDefenitionWidth(10));
                 }
 
                 for (int i = 0; i < L2.Count(); i++)
@@ -413,6 +438,25 @@ namespace StD_Player_3
                 PositionLabel = SetTimeLabel(L2[0], "Прошло", ProjectColors.Green);
                 LengthLabel = SetTimeLabel(L2[1], "Всего", ProjectColors.Red);
 
+                FreqGrid = new Grid();
+                FreqGrid.Margin = new Thickness(0, ScaleTo(10.0), ScaleTo(10.0), ScaleTo(10.0));
+                FreqBkg = new Rectangle();
+                FreqBkg.Fill = ProjectSolids.Green;
+                
+                Freq = new Rectangle()
+                {
+                    Margin = new Thickness(0, 0, 0, 0),
+                    Fill = ProjectSolids.GreenLight
+                };
+
+                FreqGrid.Children.Add(FreqBkg);
+                FreqGrid.Children.Add(Freq);
+
+                Grid.SetColumn(LabelGrig, 0);
+                Grid.SetColumn(FreqGrid, 1);
+
+                InfoGrid.Children.Add(LabelGrig);
+                InfoGrid.Children.Add(FreqGrid);
             }
 
             /// <summary>
@@ -430,14 +474,15 @@ namespace StD_Player_3
                 SetLabelGrid();
                 ProgressGrid = new Grid();
                 ListGrid = new Grid();
-                Grid.SetRow(ButtonsGrid, 2);
-                Grid.SetRow(LabelGrig, 0);
+                Grid.SetRow(InfoGrid, 0);
                 Grid.SetRow(ProgressGrid, 1);
+                Grid.SetRow(ButtonsGrid, 2);
                 Grid.SetRow(ListGrid, 3);
-                ParentGrid.Children.Add(ButtonsGrid);
-                ParentGrid.Children.Add(LabelGrig);
+                ParentGrid.Children.Add(InfoGrid);
                 ParentGrid.Children.Add(ProgressGrid);
+                ParentGrid.Children.Add(ButtonsGrid);
                 ParentGrid.Children.Add(ListGrid);
+                
                 for (int i = 0; i < ButtonGrids.Length; i++)
                 {
                     ButtonsGrid.ColumnDefinitions.Add(new ColumnDefinition());
@@ -455,8 +500,8 @@ namespace StD_Player_3
             StopButton = SetButton(ButtonGrids[2], 0, "", StopButton_Click, "Stop");
             NextButton = SetButton(ButtonGrids[4], 0, "Next", NextButton_Click);
             PreviosButton = SetButton(ButtonGrids[3], 0, "Prev", PreviosButton_Click);
-            ProgressCanvas = SetCanvas(ProgressGrid, new Thickness(ScaleTo(10.0), 0, 0, ScaleTo(0)), 
-                ScaleTo(25));
+            ProgressCanvas = SetCanvas(ProgressGrid, new Thickness(10, 0, 10, 0), 
+                25);
             BackgroundRect = SetRectangle(ProgressCanvas, ProjectColors.Green, Colors.Black, true);
             PositionRect = SetRectangle(ProgressCanvas, ProjectColors.GreenLight, Colors.Black, false);
             MiddleRect = SetRectangle(ProgressCanvas, ProjectColors.GreenSemiLight, Colors.Black, false);
@@ -483,6 +528,13 @@ namespace StD_Player_3
         /// </summary>
         protected void UpdateList()
         {
+            if (TrackList.Count == 0)
+            {
+                foreach (Label L in ListLabels)
+                    L.Content = "";
+                return;
+            }
+
             for (int i = 0; i < ListElementsToShow * 2 + 1; i++)
             {
                 if (CurrentTrack + i - ListElementsToShow < 0)
@@ -838,6 +890,17 @@ namespace StD_Player_3
         protected override void DoOnStop(object InObject)
         {
             DeskState.State = PlayState.Stop;
+        }
+
+        /// <summary>
+        /// Рисует частотную зависимость для трека
+        /// </summary>
+        public void DrawFriq()
+        {
+            Int32 Levels = Bass.BASS_ChannelGetLevel(Channel);
+            int Level = Levels.HighWord();
+
+            Animator.MoveTo(Freq, 0, FreqBkg.ActualHeight*(0xFFFF - Level), 0, 100);
         }
     }
 

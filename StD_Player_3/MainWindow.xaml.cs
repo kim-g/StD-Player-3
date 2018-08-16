@@ -46,12 +46,12 @@ namespace StD_Player_3
 
             SoundChannel.Initiate();
 
-            timer = new System.Windows.Threading.DispatcherTimer(System.Windows.Threading.DispatcherPriority.Normal);
+            timer = new DispatcherTimer(DispatcherPriority.Normal);
             timer.Tick += new EventHandler(timerTick);
             timer.Interval = new TimeSpan(0, 0, 0, 0, 100);
             timer.Start();
 
-            TimeTimer = new System.Windows.Threading.DispatcherTimer(System.Windows.Threading.DispatcherPriority.Normal);
+            TimeTimer = new DispatcherTimer(DispatcherPriority.Normal);
             TimeTimer.Tick += new EventHandler(TimeTimerTick);
             TimeTimer.Interval = new TimeSpan(0, 0, 0, 0, 500);
             TimeTimer.Start();
@@ -60,6 +60,7 @@ namespace StD_Player_3
 
             TopRow.Height = new GridLength(ScaleTo(120.0));
             BottomRow.Height = new GridLength(ScaleTo(70.0));
+            LoadButton.FontSize = ScaleTo(24.0);
             CloseButton.FontSize = ScaleTo(24.0);
             TimeLabel.FontSize = ScaleTo(48.0);
             SpNameLabel.FontSize = ScaleTo(60.0);
@@ -148,6 +149,8 @@ namespace StD_Player_3
         {
             Channel_1.UpdateVisualElements();
             Channel_2.UpdateVisualElements();
+            Channel_1.DrawFriq();
+            Channel_2.DrawFriq();
         }
 
         
@@ -159,6 +162,7 @@ namespace StD_Player_3
         private void button_Click_4(object sender, RoutedEventArgs e)
         {
             string LoadSp = OpenSpectacle.Open(this, Config.GetConfigValue("MusicDir"));
+            if (LoadSp == null) return;
             Config.SetConfigValue("file", LoadSp);
             if (File.Exists(System.IO.Path.Combine(Config.GetConfigValue("MusicDir"), LoadSp+".sdb")))
                 LoadMusic(LoadSp);

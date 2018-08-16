@@ -38,5 +38,8 @@ namespace StD_Player_3
         public static Brush SelectedElement = new SolidColorBrush(ProjectColors.SelectedElement);
         public static Brush Transparent = new SolidColorBrush(Colors.Transparent);
         public static Brush LoadingBackground = new SolidColorBrush(ProjectColors.LoadingBackground);
+        public static Brush Green = new SolidColorBrush(ProjectColors.Green);
+        public static Brush GreenLight = new SolidColorBrush(ProjectColors.GreenLight);
+        public static Brush GreenSemiLight = new SolidColorBrush(ProjectColors.GreenSemiLight);
     }
 }
