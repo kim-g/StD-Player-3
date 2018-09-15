@@ -38,7 +38,6 @@ namespace StD_Player_3
         public MainWindow()
         {
             InitializeComponent();
-            Config.SetConfigValue("Theme", (int)Theme.Dark);
             // Настройка цветов
             WindowTheme = new ProjectColors((Theme)Config.GetConfigValueInt("Theme"));
             Solids = new ProjectSolids(WindowTheme);
