@@ -72,7 +72,7 @@ namespace Extentions
         }
 
         /// <summary>
-        /// Анимация изменения размера RenderTransform.Scale
+        /// Анимация изменения положения
         /// </summary>
         /// <param name="Element">Элемент интерфейса</param>
         /// <param name="X">Конечное положение по X</param>
@@ -81,6 +81,21 @@ namespace Extentions
         public static void MoveTo(FrameworkElement Element, double X, double Y, int Wait, int Time = 10)
         {
             ThicknessAnimation TA = new ThicknessAnimation(new Thickness(X, Y, 0, 0),
+                TimeSpan.FromMilliseconds(Time));
+            TA.BeginTime = TimeSpan.FromMilliseconds(Wait);
+            Element.BeginAnimation(FrameworkElement.MarginProperty, TA);
+        }
+
+        /// <summary>
+        /// Анимация изменения отступов
+        /// </summary>
+        /// <param name="Element">Элемент интерфейса</param>
+        /// <param name="X">Конечное положение по X</param>
+        /// <param name="Y">Конечное положение по Y</param>
+        /// <param name="Time">Время анимации</param>
+        public static void Margin(FrameworkElement Element, Thickness NewMargin, int Wait, int Time = 10)
+        {
+            ThicknessAnimation TA = new ThicknessAnimation(NewMargin,
                 TimeSpan.FromMilliseconds(Time));
             TA.BeginTime = TimeSpan.FromMilliseconds(Wait);
             Element.BeginAnimation(FrameworkElement.MarginProperty, TA);

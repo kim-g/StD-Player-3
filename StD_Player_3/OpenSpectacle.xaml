@@ -15,7 +15,7 @@
         <Rectangle Stroke="Gray" StrokeThickness="2" Grid.RowSpan="3"/>
         <Grid Grid.Row="0" MouseDown="Grid_MouseDown" MouseUp="Grid_MouseUp" MouseMove="Grid_MouseMove">
             <Rectangle x:Name="TitleRect" Margin="5,5,5,0" Fill="Gray"/>
-            <Label Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="20" Content="Открыть спектакль"/>
+            <Label x:Name="TitleLabel" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="20" Content="Открыть спектакль"/>
         </Grid>
         <Grid Grid.Row="1">
             <ListBox x:Name="FileList" Margin="5" Width="520" Height="330" FontSize="20" MouseDoubleClick="LoadButton_Click"/>

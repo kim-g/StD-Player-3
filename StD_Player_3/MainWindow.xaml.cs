@@ -16,6 +16,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 using Un4seen.Bass;
+using Extentions;
 
 namespace StD_Player_3
 {
@@ -28,21 +29,36 @@ namespace StD_Player_3
         Desk Channel_2;
         DispatcherTimer timer;
         DispatcherTimer TimeTimer;
-        bool Loading = false;
+        bool Loading = true;
         SQLite.SQLiteConfig Config = new SQLite.SQLiteConfig("Config.db");
         protected double Scale;
+        public ProjectColors WindowTheme;
+        public ProjectSolids Solids;
 
         public MainWindow()
         {
             InitializeComponent();
-
-            Background = new SolidColorBrush(ProjectColors.Background);
+            Config.SetConfigValue("Theme", (int)Theme.Dark);
+            // Настройка цветов
+            WindowTheme = new ProjectColors((Theme)Config.GetConfigValueInt("Theme"));
+            Solids = new ProjectSolids(WindowTheme);
+            Background = new SolidColorBrush(WindowTheme.Background);
+            TimeLabel.Foreground = Solids.Black;
+            LoadButton.Background = Solids.Button;
+            CloseButton.Background = Solids.Button;
+            LoadButton.Foreground = Solids.Black;
+            LoadButtonLabel.Foreground = Solids.Black;
+            CloseButton.Foreground = Solids.Black;
+            LoadButton.BorderBrush = Solids.DarkGray;
+            CloseButton.BorderBrush = Solids.DarkGray;
+            //LoadButton.FocusVisualStyle = new Style(typeof(Button), )
 
             Left = 0;
             Top = 0;
             Width = SystemParameters.WorkArea.Width;
             Height = SystemParameters.WorkArea.Height;
-            TitleRect.Fill = new SolidColorBrush(ProjectColors.Gray);
+            TitleRect.Fill = Solids.Gray;
+            SpNameLabel.Foreground = Solids.ConstantWhite;
 
             SoundChannel.Initiate();
 
@@ -56,7 +72,7 @@ namespace StD_Player_3
             TimeTimer.Interval = new TimeSpan(0, 0, 0, 0, 500);
             TimeTimer.Start();
 
-            Scale = Height / 984.0; // Масштаб относительно модельного 1024 - панель задач
+            Scale = (Height-1) / 984.0; // Масштаб относительно модельного 1024 - панель задач
 
             TopRow.Height = new GridLength(ScaleTo(120.0));
             BottomRow.Height = new GridLength(ScaleTo(70.0));
@@ -64,10 +80,12 @@ namespace StD_Player_3
             CloseButton.FontSize = ScaleTo(24.0);
             TimeLabel.FontSize = ScaleTo(48.0);
             SpNameLabel.FontSize = ScaleTo(60.0);
+            ((LinearGradientBrush)Solids.LevelsOut).EndPoint = new Point(0, ScaleTo(210.0));
+            ((LinearGradientBrush)Solids.LevelsOutLight).EndPoint = new Point(0, ScaleTo(210.0));
 
-            Channel_1 = new Desk(Desk1, -1, 100, 1, Scale);
-            Channel_2 = new Desk(Desk2, 1, 100, 2, Scale);
-            LoadMusic(Config.GetConfigValue("file"));
+            Channel_1 = new Desk(Desk1, -1, 100, 1, Scale, WindowTheme, Solids);
+            Channel_2 = new Desk(Desk2, 1, 100, 2, Scale, WindowTheme, Solids);
+            
         }
 
         /// <summary>
@@ -96,38 +114,55 @@ namespace StD_Player_3
         {
             Grid LoadGrid = new Grid();
             Rectangle LoadRect = new Rectangle();
-            LoadRect.Fill = ProjectSolids.LoadingBackground;
+            LoadRect.Fill = Solids.LoadingBackground;
             LoadRect.Margin = new Thickness(0);
             LoadGrid.Children.Add(LoadRect);
-            Label LoadLabel = new Label();
-            LoadLabel.Margin = new Thickness(0);
-            LoadLabel.HorizontalAlignment = HorizontalAlignment.Center;
-            LoadLabel.VerticalAlignment = VerticalAlignment.Center;
-            LoadLabel.Content = "Загрузка спектакля";
-            LoadLabel.FontSize = ScaleTo(48.0);
-            LoadLabel.FontWeight = FontWeights.Bold;
+            Label LoadLabel = new Label()
+            {
+                Margin = new Thickness(0),
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center,
+                Content = "Загрузка спектакля",
+                FontSize = ScaleTo(48.0),
+                FontWeight = FontWeights.Bold,
+                Foreground = Solids.Black
+            };
             LoadGrid.Children.Add(LoadLabel);
             Grid.SetRow(LoadGrid, 0);
             Grid.SetRowSpan(LoadGrid, 3);
             Grid.SetColumn(LoadGrid, 0);
             Grid.SetColumnSpan(LoadGrid, 2);
             MainGrid.Children.Add(LoadGrid);
+            Thread.SpinWait(100);
 
             Loading = true;
             Dispatcher.Invoke(DispatcherPriority.ContextIdle, new Action(delegate ()
             {
-                MusicDB MDB = new MusicDB(System.IO.Path.GetFullPath(System.IO.Path.Combine(
+                MusicDB MDB = null;
+                MDB = new MusicDB(System.IO.Path.GetFullPath(System.IO.Path.Combine(
                             Config.GetConfigValue("MusicDir"),
                             System.IO.Path.ChangeExtension(MusicDBFileName, ".sdb"))));
                 SpNameLabel.Content = MDB.Name;
 
-
-                Channel_1.LoadTrackList(MDB.LoadDesk(Channel_1.DeskN));
-                Channel_2.LoadTrackList(MDB.LoadDesk(Channel_2.DeskN));
+                LoadSDB(MDB, SpNameLabel, MusicDBFileName, new Desk[2] { Channel_1, Channel_2});
 
                 MainGrid.Children.Remove(LoadGrid);
                 Loading = false;
             }));
+        }
+
+        private void LoadSDB(MusicDB MDB, Label NameLabel, string MusicDBFileName, Desk[] Channel)
+        {
+            
+
+            Task<List<MusicTrack>> LoadDesk1 = Task.Run(() => { return MDB.LoadDesk(Channel[0].DeskN); });
+            Task<List<MusicTrack>> LoadDesk2 = Task.Run(() => { return MDB.LoadDesk(Channel[1].DeskN); });
+            Task.WaitAll(new Task[2]
+                {
+                        LoadDesk1, LoadDesk2
+                });
+            Channel[0].LoadTrackList(LoadDesk1.Result);
+            Channel[1].LoadTrackList(LoadDesk2.Result);
         }
 
         private void LoadInThread(object x)
@@ -147,6 +182,7 @@ namespace StD_Player_3
 
         private void Update()
         {
+            if (Loading) return;
             Channel_1.UpdateVisualElements();
             Channel_2.UpdateVisualElements();
             Channel_1.DrawFriq();
@@ -161,7 +197,7 @@ namespace StD_Player_3
 
         private void button_Click_4(object sender, RoutedEventArgs e)
         {
-            string LoadSp = OpenSpectacle.Open(this, Config.GetConfigValue("MusicDir"));
+            string LoadSp = OpenSpectacle.Open(this, Config.GetConfigValue("MusicDir"), Solids);
             if (LoadSp == null) return;
             Config.SetConfigValue("file", LoadSp);
             if (File.Exists(System.IO.Path.Combine(Config.GetConfigValue("MusicDir"), LoadSp+".sdb")))
@@ -194,6 +230,11 @@ namespace StD_Player_3
                     Channel_2.Stop(); Channel_2.CurrentTrack++;
                     Channel_2.UpdateVisualElements(); break;
             }
+        }
+
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            LoadMusic(Config.GetConfigValue("file"));
         }
     }
 }

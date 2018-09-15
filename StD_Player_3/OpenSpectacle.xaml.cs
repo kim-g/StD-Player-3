@@ -24,16 +24,23 @@ namespace StD_Player_3
         private string Result = null;
         private Drag WindowDrag = null;
         List<string> Files;
+        ProjectSolids Solids;
 
-        public OpenSpectacle(Window DialogParentWindow)
+        public OpenSpectacle(Window DialogParentWindow, ProjectSolids WindowSolids)
         {
             InitializeComponent();
+            Solids = WindowSolids;
             Owner = DialogParentWindow;
+            TitleRect.Fill = Solids.Gray;
+            TitleLabel.Foreground = Solids.ConstantWhite;
+            Background = Solids.Background;
+            FileList.Background = Solids.Background;
+            FileList.Foreground = Solids.Black;
         }
 
-        public static string Open(Window ParentWindow, string FilesDir)
+        public static string Open(Window ParentWindow, string FilesDir, ProjectSolids WindowSolids)
         {
-            OpenSpectacle OS = new OpenSpectacle(ParentWindow);
+            OpenSpectacle OS = new OpenSpectacle(ParentWindow, WindowSolids);
             if (!(Directory.Exists(FilesDir))) Directory.CreateDirectory(FilesDir);
             OS.Files = Directory.EnumerateFiles(FilesDir,"*.sdb").ToList<string>();
             foreach (string FileToAdd in OS.Files)

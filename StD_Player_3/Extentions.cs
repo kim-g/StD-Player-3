@@ -13,8 +13,8 @@ namespace Extentions
         public static int LowWord(this int number, int newValue)
         { return (int)(number & 0xFFFF0000) + (newValue & 0x0000FFFF); }
         public static int HighWord(this int number)
-        { return (int)(number & 0xFFFF0000); }
+        { return (int)(number & 0xFFFF0000)/0xFFFF; }
         public static int HighWord(this int number, int newValue)
-        { return (number & 0x0000FFFF) + (newValue << 16); }
+        { return (number & 0x0000FFFF) / 0xFFFF + (newValue << 16); }
     }
 }

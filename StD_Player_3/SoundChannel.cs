@@ -19,6 +19,7 @@ namespace StD_Player_3
         protected long Length = 0;
         System.Windows.Threading.DispatcherTimer timer;
         public event EventHandler AutoStop;
+        private long LastPos;
 
         /// <summary>
         /// Определяет позицию трека в промилле (десятые процента)
@@ -28,7 +29,7 @@ namespace StD_Player_3
             get
             {
                 if (Channel == 0) return 0;
-                return Convert.ToInt32(Bass.BASS_ChannelGetPosition(Channel) * 1000 / Length);
+                return Convert.ToInt32(Math.Round(Bass.BASS_ChannelGetPosition(Channel) * 1000f / Length));
             }
 
             set
@@ -63,12 +64,14 @@ namespace StD_Player_3
         {
             if (!State) return;
 
-            if (Position >= 1000)
+            long Pos = BytePosition();
+            if (Pos >= Length || Pos == LastPos)
             {
                 State = false;
                 Stop();
                 OnAutoStop(new EventArgs());
             }
+            LastPos = Pos;
         }
 
         // Событие остановки по окончанию.

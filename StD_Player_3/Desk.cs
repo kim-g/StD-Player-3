@@ -51,7 +51,9 @@ namespace StD_Player_3
         protected Rectangle Freq;
         protected Rectangle FreqBkg;
         protected double Scale = 1.0;
-
+        const byte LevelsThickness = 1;
+        public ProjectColors WindowTheme;
+        public ProjectSolids Solids;
 
         // Наследуемые внешние свойства
         protected List<MusicTrack> TrackList
@@ -79,13 +81,14 @@ namespace StD_Player_3
             }
             set
             {
+                Stop();
                 сurrentrack = value;
                 if (value < 0) сurrentrack = 0;
                 if (value >= TrackList.Count) сurrentrack = TrackList.Count - 1;
 
                 ListRect.Fill = CurrentTrack < 0
-                    ? ProjectSolids.Gray
-                    : ProjectSolids.White;
+                    ? Solids.Gray
+                    : Solids.White;
 
                 CurrentTrackRect.Visibility = CurrentTrack < 0
                     ? Visibility.Hidden
@@ -107,7 +110,8 @@ namespace StD_Player_3
         /// <param name="balance">Баланс звука (левая -1, правая 1)</param>
         /// <param name="volume">Громкость трека (0..100)</param>
         /// <param name="N">Номер деки</param>
-        public Desk(Grid CurGrid, int balance, int volume, byte N, double scale)
+        public Desk(Grid CurGrid, int balance, int volume, byte N, double scale,
+            ProjectColors windowTheme, ProjectSolids solids)
         {
             // Панели
             Grid ButtonsGrid;
@@ -117,6 +121,7 @@ namespace StD_Player_3
             Grid ProgressGrid;
             Grid ListGrid;
             Grid[] ButtonGrids = new Grid[5];
+            StackPanel Buttons;
 
             // Элементы в списке для выбора 
             ListLabels = new Label[ListElementsToShow * 2 + 1];
@@ -286,20 +291,20 @@ namespace StD_Player_3
                 CurCan.MouseLeave += List_MouseLeave;
 
                 ListRect = CurrentTrack < 0 
-                    ? SetRectangle(CurCan, ProjectColors.Gray, Colors.Black, true)
-                    : SetRectangle(CurCan, Colors.White, Colors.Black, true);
+                    ? SetRectangle(CurCan, WindowTheme.Gray, WindowTheme.Black, true)
+                    : SetRectangle(CurCan, WindowTheme.White, WindowTheme.Black, true);
                 ListRect.StrokeThickness = 1;
 
                 CurrentTrackRect = CurrentTrack < 0
-                    ? SetRectangle(CurCan, ProjectColors.Gray, Colors.Gray, true)
-                    : SetRectangle(CurCan, ProjectColors.SelectedElement, 
+                    ? SetRectangle(CurCan, WindowTheme.Gray, WindowTheme.Gray, true)
+                    : SetRectangle(CurCan, WindowTheme.SelectedElement, 
                     Colors.Black, true, false);
                 CurrentTrackRect.Height = ScaleTo(ListHeight);
                 CurrentTrackRect.Margin = new Thickness(0, ScaleTo((ListElementsToShow) * ListHeight + 
                     ListHeightMargin), 0, 0);
 
-                PressedTrackRect = SetRectangle(CurCan, Colors.Yellow,
-                    Colors.Black, true, false);
+                PressedTrackRect = SetRectangle(CurCan, WindowTheme.Yellow,
+                    WindowTheme.Black, true, false);
                 PressedTrackRect.Height = ScaleTo(ListHeight);
                 PressedTrackRect.Margin = new Thickness(0, ScaleTo(0 + ListHeightMargin), 0, 0);
                 PressedTrackRect.Visibility = Visibility.Hidden;
@@ -307,7 +312,7 @@ namespace StD_Player_3
                 for (int i = 0; i < ListElementsToShow * 2 + 1; i++)
                 {
                     ListLabels[i] = SetFont(SetLabel(CurCan, 0, i * ListHeight), "Courier New", 24,
-                        ProjectColors.FontColor, FontWeights.Normal);
+                        WindowTheme.FontColor, FontWeights.Normal);
                     SetBinding(CurCan, ListLabels[i], "ActualWidth", FrameworkElement.WidthProperty);
                     ListLabels[i].Tag = i - ListElementsToShow;
                     ListLabels[i].MouseLeftButtonUp += ListElement_Click;
@@ -315,7 +320,7 @@ namespace StD_Player_3
                     ListLabels[i].MouseEnter += ListElement_MouseEnter;
                 }
                 ListLabels[ListElementsToShow].Foreground = 
-                    new SolidColorBrush(ProjectColors.SelectedElementFont);
+                    new SolidColorBrush(WindowTheme.SelectedElementFont);
                 ListLabels[ListElementsToShow].FontWeight = FontWeights.Bold;
 
                 return CurCan;
@@ -359,7 +364,7 @@ namespace StD_Player_3
                     MainCanvas.Margin = Margin;
                     SetBinding(Parent, MainCanvas, "ActualWidth", FrameworkElement.WidthProperty);
 
-                    Rectangle Ground = SetRectangle(MainCanvas, Background, Colors.Black, 
+                    Rectangle Ground = SetRectangle(MainCanvas, Background, WindowTheme.Black, 
                         true, true);
                     //Ground.Margin = Margin;
                     Label TimeLabel = SetLabel(MainCanvas, 0, 0);
@@ -369,10 +374,10 @@ namespace StD_Player_3
                     SetBinding(MainCanvas, TitleLabel, "Width", FrameworkElement.WidthProperty);
                     //SetBinding(MainCanvas, Ground, "Margin", FrameworkElement.MarginProperty);
 
-                    TimeLabel = SetFont(TimeLabel, "Courier New", 70, ProjectColors.TimeFont, 
+                    TimeLabel = SetFont(TimeLabel, "Courier New", 70, WindowTheme.TimeFont, 
                         FontWeights.Bold);
                     TimeLabel.Padding = new Thickness(0, ScaleTo(15.0), 0, 0);
-                    TitleLabel = SetFont(TitleLabel, "Cambria", 12, ProjectColors.TimeFont,
+                    TitleLabel = SetFont(TitleLabel, "Cambria", 12, WindowTheme.TimeFont,
                         FontWeights.Normal);
                     TitleLabel.Padding = new Thickness(0, ScaleTo(5.0), 0, 0);
                     MainCanvas.HorizontalAlignment = HorizontalAlignment.Center;
@@ -380,19 +385,22 @@ namespace StD_Player_3
                     TimeLabel.VerticalContentAlignment = VerticalAlignment.Center;
                     TitleLabel.HorizontalContentAlignment = HorizontalAlignment.Center;
 
-                    TitleLabel.Foreground = new SolidColorBrush(Colors.White);
-                    TimeLabel.Foreground = new SolidColorBrush(Colors.White);
+                    TitleLabel.Foreground = new SolidColorBrush(WindowTheme.White);
+                    TimeLabel.Foreground = new SolidColorBrush(WindowTheme.White);
 
                     TitleLabel.Content = Title;
+                    TimeLabel.Content = "--:--";
                     return TimeLabel;
                 }
 
                 InfoGrid = new Grid();
+                InfoGrid.Name = "InfoGrid";
                 InfoGrid.ColumnDefinitions.Add(ColumnDefenitionWidthStar(50));
                 InfoGrid.ColumnDefinitions.Add(ColumnDefenitionWidth(ScaleTo(35.0)));
 
 
                 LabelGrig = new Grid();
+                LabelGrig.Name = "LabelGrig";
                 LabelGrig.RowDefinitions.Add(RowDefenitionHeight(ScaleTo(60.0)));
                 LabelGrig.RowDefinitions.Add(RowDefenitionHeight(ScaleTo(40.0)));
                 LabelGrig.RowDefinitions.Add(RowDefenitionHeight(ScaleTo(130.0)));
@@ -403,22 +411,24 @@ namespace StD_Player_3
                     Grid.SetRow(Lines[i], i);
                     LabelGrig.Children.Add(Lines[i]);
                 }
-                Lines[0].Tag = "Status";
+                Lines[0].Name = "StatusGrid";
                 Lines[0].Margin = new Thickness(10, ScaleTo(10.0), 10, ScaleTo(10.0));
-                StatusColorRect = SetRectangle(Lines[0], ProjectColors.Red,
+                StatusColorRect = SetRectangle(Lines[0], WindowTheme.Red,
                     Colors.Black, true, true);
-                Label DeskName = SetFont(SetLabel(Lines[0], 5, 0), "TimesNewRoman", 14.0, 
-                    Colors.White, FontWeights.Normal);
+                Label DeskName = SetFont(SetLabel(Lines[0], 5, 0), "TimesNewRoman", 14.0,
+                    WindowTheme.White, FontWeights.Normal);
                 DeskName.Content = "дека " + DeskN.ToString();
 
+                Lines[1].Name = "NameGrid";
                 Lines[1].Margin = new Thickness(10, 0, 10, 0);
-                SetRectangle(Lines[1], ProjectColors.TitleRect,
-                    ProjectColors.Border, true, true);
+                SetRectangle(Lines[1], WindowTheme.TitleRect,
+                    WindowTheme.Border, true, true);
                 NameLabel = SetFont(SetLabel(Lines[1], 0, 0), "Courier New", 20.0, 
-                    ProjectColors.FontColor, FontWeights.Normal);
+                    WindowTheme.FontColor, FontWeights.Normal);
 
                 Grid[] L2 = new Grid[2];
 
+                Lines[2].Name = "TimeGrid";
                 Lines[2].ColumnDefinitions.Add(ColumnDefenitionWidth(10));
                 for (int i = 0; i < L2.Count(); i++)
                 {
@@ -435,18 +445,25 @@ namespace StD_Player_3
                     Grid.SetColumn(L2[i], i*2+1);
                     Lines[2].Children.Add(L2[i]);
                 }
-                PositionLabel = SetTimeLabel(L2[0], "Прошло", ProjectColors.Green);
-                LengthLabel = SetTimeLabel(L2[1], "Всего", ProjectColors.Red);
+                PositionLabel = SetTimeLabel(L2[0], "Прошло", WindowTheme.Green);
+                LengthLabel = SetTimeLabel(L2[1], "Всего", WindowTheme.Red);
 
                 FreqGrid = new Grid();
+                FreqGrid.Name = "FreqGrid";
                 FreqGrid.Margin = new Thickness(0, ScaleTo(10.0), ScaleTo(10.0), ScaleTo(10.0));
-                FreqBkg = new Rectangle();
-                FreqBkg.Fill = ProjectSolids.Green;
-                
+                FreqBkg = new Rectangle()
+                {
+                    Name = "FreqBkg",
+                    Fill = Solids.LevelsOutLight,
+                    Stroke = Solids.Black,
+                    StrokeThickness = LevelsThickness
+                };
+
                 Freq = new Rectangle()
                 {
-                    Margin = new Thickness(0, 0, 0, 0),
-                    Fill = ProjectSolids.GreenLight
+                    Margin = new Thickness(LevelsThickness),
+                    Fill = Solids.LevelsOut,
+                    Name = "Freq"
                 };
 
                 FreqGrid.Children.Add(FreqBkg);
@@ -470,10 +487,16 @@ namespace StD_Player_3
                 ParentGrid.RowDefinitions.Add(RowDefenitionHeight(ScaleTo(50.0)));
                 ParentGrid.RowDefinitions.Add(RowDefenitionHeight());
 
-                ButtonsGrid = new Grid();
+                ButtonsGrid = new Grid()
+                {
+                    Name = "ButtonsGrid",
+                    HorizontalAlignment = HorizontalAlignment.Center
+                };
                 SetLabelGrid();
                 ProgressGrid = new Grid();
+                ProgressGrid.Name = "ProgressGrid";
                 ListGrid = new Grid();
+                ListGrid.Name = "ListGrid";
                 Grid.SetRow(InfoGrid, 0);
                 Grid.SetRow(ProgressGrid, 1);
                 Grid.SetRow(ButtonsGrid, 2);
@@ -482,29 +505,26 @@ namespace StD_Player_3
                 ParentGrid.Children.Add(ProgressGrid);
                 ParentGrid.Children.Add(ButtonsGrid);
                 ParentGrid.Children.Add(ListGrid);
-                
-                for (int i = 0; i < ButtonGrids.Length; i++)
+                Buttons = new StackPanel()
                 {
-                    ButtonsGrid.ColumnDefinitions.Add(new ColumnDefinition());
-                    ButtonGrids[i] = new Grid();
-                    Grid.SetColumn(ButtonGrids[i], i);
-                    ButtonsGrid.Children.Add(ButtonGrids[i]);
-                }
+                    Orientation = Orientation.Horizontal
+                };
+                ButtonsGrid.Children.Add(Buttons);
             }
 
+            WindowTheme = windowTheme;
+            Solids = solids;
             DeskN = N;
             Scale = scale;
             MakeGridStructure(CurGrid);
-            PlayButton = SetButton(ButtonGrids[0], 0, "", PlayButton_Click, "Play");
-            PauseButton = SetButton(ButtonGrids[1], 0, "", PauseButton_Click, "Pause");
-            StopButton = SetButton(ButtonGrids[2], 0, "", StopButton_Click, "Stop");
-            NextButton = SetButton(ButtonGrids[4], 0, "Next", NextButton_Click);
-            PreviosButton = SetButton(ButtonGrids[3], 0, "Prev", PreviosButton_Click);
+            PlayButton = SetButton(Buttons, 0, "", PlayButton_Click, "Play");
+            PauseButton = SetButton(Buttons, 20, "", PauseButton_Click, "Pause");
+            StopButton = SetButton(Buttons, 20, "", StopButton_Click, "Stop");
             ProgressCanvas = SetCanvas(ProgressGrid, new Thickness(10, 0, 10, 0), 
                 25);
-            BackgroundRect = SetRectangle(ProgressCanvas, ProjectColors.Green, Colors.Black, true);
-            PositionRect = SetRectangle(ProgressCanvas, ProjectColors.GreenLight, Colors.Black, false);
-            MiddleRect = SetRectangle(ProgressCanvas, ProjectColors.GreenSemiLight, Colors.Black, false);
+            BackgroundRect = SetRectangle(ProgressCanvas, WindowTheme.Green, WindowTheme.Black, true);
+            PositionRect = SetRectangle(ProgressCanvas, WindowTheme.GreenLight, WindowTheme.Black, false);
+            MiddleRect = SetRectangle(ProgressCanvas, WindowTheme.GreenSemiLight, WindowTheme.Black, false);
             ListCanvas = SetCanvasList(ListGrid, new Thickness(ScaleTo(10.0), 0, ScaleTo(10.0), 0));
             TrackTimeLabel = SetLabel(ProgressCanvas,0,0);
 
@@ -516,7 +536,7 @@ namespace StD_Player_3
             ProgressCanvas.MouseEnter += TrackLabel_MouseEnter;
             ProgressCanvas.MouseLeave += TrackLabel_MouseLeave;
 
-            DeskState = new PlayState(StatusColorRect);
+            DeskState = new PlayState(StatusColorRect, Solids);
             Balance = balance;
             Volume = volume;
             LabelClick = new ListClick(PressedTrackRect, ListHeightMargin);
@@ -604,8 +624,8 @@ namespace StD_Player_3
             {
                 double NewPosition = MouseX * 1000 / ProgressCanvas.ActualWidth;
                 TrackTimeLabel.Foreground = Position < (NewPosition)
-                    ? ProjectSolids.White
-                    : ProjectSolids.Black;
+                    ? Solids.ConstantWhite
+                    : Solids.ConstantBlack;
 
                 MiddleRect.Margin = Position < (NewPosition)
                     ? new Thickness(Position * ProgressCanvas.ActualWidth / 1000 - 0.5, 0, 0, 0)
@@ -897,10 +917,27 @@ namespace StD_Player_3
         /// </summary>
         public void DrawFriq()
         {
-            Int32 Levels = Bass.BASS_ChannelGetLevel(Channel);
-            int Level = Levels.HighWord();
+            int Level;
+            if (State)
+            {
+                Int32 Levels = Bass.BASS_ChannelGetLevel(Channel);
+                Level = Balance == 1 ? Levels.HighWord() : Levels.LowWord();
+            }
+            else Level = 0;
 
-            Animator.MoveTo(Freq, 0, FreqBkg.ActualHeight*(0xFFFF - Level), 0, 100);
+            double db = 10 * Math.Log10(Level / 32768f);
+            db = db < -23 ? -23 : db;
+
+            double NewHeight =  FreqBkg.ActualHeight * ( 0 - db / 23);
+            if (NewHeight < LevelsThickness) NewHeight = LevelsThickness;
+            if (NewHeight > FreqBkg.ActualHeight - LevelsThickness)
+                NewHeight = FreqBkg.ActualHeight - LevelsThickness;
+
+            /*int speed = NewHeight > Freq.Margin.Top ? 90 : 10;
+            if (NewHeight - Freq.Margin.Bottom > FreqBkg.ActualHeight * 0.2)
+                NewHeight = Freq.Margin.Bottom + FreqBkg.ActualHeight * 0.2;*/
+            Animator.Margin(Freq, new Thickness(LevelsThickness, LevelsThickness, LevelsThickness, 
+                FreqBkg.ActualHeight - NewHeight), 0, 100);
         }
     }
 
@@ -1044,19 +1081,22 @@ namespace StD_Player_3
         // Внутренние параметры
         private byte state = 0;
         private Rectangle Rect;
-        private Brush StopBrush = new SolidColorBrush(ProjectColors.Red);
-        private Brush PlayBrush = new SolidColorBrush(ProjectColors.Green);
-        private Brush PauseBrush = new SolidColorBrush(ProjectColors.Yellow);
+        private Brush StopBrush;
+        private Brush PlayBrush;
+        private Brush PauseBrush;
 
         // Константы
         public const byte Stop = 0;
         public const byte Play = 1;
         public const byte Pause = 2;
 
-        public PlayState(Rectangle StateRect)
+        public PlayState(Rectangle StateRect, ProjectSolids Solids)
         {
             Rect = StateRect;
-        }
+            StopBrush = Solids.Red;
+            PlayBrush = Solids.Green;
+            PauseBrush = Solids.Yellow;
+    }
 
         public byte State
         {
