@@ -71,7 +71,7 @@ namespace StD_Player_3
             TimeTimer.Interval = new TimeSpan(0, 0, 0, 0, 500);
             TimeTimer.Start();
 
-            Scale = (Height-1) / 984.0; // Масштаб относительно модельного 1024 - панель задач
+            Scale = (Height-1) / 984.0*0.99; // Масштаб относительно модельного 1024 - панель задач
 
             TopRow.Height = new GridLength(ScaleTo(120.0));
             BottomRow.Height = new GridLength(ScaleTo(70.0));
