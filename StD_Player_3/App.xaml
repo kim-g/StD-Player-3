@@ -4,6 +4,7 @@
              xmlns:local="clr-namespace:StD_Player_3"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-         
+
+        <SolidColorBrush x:Key="ButtonBrush" Color="Orange"/>
     </Application.Resources>
 </Application>

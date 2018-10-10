@@ -52,8 +52,6 @@ namespace StD_Player_3
         protected Rectangle FreqBkg;
         protected double Scale = 1.0;
         const byte LevelsThickness = 1;
-        public ProjectColors WindowTheme;
-        public ProjectSolids Solids;
 
         // Наследуемые внешние свойства
         protected List<MusicTrack> TrackList
@@ -86,10 +84,10 @@ namespace StD_Player_3
                 if (value < 0) сurrentrack = 0;
                 if (value >= TrackList.Count) сurrentrack = TrackList.Count - 1;
 
-                ListRect.Fill = CurrentTrack < 0
-                    ? Solids.Gray
-                    : Solids.White;
-
+                string Fill = CurrentTrack < 0
+                    ? "Gray"
+                    : "DeepBkgd";
+                ListRect.SetResourceReference(Rectangle.FillProperty, Fill);
                 CurrentTrackRect.Visibility = CurrentTrack < 0
                     ? Visibility.Hidden
                     : Visibility.Visible;
@@ -110,8 +108,7 @@ namespace StD_Player_3
         /// <param name="balance">Баланс звука (левая -1, правая 1)</param>
         /// <param name="volume">Громкость трека (0..100)</param>
         /// <param name="N">Номер деки</param>
-        public Desk(Grid CurGrid, int balance, int volume, byte N, double scale,
-            ProjectColors windowTheme, ProjectSolids solids)
+        public Desk(Grid CurGrid, int balance, int volume, byte N, double scale)
         {
             // Панели
             Grid ButtonsGrid;
@@ -230,6 +227,7 @@ namespace StD_Player_3
                 bool BindHeight = true)
             {
                 Rectangle NewRect = new Rectangle();
+                NewRect.SetResourceReference(Rectangle.FillProperty, Fill);
                 NewRect.Fill = new SolidColorBrush(Fill);
                 NewRect.Stroke = new SolidColorBrush(Stroke);
                 if (BindHeight)
@@ -239,7 +237,28 @@ namespace StD_Player_3
                 Parent.Children.Add(NewRect);
                 return NewRect;
             }
-
+            
+            /// <summary>
+            /// Создание прямоугольника и привязка его к родителю
+            /// </summary>
+            /// <param name="Parent">Родительский элемент</param>
+            /// <param name="Fill">Цвет заливки</param>
+            /// <param name="Stroke">Цвет обводки</param>
+            /// <param name="BindWidth">Привязывать ли по ширине к родителю</param>
+            /// <param name="BindHeight">Привязывать ли по высоте к родителю</param>
+            Rectangle SetRectangleRes(Panel Parent, string Fill, string Stroke, bool BindWidth,
+                bool BindHeight = true)
+            {
+                Rectangle NewRect = new Rectangle();
+                NewRect.SetResourceReference(Rectangle.FillProperty, Fill);
+                NewRect.SetResourceReference(Rectangle.StrokeProperty, Stroke);
+                if (BindHeight)
+                    SetBinding(Parent, NewRect, "Height", FrameworkElement.HeightProperty);
+                if (BindWidth)
+                    SetBinding(Parent, NewRect, "ActualWidth", FrameworkElement.WidthProperty);
+                Parent.Children.Add(NewRect);
+                return NewRect;
+            }
             /// <summary>
             /// Создание разметки строки
             /// </summary>
@@ -291,36 +310,36 @@ namespace StD_Player_3
                 CurCan.MouseLeave += List_MouseLeave;
 
                 ListRect = CurrentTrack < 0 
-                    ? SetRectangle(CurCan, WindowTheme.Gray, WindowTheme.Black, true)
-                    : SetRectangle(CurCan, WindowTheme.White, WindowTheme.Black, true);
+                    ? SetRectangleRes(CurCan, "Gray", "Border", true)
+                    : SetRectangleRes(CurCan, "DeepBkgd", "Foreground", true);
                 ListRect.StrokeThickness = 1;
 
                 CurrentTrackRect = CurrentTrack < 0
-                    ? SetRectangle(CurCan, WindowTheme.Gray, WindowTheme.Gray, true)
-                    : SetRectangle(CurCan, WindowTheme.SelectedElement, 
-                    Colors.Black, true, false);
+                    ? SetRectangleRes(CurCan, "Gray", "Gray", true)
+                    : SetRectangleRes(CurCan, "SelectedElement", 
+                    "Foreground", true, false);
                 CurrentTrackRect.Height = ScaleTo(ListHeight);
                 CurrentTrackRect.Margin = new Thickness(0, ScaleTo((ListElementsToShow) * ListHeight + 
                     ListHeightMargin), 0, 0);
 
-                PressedTrackRect = SetRectangle(CurCan, WindowTheme.Yellow,
-                    WindowTheme.Black, true, false);
+                PressedTrackRect = SetRectangleRes(CurCan, "Yellow",
+                    "Foreground", true, false);
                 PressedTrackRect.Height = ScaleTo(ListHeight);
                 PressedTrackRect.Margin = new Thickness(0, ScaleTo(0 + ListHeightMargin), 0, 0);
                 PressedTrackRect.Visibility = Visibility.Hidden;
 
                 for (int i = 0; i < ListElementsToShow * 2 + 1; i++)
                 {
-                    ListLabels[i] = SetFont(SetLabel(CurCan, 0, i * ListHeight), "Courier New", 24,
-                        WindowTheme.FontColor, FontWeights.Normal);
+                    ListLabels[i] = SetFontRes(SetLabel(CurCan, 0, i * ListHeight), "Courier New", 24,
+                        "FontColor", FontWeights.Normal);
+                    ListLabels[i].SetResourceReference(Label.ForegroundProperty, "FontColor");
                     SetBinding(CurCan, ListLabels[i], "ActualWidth", FrameworkElement.WidthProperty);
                     ListLabels[i].Tag = i - ListElementsToShow;
                     ListLabels[i].MouseLeftButtonUp += ListElement_Click;
                     ListLabels[i].MouseLeftButtonDown += ListElement_MouseDown;
                     ListLabels[i].MouseEnter += ListElement_MouseEnter;
                 }
-                ListLabels[ListElementsToShow].Foreground = 
-                    new SolidColorBrush(WindowTheme.SelectedElementFont);
+                ListLabels[ListElementsToShow].SetResourceReference(Label.ForegroundProperty, "SelectedElementFont"); ;
                 ListLabels[ListElementsToShow].FontWeight = FontWeights.Bold;
 
                 return CurCan;
@@ -345,6 +364,25 @@ namespace StD_Player_3
             }
 
             /// <summary>
+            /// Настройка шрифта надписи и вывод в Label
+            /// </summary>
+            /// <param name="Input">Входящий Label</param>
+            /// <param name="FontName">Имя шрифта</param>
+            /// <param name="FontSize">Размер шрифта</param>
+            /// <param name="FontColor">Цвет шрифта</param>
+            /// <param name="Weight">Вес шрифта</param>
+            Label SetFontRes(Label Input, string FontName, double FontSize, string FontColor,
+                FontWeight Weight)
+            {
+                Input.FontFamily = new FontFamily(FontName);
+                Input.FontSize = ScaleTo(FontSize);
+                Input.SetResourceReference(Label.ForegroundProperty, FontColor);
+                Input.FontWeight = Weight;
+                return Input;
+            }
+
+
+            /// <summary>
             /// Настройка блока вывода информации о проигрываемом треке
             /// </summary>
             void SetLabelGrid()
@@ -356,7 +394,7 @@ namespace StD_Player_3
                 /// <param name="Parent">Родительский элемент</param>
                 /// <param name="Title">Текст заголовка сверху</param>
                 /// <param name="Background">Цвет фона</param>
-                Label SetTimeLabel(Panel Parent, string Title, Color Background)
+                Label SetTimeLabel(Panel Parent, string Title, string Background)
                 {
                     
                     Canvas MainCanvas = SetCanvas(Parent, new Thickness(0), ScaleTo(110.0));
@@ -364,7 +402,7 @@ namespace StD_Player_3
                     MainCanvas.Margin = Margin;
                     SetBinding(Parent, MainCanvas, "ActualWidth", FrameworkElement.WidthProperty);
 
-                    Rectangle Ground = SetRectangle(MainCanvas, Background, WindowTheme.Black, 
+                    Rectangle Ground = SetRectangleRes(MainCanvas, Background, "Foreground", 
                         true, true);
                     //Ground.Margin = Margin;
                     Label TimeLabel = SetLabel(MainCanvas, 0, 0);
@@ -374,10 +412,10 @@ namespace StD_Player_3
                     SetBinding(MainCanvas, TitleLabel, "Width", FrameworkElement.WidthProperty);
                     //SetBinding(MainCanvas, Ground, "Margin", FrameworkElement.MarginProperty);
 
-                    TimeLabel = SetFont(TimeLabel, "Courier New", 70, WindowTheme.TimeFont, 
+                    TimeLabel = SetFontRes(TimeLabel, "Courier New", 70, "TimeFont", 
                         FontWeights.Bold);
                     TimeLabel.Padding = new Thickness(0, ScaleTo(15.0), 0, 0);
-                    TitleLabel = SetFont(TitleLabel, "Cambria", 12, WindowTheme.TimeFont,
+                    TitleLabel = SetFontRes(TitleLabel, "Cambria", 12, "TimeFont",
                         FontWeights.Normal);
                     TitleLabel.Padding = new Thickness(0, ScaleTo(5.0), 0, 0);
                     MainCanvas.HorizontalAlignment = HorizontalAlignment.Center;
@@ -385,8 +423,8 @@ namespace StD_Player_3
                     TimeLabel.VerticalContentAlignment = VerticalAlignment.Center;
                     TitleLabel.HorizontalContentAlignment = HorizontalAlignment.Center;
 
-                    TitleLabel.Foreground = new SolidColorBrush(WindowTheme.White);
-                    TimeLabel.Foreground = new SolidColorBrush(WindowTheme.White);
+                    TitleLabel.SetResourceReference(Label.ForegroundProperty, "DeepBkgd");
+                    TimeLabel.SetResourceReference(Label.ForegroundProperty, "DeepBkgd");
 
                     TitleLabel.Content = Title;
                     TimeLabel.Content = "--:--";
@@ -413,18 +451,17 @@ namespace StD_Player_3
                 }
                 Lines[0].Name = "StatusGrid";
                 Lines[0].Margin = new Thickness(10, ScaleTo(10.0), 10, ScaleTo(10.0));
-                StatusColorRect = SetRectangle(Lines[0], WindowTheme.Red,
-                    Colors.Black, true, true);
-                Label DeskName = SetFont(SetLabel(Lines[0], 5, 0), "TimesNewRoman", 14.0,
-                    WindowTheme.White, FontWeights.Normal);
+                StatusColorRect = SetRectangleRes(Lines[0], "Red",
+                    "Foreground", true, true);
+                Label DeskName = SetFontRes(SetLabel(Lines[0], 5, 0), "TimesNewRoman", 14.0,
+                    "DeepBkgd", FontWeights.Normal);
                 DeskName.Content = "дека " + DeskN.ToString();
 
                 Lines[1].Name = "NameGrid";
                 Lines[1].Margin = new Thickness(10, 0, 10, 0);
-                SetRectangle(Lines[1], WindowTheme.TitleRect,
-                    WindowTheme.Border, true, true);
-                NameLabel = SetFont(SetLabel(Lines[1], 0, 0), "Courier New", 20.0, 
-                    WindowTheme.FontColor, FontWeights.Normal);
+                SetRectangleRes(Lines[1], "TitleRect", "BorderSolid", true, true);
+                NameLabel = SetFontRes(SetLabel(Lines[1], 0, 0), "Courier New", 20.0, 
+                    "FontColor", FontWeights.Normal);
 
                 Grid[] L2 = new Grid[2];
 
@@ -445,8 +482,8 @@ namespace StD_Player_3
                     Grid.SetColumn(L2[i], i*2+1);
                     Lines[2].Children.Add(L2[i]);
                 }
-                PositionLabel = SetTimeLabel(L2[0], "Прошло", WindowTheme.Green);
-                LengthLabel = SetTimeLabel(L2[1], "Всего", WindowTheme.Red);
+                PositionLabel = SetTimeLabel(L2[0], "Прошло", "Green");
+                LengthLabel = SetTimeLabel(L2[1], "Всего", "Red");
 
                 FreqGrid = new Grid();
                 FreqGrid.Name = "FreqGrid";
@@ -454,15 +491,15 @@ namespace StD_Player_3
                 FreqBkg = new Rectangle()
                 {
                     Name = "FreqBkg",
-                    Fill = Solids.LevelsOutLight,
-                    Stroke = Solids.Black,
+                    Fill = MainWindow.LevelsI,
                     StrokeThickness = LevelsThickness
                 };
+                FreqBkg.SetResourceReference(Rectangle.StrokeProperty, "BorderSolid");
 
                 Freq = new Rectangle()
                 {
                     Margin = new Thickness(LevelsThickness),
-                    Fill = Solids.LevelsOut,
+                    Fill = MainWindow.LevelsO,
                     Name = "Freq"
                 };
 
@@ -512,8 +549,6 @@ namespace StD_Player_3
                 ButtonsGrid.Children.Add(Buttons);
             }
 
-            WindowTheme = windowTheme;
-            Solids = solids;
             DeskN = N;
             Scale = scale;
             MakeGridStructure(CurGrid);
@@ -522,9 +557,9 @@ namespace StD_Player_3
             StopButton = SetButton(Buttons, 20, "", StopButton_Click, "Stop");
             ProgressCanvas = SetCanvas(ProgressGrid, new Thickness(10, 0, 10, 0), 
                 25);
-            BackgroundRect = SetRectangle(ProgressCanvas, WindowTheme.Green, WindowTheme.Black, true);
-            PositionRect = SetRectangle(ProgressCanvas, WindowTheme.GreenLight, WindowTheme.Black, false);
-            MiddleRect = SetRectangle(ProgressCanvas, WindowTheme.GreenSemiLight, WindowTheme.Black, false);
+            BackgroundRect = SetRectangleRes(ProgressCanvas, "Green", "Border", true);
+            PositionRect = SetRectangleRes(ProgressCanvas, "GreenLight", "Border", false);
+            MiddleRect = SetRectangleRes(ProgressCanvas, "GreenSemiLight", "Border", false);
             ListCanvas = SetCanvasList(ListGrid, new Thickness(ScaleTo(10.0), 0, ScaleTo(10.0), 0));
             TrackTimeLabel = SetLabel(ProgressCanvas,0,0);
 
@@ -536,7 +571,7 @@ namespace StD_Player_3
             ProgressCanvas.MouseEnter += TrackLabel_MouseEnter;
             ProgressCanvas.MouseLeave += TrackLabel_MouseLeave;
 
-            DeskState = new PlayState(StatusColorRect, Solids);
+            DeskState = new PlayState(StatusColorRect);
             Balance = balance;
             Volume = volume;
             LabelClick = new ListClick(PressedTrackRect, ListHeightMargin);
@@ -623,9 +658,10 @@ namespace StD_Player_3
             if (PositionTrackShow)
             {
                 double NewPosition = MouseX * 1000 / ProgressCanvas.ActualWidth;
-                TrackTimeLabel.Foreground = Position < (NewPosition)
-                    ? Solids.ConstantWhite
-                    : Solids.ConstantBlack;
+                string ForeStr = Position < (NewPosition)
+                    ? "White"
+                    : "Black";
+                TrackTimeLabel.SetResourceReference(Label.ForegroundProperty, ForeStr);
 
                 MiddleRect.Margin = Position < (NewPosition)
                     ? new Thickness(Position * ProgressCanvas.ActualWidth / 1000 - 0.5, 0, 0, 0)
@@ -1090,13 +1126,10 @@ namespace StD_Player_3
         public const byte Play = 1;
         public const byte Pause = 2;
 
-        public PlayState(Rectangle StateRect, ProjectSolids Solids)
+        public PlayState(Rectangle StateRect)
         {
             Rect = StateRect;
-            StopBrush = Solids.Red;
-            PlayBrush = Solids.Green;
-            PauseBrush = Solids.Yellow;
-    }
+        }
 
         public byte State
         {
@@ -1112,19 +1145,19 @@ namespace StD_Player_3
 
                 if (value == Stop)
                 {
-                    Rect.Fill = StopBrush;
+                    Rect.SetResourceReference(Shape.FillProperty, "Red");
                     return;
                 }
 
                 if (value == Play)
                 {
-                    Rect.Fill = PlayBrush;
+                    Rect.SetResourceReference(Shape.FillProperty, "Green");
                     return;
                 }
 
                 if (value == Pause)
                 {
-                    Rect.Fill = PauseBrush;
+                    Rect.SetResourceReference(Shape.FillProperty, "Yellow");
                     return;
                 }
             }

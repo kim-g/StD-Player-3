@@ -3,16 +3,12 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:StD_Player_3"
-        xmlns:System="clr-namespace:System;assembly=mscorlib" x:Class="StD_Player_3.MainWindow"
+        x:Class="StD_Player_3.MainWindow"
         mc:Ignorable="d"
-        Title="MainWindow" Height="348.91" Width="655.423" WindowStyle="None" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" KeyDown="Window_KeyDown" Background="White" Loaded="Window_Loaded">
-    <Window.Resources>
-
-        
-    </Window.Resources>
+        Title="MainWindow" Height="356.41" Width="949.423" WindowStyle="None" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" KeyDown="Window_KeyDown" Background="White" Loaded="Window_Loaded">
     
-    <Grid x:Name="MainGrid" RenderTransformOrigin="0,0">
+
+    <Grid x:Name="MainGrid" RenderTransformOrigin="0,0" Background="{DynamicResource Background}">
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>
             <ColumnDefinition/>
@@ -23,8 +19,8 @@
             <RowDefinition x:Name="BottomRow" Height="70"/>
         </Grid.RowDefinitions>
         <Grid Grid.Column="0" Grid.Row="0" x:Name="Info" Margin="0,0,0,0" Grid.ColumnSpan="2">
-            <Rectangle x:Name="TitleRect" Margin="10" Fill="Gray" />
-            <Label x:Name="SpNameLabel" FontSize="60" TextOptions.TextHintingMode="Fixed" HorizontalAlignment="Center" Margin="10" Background="#00808080" BorderBrush="Gray" FontFamily="Times New Roman" Content="Загрузка спектакля" FontWeight="Bold" Foreground="White" VerticalAlignment="Center"/>
+            <Rectangle x:Name="TitleRect" Margin="10" Fill="{DynamicResource Gray}" />
+            <Label x:Name="SpNameLabel" FontSize="60" TextOptions.TextHintingMode="Fixed" HorizontalAlignment="Center" Margin="10" Background="{DynamicResource Gray}" BorderBrush="{DynamicResource Gray}" FontFamily="Times New Roman" Content="Загрузка спектакля" FontWeight="Bold" Foreground="{DynamicResource White}" VerticalAlignment="Center"/>
         </Grid>
         <Grid Grid.Column="0" Grid.Row="1" x:Name="Desk1" Margin="0"/>
         <Grid Grid.Column="1" Grid.Row="1" x:Name="Desk2" Margin="0,0,0,0"/>
@@ -35,20 +31,18 @@
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
             <Grid Margin="0">
-                <Button x:Name="LoadButton" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="24" Padding="10,1" Height="{Binding ActualHeight, ElementName=CloseButton, Mode=OneWay}" Width="{Binding ActualWidth, ElementName=CloseButton, Mode=OneWay}" Margin="20,0" Click="button_Click_4">
+                <Button x:Name="LoadButton" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="24" Padding="10,1" Height="{Binding ActualHeight, ElementName=CloseButton, Mode=OneWay}" Width="{Binding ActualWidth, ElementName=CloseButton, Mode=OneWay}" Margin="20,0" Click="button_Click_4" Style="{DynamicResource StandartBtn}">
                     <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Horizontal">
                         <Image Source="images/Open.png" Stretch="Fill" Width="32" HorizontalAlignment="Center" VerticalAlignment="Center" Height="32" />
-                        <Label x:Name="LoadButtonLabel" HorizontalAlignment="Center" VerticalAlignment="Center">Выбрать спектакль</Label>
-
-
+                        <Label x:Name="LoadButtonLabel" Foreground="{DynamicResource Foreground}" HorizontalAlignment="Center" VerticalAlignment="Center">Выбрать спектакль</Label>
                     </StackPanel>
                 </Button>
             </Grid>
             <Grid Grid.Column="1" Margin="0" HorizontalAlignment="Center" VerticalAlignment="Center">
-                <Label x:Name="TimeLabel" Content="12:00" HorizontalAlignment="Center" VerticalAlignment="Center" FontFamily="Tahoma" FontSize="48" Foreground="White"/>
+                <Label x:Name="TimeLabel" Content="12:00" HorizontalAlignment="Center" VerticalAlignment="Center" FontFamily="Tahoma" FontSize="48" Foreground="{DynamicResource Foreground}"/>
             </Grid>
             <Grid Grid.Column="2" Margin="0">
-                <Button x:Name="CloseButton" Content="Выключить проигрователь" HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="24" Margin="20,0" Padding="20,1" Click="Button_Click_3" Height="46"/>
+                <Button x:Name="CloseButton" Content="Выключить проигрователь" HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="24" Margin="20,0" Click="Button_Click_3" Height="46" Style="{DynamicResource StandartBtn}"/>
             </Grid>
         </Grid>
     </Grid>

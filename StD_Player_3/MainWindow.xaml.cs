@@ -32,32 +32,22 @@ namespace StD_Player_3
         bool Loading = true;
         SQLite.SQLiteConfig Config = new SQLite.SQLiteConfig("Config.db");
         protected double Scale;
-        public ProjectColors WindowTheme;
-        public ProjectSolids Solids;
+        public static LinearGradientBrush LevelsO;
+        public static LinearGradientBrush LevelsI;
 
         public MainWindow()
         {
+            Application.Current.Resources.MergedDictionaries.Clear();
+            Application.Current.Resources.MergedDictionaries.Add(
+                new ResourceDictionary() { Source = new Uri($"pack://application:,,,/{Config.GetConfigValue("Theme")}.xaml") });
+
             InitializeComponent();
             // Настройка цветов
-            WindowTheme = new ProjectColors((Theme)Config.GetConfigValueInt("Theme"));
-            Solids = new ProjectSolids(WindowTheme);
-            Background = new SolidColorBrush(WindowTheme.Background);
-            TimeLabel.Foreground = Solids.Black;
-            LoadButton.Background = Solids.Button;
-            CloseButton.Background = Solids.Button;
-            LoadButton.Foreground = Solids.Black;
-            LoadButtonLabel.Foreground = Solids.Black;
-            CloseButton.Foreground = Solids.Black;
-            LoadButton.BorderBrush = Solids.DarkGray;
-            CloseButton.BorderBrush = Solids.DarkGray;
-            //LoadButton.FocusVisualStyle = new Style(typeof(Button), )
 
             Left = 0;
             Top = 0;
             Width = SystemParameters.WorkArea.Width;
             Height = SystemParameters.WorkArea.Height;
-            TitleRect.Fill = Solids.Gray;
-            SpNameLabel.Foreground = Solids.ConstantWhite;
 
             SoundChannel.Initiate();
 
@@ -79,11 +69,14 @@ namespace StD_Player_3
             CloseButton.FontSize = ScaleTo(24.0);
             TimeLabel.FontSize = ScaleTo(48.0);
             SpNameLabel.FontSize = ScaleTo(60.0);
-            ((LinearGradientBrush)Solids.LevelsOut).EndPoint = new Point(0, ScaleTo(210.0));
-            ((LinearGradientBrush)Solids.LevelsOutLight).EndPoint = new Point(0, ScaleTo(210.0));
 
-            Channel_1 = new Desk(Desk1, -1, 100, 1, Scale, WindowTheme, Solids);
-            Channel_2 = new Desk(Desk2, 1, 100, 2, Scale, WindowTheme, Solids);
+            LevelsO = (LinearGradientBrush)this.TryFindResource("LevelsOut");
+            LevelsI = (LinearGradientBrush)this.TryFindResource("LevelsOutLight");
+            LevelsO.EndPoint = new Point(0, ScaleTo(200.0));
+            LevelsI.EndPoint = new Point(0, ScaleTo(200.0));
+
+            Channel_1 = new Desk(Desk1, -1, 100, 1, Scale);
+            Channel_2 = new Desk(Desk2, 1, 100, 2, Scale);
             
         }
 
@@ -112,9 +105,8 @@ namespace StD_Player_3
         private void LoadMusic(string MusicDBFileName)
         {
             Grid LoadGrid = new Grid();
-            Rectangle LoadRect = new Rectangle();
-            LoadRect.Fill = Solids.LoadingBackground;
-            LoadRect.Margin = new Thickness(0);
+            Rectangle LoadRect = new Rectangle() { Margin = new Thickness(0) };
+            LoadRect.SetResourceReference(Rectangle.FillProperty, "LoadingBackground");
             LoadGrid.Children.Add(LoadRect);
             Label LoadLabel = new Label()
             {
@@ -124,8 +116,9 @@ namespace StD_Player_3
                 Content = "Загрузка спектакля",
                 FontSize = ScaleTo(48.0),
                 FontWeight = FontWeights.Bold,
-                Foreground = Solids.Black
             };
+            LoadLabel.SetResourceReference(Label.ForegroundProperty, "Foreground");
+
             LoadGrid.Children.Add(LoadLabel);
             Grid.SetRow(LoadGrid, 0);
             Grid.SetRowSpan(LoadGrid, 3);
@@ -196,7 +189,7 @@ namespace StD_Player_3
 
         private void button_Click_4(object sender, RoutedEventArgs e)
         {
-            string LoadSp = OpenSpectacle.Open(this, Config.GetConfigValue("MusicDir"), Solids);
+            string LoadSp = OpenSpectacle.Open(this, Config.GetConfigValue("MusicDir"));
             if (LoadSp == null) return;
             Config.SetConfigValue("file", LoadSp);
             if (File.Exists(System.IO.Path.Combine(Config.GetConfigValue("MusicDir"), LoadSp+".sdb")))
@@ -228,6 +221,14 @@ namespace StD_Player_3
                 case Key.OemComma:
                     Channel_2.Stop(); Channel_2.CurrentTrack++;
                     Channel_2.UpdateVisualElements(); break;
+                case Key.Tab:
+                    if (Config.GetConfigValue("Theme") == "dark")
+                        Config.SetConfigValue("Theme", "light");
+                    else Config.SetConfigValue("Theme", "dark");
+                    Application.Current.Resources.MergedDictionaries.Clear();
+                    Application.Current.Resources.MergedDictionaries.Add(
+                        new ResourceDictionary() { Source = new Uri($"pack://application:,,,/{Config.GetConfigValue("Theme")}.xaml") });
+                    break;
             }
         }
 

@@ -42,21 +42,21 @@ namespace StD_Player_3
 
         public ProjectColors(Theme WindowTheme)
         {
-            switch (WindowTheme)
+            switch (Theme.Light)
             {
                 case Theme.Dark:
-                    White = Color.FromRgb(0x00, 0x00, 0x00);
-                    Black = Color.FromRgb(0xFF, 0xFF, 0xFF);
+                    White = Color.FromRgb(0x00, 0x00, 0x00);//*
+                    Black = Color.FromRgb(0xFF, 0xFF, 0xFF);//*
 
-                    SelectedElement = Color.FromRgb(0xA0, 0xA0, 0xA0);
-                    SelectedElementFont = White;
+                    SelectedElement = Color.FromRgb(0xA0, 0xA0, 0xA0);//*
+                    SelectedElementFont = White;//*
                     TimeFont = White;
 
                     FontColor = Black;
                     TitleRect = White;
                     Border = Black;
 
-                    Background = Color.FromRgb(0x00, 0x00, 0x00); //0xF0
+                    Background = Color.FromRgb(0x00, 0x00, 0x00); //*
                     Gray = Color.FromRgb(0x80, 0x80, 0x80);
                     DarkGray = Color.FromRgb(0x70, 0x70, 0x70);
                     Button = Color.FromRgb(0x22, 0x22, 0x22);

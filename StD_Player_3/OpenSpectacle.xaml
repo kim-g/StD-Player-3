@@ -6,24 +6,25 @@
         xmlns:local="clr-namespace:StD_Player_3"
         mc:Ignorable="d"
         Title="Выбрать спектакль" Height="442.056" Width="530.841" ResizeMode="NoResize" ShowInTaskbar="False" SizeToContent="WidthAndHeight" WindowStartupLocation="CenterOwner" BorderBrush="Black" WindowStyle="None" MouseMove="Grid_MouseMove">
-    <Grid>
+    
+    <Grid Background="{DynamicResource Background}">
         <Grid.RowDefinitions>
             <RowDefinition Height="40"/>
             <RowDefinition/>
             <RowDefinition Height="60"/>
         </Grid.RowDefinitions>
-        <Rectangle Stroke="Gray" StrokeThickness="2" Grid.RowSpan="3"/>
+        <Rectangle Stroke="{DynamicResource Gray}" StrokeThickness="2" Grid.RowSpan="3"/>
         <Grid Grid.Row="0" MouseDown="Grid_MouseDown" MouseUp="Grid_MouseUp" MouseMove="Grid_MouseMove">
-            <Rectangle x:Name="TitleRect" Margin="5,5,5,0" Fill="Gray"/>
-            <Label x:Name="TitleLabel" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="20" Content="Открыть спектакль"/>
+            <Rectangle x:Name="TitleRect" Margin="5,5,5,0" Fill="{DynamicResource Gray}"/>
+            <Label x:Name="TitleLabel" Foreground="{DynamicResource White}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="20" Content="Открыть спектакль"/>
         </Grid>
         <Grid Grid.Row="1">
-            <ListBox x:Name="FileList" Margin="5" Width="520" Height="330" FontSize="20" MouseDoubleClick="LoadButton_Click"/>
+            <ListBox x:Name="FileList" Background="{DynamicResource DeepBkgd}" Foreground="{DynamicResource Foreground}" Margin="5" Width="520" Height="330" FontSize="20" MouseDoubleClick="LoadButton_Click"/>
         </Grid>
         <Grid Grid.Row="2">
             <StackPanel HorizontalAlignment="Center" Margin="0" VerticalAlignment="Center" Orientation="Horizontal">
-                <Button x:Name="LoadButton" Content="Загрузить" Margin="0,0,10,0" FontSize="20" Padding="20,1" Click="LoadButton_Click"/>
-                <Button Content="Закрыть" Width="{Binding ActualWidth, ElementName=LoadButton, Mode=OneWay}" FontSize="20" Height="{Binding ActualHeight, ElementName=LoadButton, Mode=OneWay}" Click="Button_Click"/>
+                <Button x:Name="LoadButton" Style="{DynamicResource StandartBtn}" Content="Загрузить" Margin="0,0,10,0" FontSize="20" Padding="20,1" Click="LoadButton_Click"/>
+                <Button Content="Закрыть" Style="{DynamicResource StandartBtn}" Width="{Binding ActualWidth, ElementName=LoadButton, Mode=OneWay}" FontSize="20" Height="{Binding ActualHeight, ElementName=LoadButton, Mode=OneWay}" Click="Button_Click"/>
 
             </StackPanel>
 

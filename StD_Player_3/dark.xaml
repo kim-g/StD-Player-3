@@ -1,0 +1,117 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:local="clr-namespace:StD_Player_3">
+    <!-- Фон -->
+    <SolidColorBrush x:Key="Background" Color="#0F0F0F"/> 
+    <!-- Фон элементов -->
+    <Color x:Key="DeepBkgdColor" R="#00" G="#00" B="#00" A="255" />
+    <SolidColorBrush x:Key="DeepBkgd" Color="{DynamicResource DeepBkgdColor}" /> 
+    <!-- Текст, рамки и т.д. -->
+    <Color x:Key="ForegroundColor" R="#FF" G="#FF" B="#FF" A="255"/>
+    <SolidColorBrush x:Key="Foreground" Color="{DynamicResource ForegroundColor}" /> 
+    <!-- Выделенный элемент -->
+    <Color x:Key="SelectedElementColor" R="#FF" G="#FF" B="#FF" A="255"/>
+    <SolidColorBrush x:Key="SelectedElement" Color="{DynamicResource SelectedElementColor}" /> 
+    <!-- Тескт выделенного элемента -->
+    <SolidColorBrush x:Key="SelectedElementFont" Color="{DynamicResource DeepBkgdColor}" /> 
+    <!-- Время -->
+    <SolidColorBrush x:Key="TimeFont" Color="{DynamicResource DeepBkgdColor}" />
+    <!-- Шрифт -->
+    <SolidColorBrush x:Key="FontColor" Color="{DynamicResource ForegroundColor}" />
+    <!-- Фон названия -->
+    <SolidColorBrush x:Key="TitleRect" Color="{DynamicResource DeepBkgdColor}" />
+    <!-- Рамка -->
+    <SolidColorBrush x:Key="BorderSolid" Color="{DynamicResource ForegroundColor}" />
+    <!-- Серый -->
+    <Color x:Key="GrayColor" R="#80" G="#80" B="#80" A="255"/>
+    <SolidColorBrush x:Key="Gray" Color="{DynamicResource GrayColor}" />
+    <!-- Насыщенный серый -->
+    <SolidColorBrush x:Key="DarkGray" Color="#707070" />
+    <!-- Кнопка -->
+    <Color x:Key="ButtonColor" R="#22" G="#22" B="#22" A="255"/>
+    <Color x:Key="ButtonOnColor" R="#44" G="#44" B="#44" A="255"/>
+    <SolidColorBrush x:Key="ButtonSolid" Color="{DynamicResource ButtonColor}" />
+    <SolidColorBrush x:Key="ButtonOnSolid" Color="{DynamicResource ButtonOnColor}" />
+    <!-- Фон загрузки -->
+    <SolidColorBrush x:Key="LoadingBackground" Color="#000000" Opacity="0.625" />
+    <!-- Белый -->
+    <SolidColorBrush x:Key="White" Color="#FFFFFF" />
+    <!-- Чёрный -->
+    <SolidColorBrush x:Key="Black" Color="#000000" />
+    <!-- Прозрачный -->
+    <SolidColorBrush x:Key="Transparent" Color="Transparent" />
+    <!-- Зелёный -->
+    <Color x:Key="GreenColor" R="#25" G="#5b" B="#25" A="255"/>
+    <SolidColorBrush x:Key="Green" Color="{DynamicResource GreenColor}" />
+    <!-- Зелёный средний -->
+    <Color x:Key="GreenSemiLightColor" R="#12" G="#9d" B="#32" A="255"/>
+    <SolidColorBrush x:Key="GreenSemiLight" 
+                     Color="{DynamicResource GreenSemiLightColor}" />
+    <!-- Зелёный светлый -->
+    <Color x:Key="GreenLightColor" R="#00" G="#e0" B="#3f" A="255"/>
+    <SolidColorBrush x:Key="GreenLight" 
+                     Color="{DynamicResource GreenLightColor}" />
+    <!-- Жёлтый -->
+    <Color x:Key="YellowColor" R="#9D" G="#99" B="#00" A="255"/>
+    <SolidColorBrush x:Key="Yellow" 
+                     Color="{DynamicResource YellowColor}" />
+    <!-- Жёлтый светлый -->
+    <Color x:Key="YellowLightColor" R="#FF" G="#FF" B="#00" A="255"/>
+    <SolidColorBrush x:Key="YellowLight" 
+                     Color="{DynamicResource YellowLightColor}" />
+    <!-- Красный -->
+    <Color x:Key="RedColor" R="#86" G="#28" B="#28" A="255"/>
+    <SolidColorBrush x:Key="Red" 
+                     Color="{DynamicResource RedColor}" />
+    <!-- Красный светлый -->
+    <Color x:Key="RedLightColor" R="#FF" G="#00" B="#00" A="255"/>
+    <SolidColorBrush x:Key="RedLight" Color="{DynamicResource RedLightColor}" />
+    <!-- Индикатор выкл -->
+    <LinearGradientBrush x:Key="LevelsOut" MappingMode="Absolute" EndPoint="0,200">
+        <LinearGradientBrush.RelativeTransform>
+            <TransformGroup>
+                <ScaleTransform CenterY="0.5" CenterX="0.5"/>
+                <SkewTransform CenterY="0.5" CenterX="0.5"/>
+                <RotateTransform Angle="0" CenterY="0.5" CenterX="0.5"/>
+                <TranslateTransform/>
+            </TransformGroup>
+        </LinearGradientBrush.RelativeTransform>
+        <GradientStop Color="{DynamicResource GreenColor}" Offset="1.0" />
+        <GradientStop Color="{DynamicResource GreenColor}" Offset="0.5" />
+        <GradientStop Color="{DynamicResource YellowColor}" Offset="0.2" />
+        <GradientStop Color="{DynamicResource RedColor}" Offset="0.0" />
+    </LinearGradientBrush>
+    <!-- Индикатор вкл -->
+    <LinearGradientBrush x:Key="LevelsOutLight" MappingMode="Absolute" EndPoint="0,200">
+        <LinearGradientBrush.RelativeTransform>
+            <TransformGroup>
+                <ScaleTransform CenterY="0.5" CenterX="0.5"/>
+                <SkewTransform CenterY="0.5" CenterX="0.5"/>
+                <RotateTransform Angle="0" CenterY="0.5" CenterX="0.5"/>
+                <TranslateTransform/>
+            </TransformGroup>
+        </LinearGradientBrush.RelativeTransform>
+        <GradientStop Color="{DynamicResource GreenLightColor}" Offset="1.0" />
+        <GradientStop Color="{DynamicResource GreenLightColor}" Offset="0.5" />
+        <GradientStop Color="{DynamicResource YellowLightColor}" Offset="0.2" />
+        <GradientStop Color="{DynamicResource RedLightColor}" Offset="0.0" />
+    </LinearGradientBrush>
+    
+    
+    <!-- Кнопка -->
+    <Style TargetType="{x:Type Button}" x:Key="StandartBtn">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Border" BorderBrush="{DynamicResource BorderSolid}"
+                                BorderThickness="1" Background="{DynamicResource ButtonSolid}">
+                        <ContentPresenter VerticalAlignment="Center" HorizontalAlignment="Center" Margin="20,1,20,1"/>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="Foreground" Value="{DynamicResource Foreground}"/>
+    </Style>
+
+
+</ResourceDictionary>
