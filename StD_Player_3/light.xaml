@@ -14,6 +14,9 @@
     <SolidColorBrush x:Key="SelectedElement" Color="{DynamicResource SelectedElementColor}" />
     <!-- Тескт выделенного элемента -->
     <SolidColorBrush x:Key="SelectedElementFont" Color="{DynamicResource DeepBkgdColor}" />
+    <!-- Нажатый элемент -->
+    <Color x:Key="PressedElementColor" R="#BB" G="#BB" B="#BB" A="255"/>
+    <SolidColorBrush x:Key="PressedElement" Color="{DynamicResource PressedElementColor}" />
     <!-- Время -->
     <SolidColorBrush x:Key="TimeFont" Color="{DynamicResource DeepBkgdColor}" />
     <!-- Шрифт -->
@@ -29,9 +32,7 @@
     <SolidColorBrush x:Key="DarkGray" Color="#8F8F8F" />
     <!-- Кнопка -->
     <Color x:Key="ButtonColor" R="#DD" G="#DD" B="#DD" A="255"/>
-    <Color x:Key="ButtonOnColor" R="#DD" G="#DD" B="#DD" A="255"/>
     <SolidColorBrush x:Key="ButtonSolid" Color="{DynamicResource ButtonColor}" />
-    <SolidColorBrush x:Key="ButtonOnSolid" Color="{DynamicResource ButtonOnColor}" />
     <!-- Фон загрузки -->
     <SolidColorBrush x:Key="LoadingBackground" Color="#FFFFFF" Opacity="0.625" />
     <!-- Белый -->
@@ -72,7 +73,7 @@
             <TransformGroup>
                 <ScaleTransform CenterY="0.5" CenterX="0.5"/>
                 <SkewTransform CenterY="0.5" CenterX="0.5"/>
-                <RotateTransform Angle="90" CenterY="0.5" CenterX="0.5"/>
+                <RotateTransform Angle="0" CenterY="0.5" CenterX="0.5"/>
                 <TranslateTransform/>
             </TransformGroup>
         </LinearGradientBrush.RelativeTransform>
@@ -87,7 +88,7 @@
             <TransformGroup>
                 <ScaleTransform CenterY="0.5" CenterX="0.5"/>
                 <SkewTransform CenterY="0.5" CenterX="0.5"/>
-                <RotateTransform Angle="90" CenterY="0.5" CenterX="0.5"/>
+                <RotateTransform Angle="0" CenterY="0.5" CenterX="0.5"/>
                 <TranslateTransform/>
             </TransformGroup>
         </LinearGradientBrush.RelativeTransform>
@@ -103,10 +104,18 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
-                    <Border x:Name="Border" BorderBrush="{DynamicResource BorderSolid}"
-                                BorderThickness="1" Background="{DynamicResource ButtonSolid}">
+                    <Border x:Name="Border" BorderBrush="{StaticResource BorderSolid}"
+                                BorderThickness="1" Background="{StaticResource ButtonSolid}">
                         <ContentPresenter VerticalAlignment="Center" HorizontalAlignment="Center" Margin="20,1,20,1"/>
                     </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver"  Value="true">
+                            <Setter TargetName="Border" Property="Background" Value="#BBBBBB" />
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="true">
+                            <Setter TargetName="Border" Property="Background" Value="#999999" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>

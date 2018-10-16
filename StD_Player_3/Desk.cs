@@ -322,7 +322,7 @@ namespace StD_Player_3
                 CurrentTrackRect.Margin = new Thickness(0, ScaleTo((ListElementsToShow) * ListHeight + 
                     ListHeightMargin), 0, 0);
 
-                PressedTrackRect = SetRectangleRes(CurCan, "Yellow",
+                PressedTrackRect = SetRectangleRes(CurCan, "PressedElement",
                     "Foreground", true, false);
                 PressedTrackRect.Height = ScaleTo(ListHeight);
                 PressedTrackRect.Margin = new Thickness(0, ScaleTo(0 + ListHeightMargin), 0, 0);
@@ -974,6 +974,12 @@ namespace StD_Player_3
                 NewHeight = Freq.Margin.Bottom + FreqBkg.ActualHeight * 0.2;*/
             Animator.Margin(Freq, new Thickness(LevelsThickness, LevelsThickness, LevelsThickness, 
                 FreqBkg.ActualHeight - NewHeight), 0, 100);
+        }
+
+        public void SetLevels(Brush I, Brush O)
+        {
+            Freq.Fill = O;
+            FreqBkg.Fill = I;
         }
     }
 

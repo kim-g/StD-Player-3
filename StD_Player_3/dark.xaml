@@ -10,10 +10,13 @@
     <Color x:Key="ForegroundColor" R="#FF" G="#FF" B="#FF" A="255"/>
     <SolidColorBrush x:Key="Foreground" Color="{DynamicResource ForegroundColor}" /> 
     <!-- Выделенный элемент -->
-    <Color x:Key="SelectedElementColor" R="#FF" G="#FF" B="#FF" A="255"/>
+    <Color x:Key="SelectedElementColor" R="#AA" G="#AA" B="#AA" A="255"/>
     <SolidColorBrush x:Key="SelectedElement" Color="{DynamicResource SelectedElementColor}" /> 
     <!-- Тескт выделенного элемента -->
-    <SolidColorBrush x:Key="SelectedElementFont" Color="{DynamicResource DeepBkgdColor}" /> 
+    <SolidColorBrush x:Key="SelectedElementFont" Color="{DynamicResource DeepBkgdColor}" />
+    <!-- Нажатый элемент -->
+    <Color x:Key="PressedElementColor" R="#44" G="#44" B="#44" A="255"/>
+    <SolidColorBrush x:Key="PressedElement" Color="{DynamicResource PressedElementColor}" />
     <!-- Время -->
     <SolidColorBrush x:Key="TimeFont" Color="{DynamicResource DeepBkgdColor}" />
     <!-- Шрифт -->
@@ -29,9 +32,7 @@
     <SolidColorBrush x:Key="DarkGray" Color="#707070" />
     <!-- Кнопка -->
     <Color x:Key="ButtonColor" R="#22" G="#22" B="#22" A="255"/>
-    <Color x:Key="ButtonOnColor" R="#44" G="#44" B="#44" A="255"/>
     <SolidColorBrush x:Key="ButtonSolid" Color="{DynamicResource ButtonColor}" />
-    <SolidColorBrush x:Key="ButtonOnSolid" Color="{DynamicResource ButtonOnColor}" />
     <!-- Фон загрузки -->
     <SolidColorBrush x:Key="LoadingBackground" Color="#000000" Opacity="0.625" />
     <!-- Белый -->
@@ -107,6 +108,14 @@
                                 BorderThickness="1" Background="{DynamicResource ButtonSolid}">
                         <ContentPresenter VerticalAlignment="Center" HorizontalAlignment="Center" Margin="20,1,20,1"/>
                     </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver"  Value="true">
+                            <Setter TargetName="Border" Property="Background" Value="#444444" />
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="true">
+                            <Setter TargetName="Border" Property="Background" Value="#666666" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>

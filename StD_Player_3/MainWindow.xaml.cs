@@ -228,6 +228,12 @@ namespace StD_Player_3
                     Application.Current.Resources.MergedDictionaries.Clear();
                     Application.Current.Resources.MergedDictionaries.Add(
                         new ResourceDictionary() { Source = new Uri($"pack://application:,,,/{Config.GetConfigValue("Theme")}.xaml") });
+                    LevelsO = (LinearGradientBrush)this.TryFindResource("LevelsOut");
+                    LevelsI = (LinearGradientBrush)this.TryFindResource("LevelsOutLight");
+                    LevelsO.EndPoint = new Point(0, ScaleTo(200.0));
+                    LevelsI.EndPoint = new Point(0, ScaleTo(200.0));
+                    Channel_1.SetLevels(LevelsI, LevelsO);
+                    Channel_2.SetLevels(LevelsI, LevelsO);
                     break;
             }
         }
