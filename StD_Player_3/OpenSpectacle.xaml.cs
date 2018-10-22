@@ -50,51 +50,6 @@ namespace StD_Player_3
             Close();
         }
 
-        [DllImport("user32.dll")]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        static extern bool GetCursorPos(out POINT lpPoint);
-
-        [StructLayout(LayoutKind.Sequential)]
-        public struct POINT
-        {
-            public int X;
-            public int Y;
-
-            public POINT(int x, int y)
-            {
-                this.X = x;
-                this.Y = y;
-            }
-        }
-
-        private void Grid_MouseDown(object sender, MouseButtonEventArgs e)
-        {
-            if (e.LeftButton == MouseButtonState.Pressed)
-            {
-                Point New = e.GetPosition(this);
-                WindowDrag = new Drag(New);
-            }
-                
-        }
-
-        private void Grid_MouseUp(object sender, MouseButtonEventArgs e)
-        {
-            if (WindowDrag != null)
-                WindowDrag = null;
-        }
-
-        private void Grid_MouseMove(object sender, MouseEventArgs e)
-        {
-            if (e.LeftButton == MouseButtonState.Pressed)
-                if (WindowDrag != null)
-                {
-                    GetCursorPos(out POINT p);
-                    Point NewPos = new Point(p.X, p.Y);
-                    Left = NewPos.X - WindowDrag.X;
-                    Top = NewPos.Y - WindowDrag.Y;
-                }
-        }
-
         private void LoadButton_Click(object sender, RoutedEventArgs e)
         {
             LoadSp();
@@ -111,6 +66,11 @@ namespace StD_Player_3
         private void LoadButton_Click(object sender, MouseButtonEventArgs e)
         {
             LoadSp();
+        }
+
+        private void Grid_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            this.DragMove();
         }
     }
 }
