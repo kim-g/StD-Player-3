@@ -268,7 +268,7 @@ namespace StD_Player_3
                 RowDefinition RD = new RowDefinition();
                 RD.Height = height == 0
                     ? GridLength.Auto
-                    : new GridLength(ScaleTo(height));
+                    : new GridLength(height);
                 return RD;
             }
 
@@ -397,7 +397,7 @@ namespace StD_Player_3
                 Label SetTimeLabel(Panel Parent, string Title, string Background)
                 {
                     
-                    Canvas MainCanvas = SetCanvas(Parent, new Thickness(0), ScaleTo(110.0));
+                    Canvas MainCanvas = SetCanvas(Parent, new Thickness(0), 110.0);
                     Thickness Margin = new Thickness(ScaleTo(10));
                     MainCanvas.Margin = Margin;
                     SetBinding(Parent, MainCanvas, "ActualWidth", FrameworkElement.WidthProperty);
@@ -550,7 +550,7 @@ namespace StD_Player_3
             }
 
             DeskN = N;
-            Scale = scale;
+            Scale = CurGrid.ActualHeight / 794.0;
             MakeGridStructure(CurGrid);
             PlayButton = SetButton(Buttons, 0, "", PlayButton_Click, "Play");
             PauseButton = SetButton(Buttons, 20, "", PauseButton_Click, "Pause");

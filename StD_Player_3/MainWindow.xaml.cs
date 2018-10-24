@@ -43,11 +43,11 @@ namespace StD_Player_3
 
             InitializeComponent();
             // Настройка цветов
-
             Left = 0;
             Top = 0;
             Width = SystemParameters.WorkArea.Width;
             Height = SystemParameters.WorkArea.Height;
+            Height = 768 - 40;
 
             SoundChannel.Initiate();
 
@@ -61,23 +61,10 @@ namespace StD_Player_3
             TimeTimer.Interval = new TimeSpan(0, 0, 0, 0, 500);
             TimeTimer.Start();
 
-            Scale = (Height-1) / 984.0*0.99; // Масштаб относительно модельного 1024 - панель задач
+            Scale = (Height - 1) / 984.0;// *0.99; // Масштаб относительно модельного 1024 - панель задач
 
-            TopRow.Height = new GridLength(ScaleTo(120.0));
-            BottomRow.Height = new GridLength(ScaleTo(70.0));
-            LoadButton.FontSize = ScaleTo(24.0);
-            CloseButton.FontSize = ScaleTo(24.0);
-            TimeLabel.FontSize = ScaleTo(48.0);
-            SpNameLabel.FontSize = ScaleTo(60.0);
 
-            LevelsO = (LinearGradientBrush)this.TryFindResource("LevelsOut");
-            LevelsI = (LinearGradientBrush)this.TryFindResource("LevelsOutLight");
-            LevelsO.EndPoint = new Point(0, ScaleTo(200.0));
-            LevelsI.EndPoint = new Point(0, ScaleTo(200.0));
 
-            Channel_1 = new Desk(Desk1, -1, 100, 1, Scale);
-            Channel_2 = new Desk(Desk2, 1, 100, 2, Scale);
-            
         }
 
         /// <summary>
@@ -240,7 +227,32 @@ namespace StD_Player_3
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
+            TopRow.Height = new GridLength(ScaleTo(120.0));
+            BottomRow.Height = new GridLength(ScaleTo(70.0));
+            LoadButton.FontSize = ScaleTo(24.0);
+            LoadButton.Height = ScaleTo(46.0);
+            loadImage.Width = ScaleTo(32.0);
+            loadImage.Height = ScaleTo(32.0);
+            CloseButton.FontSize = ScaleTo(24.0);
+            CloseButton.Height = ScaleTo(46.0);
+            TimeLabel.FontSize = ScaleTo(48.0);
+            SpNameLabel.FontSize = ScaleTo(60.0);
+
+            LevelsO = (LinearGradientBrush)this.TryFindResource("LevelsOut");
+            LevelsI = (LinearGradientBrush)this.TryFindResource("LevelsOutLight");
+            LevelsO.EndPoint = new Point(0, ScaleTo(200.0));
+            LevelsI.EndPoint = new Point(0, ScaleTo(200.0));
+
+            Channel_1 = new Desk(Desk1, -1, 100, 1, Scale);
+            Channel_2 = new Desk(Desk2, 1, 100, 2, Scale);
+
             LoadMusic(Config.GetConfigValue("file"));
+        }
+
+        private void LoadButtonLabel_Loaded(object sender, RoutedEventArgs e)
+        {
+           
+            
         }
     }
 }

@@ -33,8 +33,8 @@
             <Grid Margin="0">
                 <Button x:Name="LoadButton" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="24" Padding="10,1" Height="{Binding ActualHeight, ElementName=CloseButton, Mode=OneWay}" Width="{Binding ActualWidth, ElementName=CloseButton, Mode=OneWay}" Margin="20,0" Click="button_Click_4" Style="{DynamicResource StandartBtn}">
                     <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Horizontal">
-                        <Image Source="images/Open.png" Stretch="Fill" Width="32" HorizontalAlignment="Center" VerticalAlignment="Center" Height="32" />
-                        <Label x:Name="LoadButtonLabel" Foreground="{DynamicResource Foreground}" HorizontalAlignment="Center" VerticalAlignment="Center">Выбрать спектакль</Label>
+                        <Image x:Name="loadImage" Source="images/Open.png" Stretch="Fill" Width="32" HorizontalAlignment="Center" VerticalAlignment="Center" Height="32" />
+                        <Label x:Name="LoadButtonLabel" Foreground="{DynamicResource Foreground}" HorizontalAlignment="Center" VerticalAlignment="Center" Loaded="LoadButtonLabel_Loaded">Выбрать спектакль</Label>
                     </StackPanel>
                 </Button>
             </Grid>
