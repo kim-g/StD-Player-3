@@ -195,6 +195,7 @@ namespace StD_Player_3
                 NewLabel.Margin = new Thickness(ScaleTo(Left), ScaleTo(Top), 0, 0);
                 NewLabel.Content = "";
                 NewLabel.VerticalAlignment = VerticalAlignment.Center;
+                NewLabel.Height = double.NaN;
                 return NewLabel;
             }
 
@@ -550,7 +551,7 @@ namespace StD_Player_3
             }
 
             DeskN = N;
-            Scale = CurGrid.ActualHeight / 794.0;
+            Scale = scale;// CurGrid.ActualHeight / 794.0;
             MakeGridStructure(CurGrid);
             PlayButton = SetButton(Buttons, 0, "", PlayButton_Click, "Play");
             PauseButton = SetButton(Buttons, 20, "", PauseButton_Click, "Pause");
@@ -560,7 +561,7 @@ namespace StD_Player_3
             BackgroundRect = SetRectangleRes(ProgressCanvas, "Green", "Border", true);
             PositionRect = SetRectangleRes(ProgressCanvas, "GreenLight", "Border", false);
             MiddleRect = SetRectangleRes(ProgressCanvas, "GreenSemiLight", "Border", false);
-            ListCanvas = SetCanvasList(ListGrid, new Thickness(ScaleTo(10.0), 0, ScaleTo(10.0), 0));
+            ListCanvas = SetCanvasList(ListGrid, new Thickness(10, 0, 10, 0));
             TrackTimeLabel = SetLabel(ProgressCanvas,0,0);
 
             // Применение событий

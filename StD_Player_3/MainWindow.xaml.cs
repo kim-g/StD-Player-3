@@ -47,7 +47,7 @@ namespace StD_Player_3
             Top = 0;
             Width = SystemParameters.WorkArea.Width;
             Height = SystemParameters.WorkArea.Height;
-            Height = 768 - 40;
+            //Height = 400;
 
             SoundChannel.Initiate();
 
