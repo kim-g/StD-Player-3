@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using Un4seen.Bass;
+using Un4seen.BassAsio;
 
 namespace StD_Player_3
 {
-    public class SoundChannel : SoundBase
+    public class ASIO_Channel : SoundBase
     {
         /// <summary>
         /// Инициализация звуковой карты в стандартном режиме.
@@ -20,7 +19,7 @@ namespace StD_Player_3
         public static void Initiate(int SoundCard = -1, int BitRate = 44100,
             BASSInit DeviceProperties = BASSInit.BASS_DEVICE_DEFAULT)
         {
-            Bass.BASS_Init(SoundCard, BitRate, DeviceProperties, IntPtr.Zero);
+            BassAsio.BASS_ASIO_Init(SoundCard, BASSASIOInit.BASS_ASIO_DEFAULT);
         }
 
         /// <summary>
@@ -28,9 +27,9 @@ namespace StD_Player_3
         /// </summary>
         /// <param name="balance"></param>
         /// <param name="volume"></param>
-        public SoundChannel(int balance=0, int volume=100): base(balance, volume)
+        public ASIO_Channel(int balance = 0, int volume = 100) : base(balance, volume)
         {
-           
+
         }
 
         /// <summary>
@@ -60,7 +59,7 @@ namespace StD_Player_3
         /// <returns></returns>
         protected override bool SetDevice(int device)
         {
-            return Bass.BASS_SetDevice(device);
+            return BassAsio.BASS_ASIO_SetDevice(device);
         }
 
         /// <summary>
@@ -109,5 +108,4 @@ namespace StD_Player_3
             Bass.BASS_SetVolume(Volume / 100f);
         }
     }
-
 }

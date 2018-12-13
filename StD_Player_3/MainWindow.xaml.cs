@@ -30,7 +30,7 @@ namespace StD_Player_3
         DispatcherTimer timer;
         DispatcherTimer TimeTimer;
         bool Loading = true;
-        SQLite.SQLiteConfig Config = new SQLite.SQLiteConfig("Config.db");
+        public SQLite.SQLiteConfig Config = new SQLite.SQLiteConfig("Config.db");
         protected double Scale;
         public static LinearGradientBrush LevelsO;
         public static LinearGradientBrush LevelsI;
@@ -49,7 +49,10 @@ namespace StD_Player_3
             Height = SystemParameters.WorkArea.Height;
             //Height = 400;
 
-            SoundChannel.Initiate();
+            /*SoundChannel.Initiate();
+            for (int i = 1; i< Bass.BASS_GetDeviceInfos().Length; i++)
+                SoundChannel.Initiate(i);*/
+
 
             timer = new DispatcherTimer(DispatcherPriority.Normal);
             timer.Tick += new EventHandler(timerTick);
@@ -189,24 +192,24 @@ namespace StD_Player_3
 
             switch (e.Key)
             {
-                case Key.S: Channel_1.Play(); Channel_1.UpdateVisualElements(); break;
-                case Key.D: Channel_1.Pause(); Channel_1.UpdateVisualElements(); break;
-                case Key.F: Channel_1.Stop(); Channel_1.UpdateVisualElements(); break;
+                case Key.S: Channel_1.Sound.Play(); Channel_1.UpdateVisualElements(); break;
+                case Key.D: Channel_1.Sound.Pause(); Channel_1.UpdateVisualElements(); break;
+                case Key.F: Channel_1.Sound.Stop(); Channel_1.UpdateVisualElements(); break;
                 case Key.E:
-                    Channel_1.Stop(); Channel_1.CurrentTrack--;
+                    Channel_1.Sound.Stop(); Channel_1.CurrentTrack--;
                     Channel_1.UpdateVisualElements(); break;
                 case Key.X:
-                    Channel_1.Stop(); Channel_1.CurrentTrack++;
+                    Channel_1.Sound.Stop(); Channel_1.CurrentTrack++;
                     Channel_1.UpdateVisualElements(); break;
 
-                case Key.K: Channel_2.Play(); Channel_2.UpdateVisualElements(); break;
-                case Key.L: Channel_2.Pause(); Channel_2.UpdateVisualElements(); break;
-                case Key.OemSemicolon: Channel_2.Stop(); Channel_2.UpdateVisualElements(); break;
+                case Key.K: Channel_2.Sound.Play(); Channel_2.UpdateVisualElements(); break;
+                case Key.L: Channel_2.Sound.Pause(); Channel_2.UpdateVisualElements(); break;
+                case Key.OemSemicolon: Channel_2.Sound.Stop(); Channel_2.UpdateVisualElements(); break;
                 case Key.O:
-                    Channel_2.Stop(); Channel_2.CurrentTrack--;
+                    Channel_2.Sound.Stop(); Channel_2.CurrentTrack--;
                     Channel_2.UpdateVisualElements(); break;
                 case Key.OemComma:
-                    Channel_2.Stop(); Channel_2.CurrentTrack++;
+                    Channel_2.Sound.Stop(); Channel_2.CurrentTrack++;
                     Channel_2.UpdateVisualElements(); break;
                 case Key.Tab:
                     if (Config.GetConfigValue("Theme") == "dark")
@@ -215,12 +218,16 @@ namespace StD_Player_3
                     Application.Current.Resources.MergedDictionaries.Clear();
                     Application.Current.Resources.MergedDictionaries.Add(
                         new ResourceDictionary() { Source = new Uri($"pack://application:,,,/{Config.GetConfigValue("Theme")}.xaml") });
-                    LevelsO = (LinearGradientBrush)this.TryFindResource("LevelsOut");
-                    LevelsI = (LinearGradientBrush)this.TryFindResource("LevelsOutLight");
+                    LevelsO = (LinearGradientBrush)TryFindResource("LevelsOut");
+                    LevelsI = (LinearGradientBrush)TryFindResource("LevelsOutLight");
                     LevelsO.EndPoint = new Point(0, ScaleTo(200.0));
                     LevelsI.EndPoint = new Point(0, ScaleTo(200.0));
                     Channel_1.SetLevels(LevelsI, LevelsO);
                     Channel_2.SetLevels(LevelsI, LevelsO);
+                    break;
+                case Key.Add:
+                    Parameters.Set(this);
+                    SetSoundCards(new Desk[2] { Channel_1, Channel_2 });
                     break;
             }
         }
@@ -238,15 +245,41 @@ namespace StD_Player_3
             TimeLabel.FontSize = ScaleTo(48.0);
             SpNameLabel.FontSize = ScaleTo(60.0);
 
-            LevelsO = (LinearGradientBrush)this.TryFindResource("LevelsOut");
-            LevelsI = (LinearGradientBrush)this.TryFindResource("LevelsOutLight");
+            LevelsO = (LinearGradientBrush)TryFindResource("LevelsOut");
+            LevelsI = (LinearGradientBrush)TryFindResource("LevelsOutLight");
             LevelsO.EndPoint = new Point(0, ScaleTo(200.0));
             LevelsI.EndPoint = new Point(0, ScaleTo(200.0));
 
-            Channel_1 = new Desk(Desk1, -1, 100, 1, Scale);
-            Channel_2 = new Desk(Desk2, 1, 100, 2, Scale);
+            SoundChannel.Initiate();
+            for (int i = 1; i < Bass.BASS_GetDeviceInfos().Length; i++)
+                SoundChannel.Initiate(i);
+            Channel_1 = new Desk(Desk1, -1, 100, 1, Scale, -1, SoundType.Standart);
+            Channel_2 = new Desk(Desk2,  1, 100, 2, Scale, -1, SoundType.Standart);
+
+            SetSoundCards(new Desk[2] { Channel_1, Channel_2 });
 
             LoadMusic(Config.GetConfigValue("file"));
+        }
+
+        /// <summary>
+        /// Настройка звуковых карт для дек из конфига
+        /// </summary>
+        /// <param name="SoundCards">Массив звуковых карт</param>
+        public void SetSoundCards(Desk[] SoundCards)
+        {
+            int[] Channels = new int[SoundCards.Length];
+            for (int i = 0; i < Channels.Length; i++)
+                Channels[i] = -1;
+            BASS_DEVICEINFO[] Cards = Bass.BASS_GetDeviceInfos();
+            for (int Card = 0; Card < Cards.Length; Card++)
+            {
+                if (Cards[Card].id == null) continue;
+                for (int i = 0; i < SoundCards.Length; i++)
+                    if (Cards[Card].id == Config.GetConfigValue($"Desk_{i + 1}_Sound_Card"))
+                        Channels[i] = Card;
+            }
+            for (int i = 0; i < SoundCards.Length; i++)
+                SoundCards[i].Sound.SoundCard = Channels[i];
         }
 
         private void LoadButtonLabel_Loaded(object sender, RoutedEventArgs e)

@@ -4,5 +4,6 @@
              xmlns:local="clr-namespace:StD_Player_3"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
+        
     </Application.Resources>
 </Application>

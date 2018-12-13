@@ -243,7 +243,7 @@ namespace SQLite
             Command = new SQLiteCommand();
         }
 
-        public static new SQLiteLanguage Open(string FileName, string Lang="ru")
+        public static SQLiteLanguage Open(string FileName, string Lang="ru")
         {
             if (File.Exists(FileName))
             {

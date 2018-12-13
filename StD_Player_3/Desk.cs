@@ -14,7 +14,9 @@ using Extentions;
 
 namespace StD_Player_3
 {
-    class Desk : SoundChannel
+    public enum SoundType  {Standart, ASIO};
+
+    public class Desk : Grid
     {
         // Внутренние свойства
         private int сurrentrack = 0;
@@ -25,6 +27,8 @@ namespace StD_Player_3
         private bool PositionTrackShow = false; // Показывать в треке Label и позицию к мышке
         private string PositionTrackLabel = "";
         private double MouseX;
+        public SoundBase Sound;
+        private SoundType AudioCardType;
 
         // Элементы интерфейса
         protected Rectangle PositionRect;
@@ -41,8 +45,6 @@ namespace StD_Player_3
         protected Button PlayButton;
         protected Button PauseButton;
         protected Button StopButton;
-        protected Button NextButton;
-        protected Button PreviosButton;
         protected Canvas ProgressCanvas;
         protected Canvas ListCanvas;
         protected PlayState DeskState;
@@ -50,6 +52,7 @@ namespace StD_Player_3
         protected ListClick LabelClick;
         protected Rectangle Freq;
         protected Rectangle FreqBkg;
+        protected Rectangle RepeateRect;
         protected double Scale = 1.0;
         const byte LevelsThickness = 1;
 
@@ -79,7 +82,7 @@ namespace StD_Player_3
             }
             set
             {
-                Stop();
+                Sound.Stop();
                 сurrentrack = value;
                 if (value < 0) сurrentrack = 0;
                 if (value >= TrackList.Count) сurrentrack = TrackList.Count - 1;
@@ -94,7 +97,10 @@ namespace StD_Player_3
 
                 if (сurrentrack < 0) return;
                 DeskState.State = PlayState.Stop;
-                Open(TrackList[сurrentrack].Data, TrackList[сurrentrack].Repeat);
+                Sound.Open(TrackList[сurrentrack].Data, TrackList[сurrentrack].Repeat);
+                RepeateRect.Visibility = TrackList[сurrentrack].Repeat
+                    ? Visibility.Visible
+                    : Visibility.Collapsed;
                 UpdateList();
             }
         }
@@ -108,7 +114,8 @@ namespace StD_Player_3
         /// <param name="balance">Баланс звука (левая -1, правая 1)</param>
         /// <param name="volume">Громкость трека (0..100)</param>
         /// <param name="N">Номер деки</param>
-        public Desk(Grid CurGrid, int balance, int volume, byte N, double scale)
+        public Desk(Grid CurGrid, int balance, int volume, byte N, double scale, int sound_card = -1, 
+            SoundType SCType = SoundType.Standart)
         {
             // Панели
             Grid ButtonsGrid;
@@ -165,8 +172,7 @@ namespace StD_Player_3
                     NewButton.Width = ScaleTo(32.0);
                     NewButton.Height = ScaleTo(32.0);
                     Image img = new Image();
-                    img.Source = new BitmapImage(new Uri(Image + ".png", UriKind.Relative))
-                        { CreateOptions = BitmapCreateOptions.IgnoreImageCache };
+                    img.Source = AppResources.LoadBitmapFromResources($"images/{Image}.png");
                     stackPnl.Children.Add(img);
                     NewButton.BorderBrush = new SolidColorBrush(Colors.Transparent);
                     NewButton.Background = new SolidColorBrush(Colors.Transparent);
@@ -216,29 +222,6 @@ namespace StD_Player_3
                 return NewCanvas;
             }
 
-            /// <summary>
-            /// Создание прямоугольника и привязка его к родителю
-            /// </summary>
-            /// <param name="Parent">Родительский элемент</param>
-            /// <param name="Fill">Цвет заливки</param>
-            /// <param name="Stroke">Цвет обводки</param>
-            /// <param name="BindWidth">Привязывать ли по ширине к родителю</param>
-            /// <param name="BindHeight">Привязывать ли по высоте к родителю</param>
-            Rectangle SetRectangle(Panel Parent, Color Fill, Color Stroke, bool BindWidth, 
-                bool BindHeight = true)
-            {
-                Rectangle NewRect = new Rectangle();
-                NewRect.SetResourceReference(Rectangle.FillProperty, Fill);
-                NewRect.Fill = new SolidColorBrush(Fill);
-                NewRect.Stroke = new SolidColorBrush(Stroke);
-                if (BindHeight)
-                    SetBinding(Parent, NewRect, "Height", FrameworkElement.HeightProperty);
-                if (BindWidth)
-                    SetBinding(Parent, NewRect, "ActualWidth", FrameworkElement.WidthProperty);
-                Parent.Children.Add(NewRect);
-                return NewRect;
-            }
-            
             /// <summary>
             /// Создание прямоугольника и привязка его к родителю
             /// </summary>
@@ -354,24 +337,6 @@ namespace StD_Player_3
             /// <param name="FontSize">Размер шрифта</param>
             /// <param name="FontColor">Цвет шрифта</param>
             /// <param name="Weight">Вес шрифта</param>
-            Label SetFont(Label Input, string FontName, double FontSize, Color FontColor, 
-                FontWeight Weight)
-            {
-                Input.FontFamily = new FontFamily(FontName);
-                Input.FontSize = ScaleTo(FontSize);
-                Input.Foreground = new SolidColorBrush(FontColor);
-                Input.FontWeight = Weight;
-                return Input;
-            }
-
-            /// <summary>
-            /// Настройка шрифта надписи и вывод в Label
-            /// </summary>
-            /// <param name="Input">Входящий Label</param>
-            /// <param name="FontName">Имя шрифта</param>
-            /// <param name="FontSize">Размер шрифта</param>
-            /// <param name="FontColor">Цвет шрифта</param>
-            /// <param name="Weight">Вес шрифта</param>
             Label SetFontRes(Label Input, string FontName, double FontSize, string FontColor,
                 FontWeight Weight)
             {
@@ -457,6 +422,15 @@ namespace StD_Player_3
                 Label DeskName = SetFontRes(SetLabel(Lines[0], 5, 0), "TimesNewRoman", 14.0,
                     "DeepBkgd", FontWeights.Normal);
                 DeskName.Content = "дека " + DeskN.ToString();
+                RepeateRect = new Rectangle()
+                {
+                    HorizontalAlignment = HorizontalAlignment.Right,
+                    VerticalAlignment = VerticalAlignment.Stretch,
+                    Width = ScaleTo(30),
+                    Fill = new ImageBrush(AppResources.LoadBitmapFromResources("Images/Repeat.png")),
+                    Margin = new Thickness(5)
+                };
+                Lines[0].Children.Add(RepeateRect);
 
                 Lines[1].Name = "NameGrid";
                 Lines[1].Margin = new Thickness(10, 0, 10, 0);
@@ -550,7 +524,19 @@ namespace StD_Player_3
                 ButtonsGrid.Children.Add(Buttons);
             }
 
+            AudioCardType = SCType;
+            switch (AudioCardType)
+            {
+                case SoundType.Standart:
+                    Sound = new SoundChannel();
+                    break;
+                case SoundType.ASIO:
+                    Sound = new SoundChannel();
+                    break;
+            }
+            Sound.AutoStop += AutoStop;
             DeskN = N;
+            Sound.SoundCard = sound_card;
             Scale = scale;// CurGrid.ActualHeight / 794.0;
             MakeGridStructure(CurGrid);
             PlayButton = SetButton(Buttons, 0, "", PlayButton_Click, "Play");
@@ -571,10 +557,13 @@ namespace StD_Player_3
             ProgressCanvas.MouseMove += TrackLabel_MouseMove;
             ProgressCanvas.MouseEnter += TrackLabel_MouseEnter;
             ProgressCanvas.MouseLeave += TrackLabel_MouseLeave;
+            Sound.OnPlay += DoOnPlay;
+            Sound.OnPause += DoOnPause;
+            Sound.OnStop += DoOnStop;
 
             DeskState = new PlayState(StatusColorRect);
-            Balance = balance;
-            Volume = volume;
+            Sound.SetBalance(balance);
+            Sound.SetVolume(volume);
             LabelClick = new ListClick(PressedTrackRect, ListHeightMargin);
             UpdateList();
         }
@@ -623,15 +612,15 @@ namespace StD_Player_3
             }
             
             // Вычисление текущего времени
-            string Pos = PositionTime();
+            string Pos = Sound.PositionTime();
             if (Pos != PositionLabel.Content.ToString()) PositionLabel.Content = Pos;
 
             //Вычисление времени длины
-            Pos = LengthTime();
+            Pos = Sound.LengthTime();
             if (Pos != LengthLabel.Content.ToString()) LengthLabel.Content = Pos;
 
             //Отображение позиции трека
-            long PositionT = Position;
+            long PositionT = Sound.Position;
             PositionRect.Width = BackgroundRect.Width * PositionT / 1000;
             UpdateMiddleRect();
 
@@ -659,18 +648,18 @@ namespace StD_Player_3
             if (PositionTrackShow)
             {
                 double NewPosition = MouseX * 1000 / ProgressCanvas.ActualWidth;
-                string ForeStr = Position < (NewPosition)
+                string ForeStr = Sound.Position < (NewPosition)
                     ? "White"
                     : "Black";
                 TrackTimeLabel.SetResourceReference(Label.ForegroundProperty, ForeStr);
 
-                MiddleRect.Margin = Position < (NewPosition)
-                    ? new Thickness(Position * ProgressCanvas.ActualWidth / 1000 - 0.5, 0, 0, 0)
+                MiddleRect.Margin = Sound.Position < (NewPosition)
+                    ? new Thickness(Sound.Position * ProgressCanvas.ActualWidth / 1000 - 0.5, 0, 0, 0)
                     : new Thickness(MouseX, 0, 0, 0);
 
-                MiddleRect.Width = Position < (NewPosition)
-                    ? MouseX - Position * ProgressCanvas.ActualWidth / 1000
-                    : Position * ProgressCanvas.ActualWidth / 1000 - MouseX + 0.5;
+                MiddleRect.Width = Sound.Position < (NewPosition)
+                    ? MouseX - Sound.Position * ProgressCanvas.ActualWidth / 1000
+                    : Sound.Position * ProgressCanvas.ActualWidth / 1000 - MouseX + 0.5;
             }
             else
             {
@@ -707,7 +696,7 @@ namespace StD_Player_3
         /// <param name="e">параметры события</param>
         private void PlayButton_Click(object sender, RoutedEventArgs e)
         {
-            Play();
+            Sound.Play();
             UpdateVisualElements();
         }
 
@@ -718,7 +707,7 @@ namespace StD_Player_3
         /// <param name="e">параметры события</param>
         private void PauseButton_Click(object sender, RoutedEventArgs e)
         {
-            Pause();
+            Sound.Pause();
             UpdateVisualElements();
         }
 
@@ -729,7 +718,7 @@ namespace StD_Player_3
         /// <param name="e">параметры события</param>
         private void StopButton_Click(object sender, RoutedEventArgs e)
         {
-            Stop();
+            Sound.Stop();
             UpdateVisualElements();
         }
 
@@ -740,7 +729,7 @@ namespace StD_Player_3
         /// <param name="e">параметры события</param>
         private void NextButton_Click(object sender, RoutedEventArgs e)
         {
-            Stop();
+            Sound.Stop();
             CurrentTrack++;
             UpdateVisualElements();
         }
@@ -752,7 +741,7 @@ namespace StD_Player_3
         /// <param name="e">параметры события</param>
         private void PreviosButton_Click(object sender, RoutedEventArgs e)
         {
-            Stop();
+            Sound.Stop();
             CurrentTrack--;
             UpdateVisualElements();
         }
@@ -816,7 +805,7 @@ namespace StD_Player_3
         private void TrackLabel_MouseUp(object sender, MouseEventArgs e)
         {
             PositionTrackShow = false;
-            Position = Convert.ToInt32(e.GetPosition((Canvas)sender).X *
+            Sound.Position = Convert.ToInt32(e.GetPosition((Canvas)sender).X *
                 1000 / ((Canvas)sender).ActualWidth);
         }
 
@@ -863,7 +852,7 @@ namespace StD_Player_3
             bool LabelPos = MouseX < TrackTimeLabel.ActualWidth + 10;
             double NewPosition = MouseX * 1000 / ((Canvas)sender).ActualWidth;
 
-            PositionTrackLabel = PositionTime(Convert.ToInt32(NewPosition));
+            PositionTrackLabel = Sound.PositionTime(Convert.ToInt32(NewPosition));
             UpdateMiddleRect();
 
             TrackTimeLabel.Margin = LabelPos
@@ -872,6 +861,18 @@ namespace StD_Player_3
             
         }
 
+        /// <summary>
+        /// Событие на автоматическую остановку
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void AutoStop(object sender, EventArgs e)
+        {
+            if (TrackList[CurrentTrack].Repeat)
+                Sound.Play();
+            else CurrentTrack++;
+            UpdateVisualElements();
+        }
 
 
         /// <summary>
@@ -884,7 +885,8 @@ namespace StD_Player_3
         public void AddTrack(string FileName, string Number, string Name, bool Repeat=false)
         {
             TrackList.Add(new MusicTrack(FileName, Number, Name, Repeat));
-            if (Channel == 0) Open(TrackList[CurrentTrack].Data, TrackList[CurrentTrack].Repeat);
+            if (Sound.GetChannel() == 0)
+                Sound.Open(TrackList[CurrentTrack].Data, TrackList[CurrentTrack].Repeat);
             UpdateList();
         }
 
@@ -898,7 +900,8 @@ namespace StD_Player_3
         public void AddTrack(Stream FileStream, string Number, string Name, bool Repeat = false)
         {
             TrackList.Add(new MusicTrack(FileStream, Number, Name, Repeat));
-            if (Channel == 0) Open(TrackList[CurrentTrack].Data, TrackList[CurrentTrack].Repeat);
+            if (Sound.GetChannel() == 0)
+                Sound.Open(TrackList[CurrentTrack].Data, TrackList[CurrentTrack].Repeat);
             UpdateList();
         }
 
@@ -909,7 +912,8 @@ namespace StD_Player_3
         public void AddTrack(MusicTrack Track)
         {
             TrackList.Add(Track);
-            if (Channel == 0) Open(TrackList[CurrentTrack].Data, TrackList[CurrentTrack].Repeat);
+            if (Sound.GetChannel() == 0)
+                Sound.Open(TrackList[CurrentTrack].Data, TrackList[CurrentTrack].Repeat);
             UpdateList();
         }
 
@@ -926,7 +930,7 @@ namespace StD_Player_3
         /// Событие Bass.dll. OnPlay
         /// </summary>
         /// <param name="InObject">Внутренний параметр</param>
-        protected override void DoOnPlay(object InObject)
+        protected void DoOnPlay(object sender, EventArgs e)
         {
             DeskState.State = PlayState.Play;
         }
@@ -935,7 +939,7 @@ namespace StD_Player_3
         /// Событие Bass.dll. OnPause
         /// </summary>
         /// <param name="InObject">Внутренний параметр</param>
-        protected override void DoOnPause(object InObject)
+        protected void DoOnPause(object sender, EventArgs e)
         {
             DeskState.State = PlayState.Pause;
         }
@@ -944,7 +948,7 @@ namespace StD_Player_3
         /// Событие Bass.dll. OnStop
         /// </summary>
         /// <param name="InObject">Внутренний параметр</param>
-        protected override void DoOnStop(object InObject)
+        protected void DoOnStop(object sender, EventArgs e)
         {
             DeskState.State = PlayState.Stop;
         }
@@ -955,10 +959,10 @@ namespace StD_Player_3
         public void DrawFriq()
         {
             int Level;
-            if (State)
+            if (Sound.State)
             {
-                Int32 Levels = Bass.BASS_ChannelGetLevel(Channel);
-                Level = Balance == 1 ? Levels.HighWord() : Levels.LowWord();
+                Int32 Levels = Bass.BASS_ChannelGetLevel(Sound.Channel);
+                Level = Sound.Balance == 1 ? Levels.HighWord() : Levels.LowWord();
             }
             else Level = 0;
 
@@ -1053,7 +1057,7 @@ namespace StD_Player_3
         }
     }
 
-    class ListClick
+    public class ListClick
     {
         private Label element = null;
         private bool mousedown = false;
@@ -1119,7 +1123,7 @@ namespace StD_Player_3
     /// Показывает состояние плеера (Играет, пауза, остановка) 
     /// и управляет графическими элементами интерфейса
     /// </summary>
-    class PlayState
+    public class PlayState
     {
         // Внутренние параметры
         private byte state = 0;

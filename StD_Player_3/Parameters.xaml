@@ -1,0 +1,36 @@
+﻿<Window x:Class="StD_Player_3.Parameters"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:StD_Player_3"
+        mc:Ignorable="d"
+        Title="Выбрать спектакль" ResizeMode="NoResize" ShowInTaskbar="False" SizeToContent="WidthAndHeight" WindowStartupLocation="CenterOwner" BorderBrush="Black" WindowStyle="None" HorizontalAlignment="Left" VerticalAlignment="Top">
+
+    <Grid Background="{DynamicResource Background}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="40"/>
+            <RowDefinition/>
+            <RowDefinition Height="60"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="50*"/>
+            <ColumnDefinition Width="50*"/>
+        </Grid.ColumnDefinitions>
+        <Rectangle Stroke="{DynamicResource Gray}" StrokeThickness="2" Grid.RowSpan="3" Grid.ColumnSpan="2"/>
+        <Grid Grid.Row="0" Grid.ColumnSpan="2" MouseLeftButtonDown="Grid_MouseLeftButtonDown">
+            <Rectangle x:Name="TitleRect" Margin="5,5,5,0" Fill="{DynamicResource Gray}"/>
+            <Label x:Name="TitleLabel" Foreground="{DynamicResource White}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="20" Content="Параметры"/>
+        </Grid>
+        <Grid x:Name="Desk1" Grid.Row="1" Grid.Column="0"/>
+        <Grid x:Name="Desk2" Grid.Row="1" Grid.Column="1"/>
+        <Grid Grid.Row="2" Grid.ColumnSpan="2">
+            <StackPanel HorizontalAlignment="Center" Margin="0" VerticalAlignment="Center" Orientation="Horizontal">
+                <Button x:Name="LoadButton" Style="{DynamicResource StandartBtn}" Content="Загрузить" Margin="0,0,10,0" FontSize="20" Padding="20,1" Click="LoadButton_Click"/>
+                <Button Content="Закрыть" Style="{DynamicResource StandartBtn}" Width="{Binding ActualWidth, ElementName=LoadButton, Mode=OneWay}" FontSize="20" Height="{Binding ActualHeight, ElementName=LoadButton, Mode=OneWay}" Click="Button_Click"/>
+
+            </StackPanel>
+
+        </Grid>
+    </Grid>
+</Window>
