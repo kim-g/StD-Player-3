@@ -174,7 +174,12 @@ namespace StD_Player_3
         
         private void Button_Click_3(object sender, RoutedEventArgs e)
         {
-            Application.Current.Shutdown();
+            switch (Config.GetConfigValue("Close"))
+            {
+                case "close": Application.Current.Shutdown(); break;
+                case "shutdown": System.Diagnostics.Process.Start("shutdown", "/s /f /t 00"); break;
+                default: Application.Current.Shutdown(); break;
+            }
         }
 
         private void button_Click_4(object sender, RoutedEventArgs e)

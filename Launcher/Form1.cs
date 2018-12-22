@@ -24,7 +24,7 @@ namespace Launcher
 
         private void timer1_Tick(object sender, EventArgs e)
         {
-            System.Diagnostics.Process.Start("StD_Player.exe");
+            System.Diagnostics.Process.Start(@"D:\StD_Player\StD_Player.exe");
             timer1.Enabled = false;
             Close();
         }
