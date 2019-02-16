@@ -16,6 +16,7 @@ namespace StD_Player_3
         private StackPanel DeskLabelPanel;
         private Label DeskLabel;
         private ComboBox CardsList;
+        private Label Channels;
         private SQLite.SQLiteConfig Config;
 
         public byte NDesk { get; set; }
@@ -34,6 +35,8 @@ namespace StD_Player_3
             this.Config = Config;
             NDesk = ndesk;
 
+            Channels = new Label();
+            Channels.SetResourceReference(Control.ForegroundProperty, "Foreground");
             CorePanel = new StackPanel()
             {
                 Orientation = Orientation.Vertical,
@@ -58,7 +61,9 @@ namespace StD_Player_3
                 FontSize = 14,
                 Width = 250
             };
-            
+            CardsList.SelectionChanged += ComboBoxSelectionChanged;
+
+
             CardsList.SetResourceReference(Control.ForegroundProperty, "Foreground");
             CardsList.SetResourceReference(Control.BackgroundProperty, "Background");
             bool SC_Found = false;
@@ -77,8 +82,16 @@ namespace StD_Player_3
             DeskLabelPanel.Children.Add(CardsList);
 
             CorePanel.Children.Add(DeskLabelPanel);
+            CorePanel.Children.Add(Channels);
 
             CurGrid.Children.Add(CorePanel);
+        }
+
+        private void ComboBoxSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            BASS_INFO info = new BASS_INFO();
+            if (Bass.BASS_GetInfo(info))
+                Channels.Content = info.ToString();
         }
 
     }
