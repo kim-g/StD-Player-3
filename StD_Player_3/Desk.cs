@@ -528,10 +528,10 @@ namespace StD_Player_3
             switch (AudioCardType)
             {
                 case SoundType.Standart:
-                    Sound = new SoundChannel();
+                    Sound = new SoundChannel(balance);
                     break;
                 case SoundType.ASIO:
-                    Sound = new SoundChannel();
+                    Sound = new ASIO_Channel(balance);
                     break;
             }
             Sound.AutoStop += AutoStop;

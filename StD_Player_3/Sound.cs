@@ -150,7 +150,7 @@ namespace StD_Player_3
             BASSFlag Loop = repeate
                 ? BASSFlag.BASS_MUSIC_LOOP
                 : BASSFlag.BASS_DEFAULT;
-            Channel = Bass.BASS_StreamCreateFile(FileName, 0, 0, Loop | AudioChannel);
+            Channel = Bass.BASS_StreamCreateFile(FileName, 0, 0, BASSFlag.BASS_SAMPLE_FLOAT | Loop);
             SetOpenParameters();
         }
 
@@ -160,7 +160,7 @@ namespace StD_Player_3
         private void SetOpenParameters()
         {
             Bass.BASS_ChannelSetAttribute(Channel, BASSAttribute.BASS_ATTRIB_VOL, Volume / 100f);
-            //Bass.BASS_ChannelSetAttribute(Channel, BASSAttribute.BASS_ATTRIB_PAN, Balance);
+            Bass.BASS_ChannelSetAttribute(Channel, BASSAttribute.BASS_ATTRIB_PAN, Balance);
             Length = GetLength();
         }
 
@@ -200,7 +200,7 @@ namespace StD_Player_3
             _hGCFile = GCHandle.Alloc(ByteStream, GCHandleType.Pinned);
             // create the stream (AddrOfPinnedObject delivers the necessary IntPtr)
             Channel = Bass.BASS_StreamCreateFile(_hGCFile.AddrOfPinnedObject(),
-                              0L, ByteStream.Length, BASSFlag.BASS_SAMPLE_FLOAT | Loop | AudioChannel);
+                              0L, ByteStream.Length, BASSFlag.BASS_SAMPLE_FLOAT | Loop/* | AudioChannel*/);
             SetOpenParameters();
         }
 
