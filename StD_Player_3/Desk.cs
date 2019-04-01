@@ -973,10 +973,7 @@ namespace StD_Player_3
             if (NewHeight < LevelsThickness) NewHeight = LevelsThickness;
             if (NewHeight > FreqBkg.ActualHeight - LevelsThickness)
                 NewHeight = FreqBkg.ActualHeight - LevelsThickness;
-
-            /*int speed = NewHeight > Freq.Margin.Top ? 90 : 10;
-            if (NewHeight - Freq.Margin.Bottom > FreqBkg.ActualHeight * 0.2)
-                NewHeight = Freq.Margin.Bottom + FreqBkg.ActualHeight * 0.2;*/
+            
             Animator.Margin(Freq, new Thickness(LevelsThickness, LevelsThickness, LevelsThickness, 
                 FreqBkg.ActualHeight - NewHeight), 0, 100);
         }

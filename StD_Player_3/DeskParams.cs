@@ -17,6 +17,10 @@ namespace StD_Player_3
         private Label DeskLabel;
         private ComboBox CardsList;
         private Label Channels;
+        private Grid SoundPanPanel;
+        private RadioButton LeftRB;
+        private RadioButton CenterRB;
+        private RadioButton RightRB;
         private SQLite.SQLiteConfig Config;
 
         public byte NDesk { get; set; }
@@ -24,19 +28,63 @@ namespace StD_Player_3
         {
             get
             {
-                string Combo = ((ComboBoxItem)CardsList.SelectedItem).Content.ToString();
-                return Bass.BASS_GetDeviceInfos().Where
-                    (x => x.name == Combo).ToArray()[0].id;
+                try
+                {
+                    string Combo = ((ComboBoxItem)CardsList.SelectedItem).Content.ToString();
+                    return Bass.BASS_GetDeviceInfos().Where
+                        (x => x.name == Combo).ToArray()[0].id;
+                }
+                catch
+                {
+                    return "";
+                }
             }
         }
 
-        public DeskParams(Grid CurGrid, byte ndesk, string SoundCard)
+        public string Pan
         {
-            this.Config = Config;
+            get
+            {
+                if (LeftRB.IsChecked == true) return "left";
+                if (CenterRB.IsChecked == true) return "center";
+                if (RightRB.IsChecked == true) return "right";
+                return "NULL";
+            }
+            set
+            {
+                switch (value)
+                {
+                    case "left":
+                        LeftRB.IsChecked = true;
+                        CenterRB.IsChecked = false;
+                        RightRB.IsChecked = false;
+                        break;
+                    case "center":
+                        LeftRB.IsChecked = false;
+                        CenterRB.IsChecked = true;
+                        RightRB.IsChecked = false;
+                        break;
+                    case "right":
+                        LeftRB.IsChecked = false;
+                        CenterRB.IsChecked = false;
+                        RightRB.IsChecked = true;
+                        break;
+                    default:
+                        LeftRB.IsChecked = false;
+                        CenterRB.IsChecked = true;
+                        RightRB.IsChecked = false;
+                        break;
+                }
+            }
+        }
+
+        public DeskParams(Grid CurGrid, byte ndesk, string SoundCard, string Pan)
+        {
             NDesk = ndesk;
 
             Channels = new Label();
             Channels.SetResourceReference(Control.ForegroundProperty, "Foreground");
+            Channels.Visibility = Visibility.Collapsed;
             CorePanel = new StackPanel()
             {
                 Orientation = Orientation.Vertical,
@@ -79,10 +127,42 @@ namespace StD_Player_3
                 }
             }
 
+            SoundPanPanel = new Grid();
+            for (byte i=0; i<3; i++)
+                SoundPanPanel.ColumnDefinitions.Add(new ColumnDefinition()
+                    { Width = new GridLength(1, GridUnitType.Star) });
+
+
+            LeftRB = new RadioButton()
+            {
+                Content = "Левый канал",
+                IsChecked = Pan == "left"
+            };
+            LeftRB.SetResourceReference(Control.ForegroundProperty, "Foreground");
+            CenterRB = new RadioButton()
+            {
+                Content = "Оба канала",
+                IsChecked = Pan == "center"
+            };
+            CenterRB.SetResourceReference(Control.ForegroundProperty, "Foreground");
+            RightRB = new RadioButton()
+            {
+                Content = "Правый канал",
+                IsChecked = Pan == "right"
+            };
+            RightRB.SetResourceReference(Control.ForegroundProperty, "Foreground");
+            Grid.SetColumn(LeftRB, 0);
+            Grid.SetColumn(CenterRB, 1);
+            Grid.SetColumn(RightRB, 2);
+            SoundPanPanel.Children.Add(LeftRB);
+            SoundPanPanel.Children.Add(CenterRB);
+            SoundPanPanel.Children.Add(RightRB);
+
             DeskLabelPanel.Children.Add(CardsList);
 
             CorePanel.Children.Add(DeskLabelPanel);
             CorePanel.Children.Add(Channels);
+            CorePanel.Children.Add(SoundPanPanel);
 
             CurGrid.Children.Add(CorePanel);
         }
@@ -91,7 +171,11 @@ namespace StD_Player_3
         {
             BASS_INFO info = new BASS_INFO();
             if (Bass.BASS_GetInfo(info))
+            {
                 Channels.Content = info.ToString();
+                int speakers = info.speakers;
+                //if speakers
+            }
         }
 
     }

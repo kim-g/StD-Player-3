@@ -258,8 +258,8 @@ namespace StD_Player_3
             SoundChannel.Initiate();
             for (int i = 1; i < Bass.BASS_GetDeviceInfos().Length; i++)
                 SoundChannel.Initiate(i);
-            Channel_1 = new Desk(Desk1, -1, 100, 1, Scale, -1, SoundType.Standart);
-            Channel_2 = new Desk(Desk2,  1, 100, 2, Scale, -1, SoundType.Standart);
+            Channel_1 = new Desk(Desk1, GetPan(1), 100, 1, Scale, -1, SoundType.Standart);
+            Channel_2 = new Desk(Desk2, GetPan(2), 100, 2, Scale, -1, SoundType.Standart);
 
             SetSoundCards(new Desk[2] { Channel_1, Channel_2 });
 
@@ -285,12 +285,29 @@ namespace StD_Player_3
             }
             for (int i = 0; i < SoundCards.Length; i++)
                 SoundCards[i].Sound.SoundCard = Channels[i];
+            foreach (Desk D in SoundCards)
+                D.Sound.SetBalance(GetPan(D.DeskN));
         }
 
         private void LoadButtonLabel_Loaded(object sender, RoutedEventArgs e)
         {
            
             
+        }
+
+        private int GetPan(byte DeskN)
+        {
+            switch (Config.GetConfigValue($"Desk_{DeskN}_Pan"))
+            {
+                case "left":
+                    return -1;
+                case "center":
+                    return 0;
+                case "right":
+                    return 1;
+                default:
+                    return 0;
+            }
         }
     }
 }

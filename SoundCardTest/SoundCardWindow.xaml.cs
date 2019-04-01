@@ -17,11 +17,11 @@ using Un4seen.Bass;
 namespace SoundCardTest
 {
     /// <summary>
-    /// Логика взаимодействия для MainWindow.xaml
+    /// Логика взаимодействия для SoundCardWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class SoundCardWindow : Window
     {
-        public MainWindow()
+        public SoundCardWindow()
         {
             InitializeComponent();
 
@@ -30,6 +30,13 @@ namespace SoundCardTest
                 if (Card.id == null) continue;
                 SoundCards.Items.Add(new ComboBoxItem() { Content = Card.name });
                 if (Card.IsDefault) SoundCards.SelectedIndex = SoundCards.Items.Count - 1;
+            }
+
+            int channels = 0;
+            float dummy;
+            while (Bass.BASS_ChannelGetAttribute(music, (BASSAttribute)((int)BASS_ATTRIB_MUSIC_VOL_CHAN + channels), ref dummy))
+            {
+                channels++;
             }
         }
     }

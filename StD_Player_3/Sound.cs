@@ -150,7 +150,7 @@ namespace StD_Player_3
             BASSFlag Loop = repeate
                 ? BASSFlag.BASS_MUSIC_LOOP
                 : BASSFlag.BASS_DEFAULT;
-            Channel = Bass.BASS_StreamCreateFile(FileName, 0, 0, BASSFlag.BASS_SAMPLE_FLOAT | Loop);
+            Channel = Bass.BASS_StreamCreateFile(FileName, 0, 0, BASSFlag.BASS_SAMPLE_FLOAT | Loop | AudioChannel);
             SetOpenParameters();
         }
 
@@ -161,6 +161,7 @@ namespace StD_Player_3
         {
             Bass.BASS_ChannelSetAttribute(Channel, BASSAttribute.BASS_ATTRIB_VOL, Volume / 100f);
             Bass.BASS_ChannelSetAttribute(Channel, BASSAttribute.BASS_ATTRIB_PAN, Balance);
+            SetBalance(Balance);
             Length = GetLength();
         }
 
@@ -200,7 +201,7 @@ namespace StD_Player_3
             _hGCFile = GCHandle.Alloc(ByteStream, GCHandleType.Pinned);
             // create the stream (AddrOfPinnedObject delivers the necessary IntPtr)
             Channel = Bass.BASS_StreamCreateFile(_hGCFile.AddrOfPinnedObject(),
-                              0L, ByteStream.Length, BASSFlag.BASS_SAMPLE_FLOAT | Loop/* | AudioChannel*/);
+                              0L, ByteStream.Length, BASSFlag.BASS_SAMPLE_FLOAT | Loop | AudioChannel);
             SetOpenParameters();
         }
 
@@ -267,8 +268,8 @@ namespace StD_Player_3
             if (Channel == 0) return "--:--";
 
             double PosSeconds = Bass.BASS_ChannelBytes2Seconds(Channel, GetPosition());
-            int PosMinute = Convert.ToInt32(Math.Floor(PosSeconds / 60f));
-            int PosSecond = Convert.ToInt32(Math.Round(PosSeconds - (PosMinute * 60)));
+            int PosMinute = Convert.ToInt32(Math.Floor(PosSeconds / 60));
+            int PosSecond = Convert.ToInt32(Math.Floor(PosSeconds - (PosMinute * 60)));
             string Pos = PosMinute.ToString("D2") + ":" + PosSecond.ToString("D2");
             return Pos;
         }
@@ -311,12 +312,15 @@ namespace StD_Player_3
         public void SetBalance(int balance)
         {
             Balance = balance;
-            switch (Balance)
+            Bass.BASS_ChannelSetAttribute(Channel, BASSAttribute.BASS_ATTRIB_PAN, Balance);
+            AudioChannel = BASSFlag.BASS_SPEAKER_FRONT;
+            /*switch (Balance)
             {
                 case -1: AudioChannel = BASSFlag.BASS_SPEAKER_FRONTLEFT; break;
+                case 0: AudioChannel = BASSFlag.BASS_SPEAKER_FRONT; break;
                 case 1: AudioChannel = BASSFlag.BASS_SPEAKER_FRONTRIGHT; break;
 
-            }
+            }*/
         }
 
         /// <summary>

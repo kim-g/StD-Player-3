@@ -29,8 +29,10 @@ namespace StD_Player_3
             Owner = DialogParentWindow;
             Config = ((MainWindow)DialogParentWindow).Config;
 
-            Desks[0] = new DeskParams(Desk1, 1, Config.GetConfigValue("Desk_1_Sound_Card"));
-            Desks[1] = new DeskParams(Desk2, 2, Config.GetConfigValue("Desk_2_Sound_Card"));
+            Desks[0] = new DeskParams(Desk1, 1, Config.GetConfigValue("Desk_1_Sound_Card"),
+                Config.GetConfigValue("Desk_1_Pan"));
+            Desks[1] = new DeskParams(Desk2, 2, Config.GetConfigValue("Desk_2_Sound_Card"),
+                Config.GetConfigValue("Desk_2_Pan"));
         }
 
         private void Grid_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -50,6 +52,7 @@ namespace StD_Player_3
             foreach (DeskParams D in Desks)
             {
                 Config.SetConfigValue($"Desk_{D.NDesk}_Sound_Card", D.SoundCard);
+                Config.SetConfigValue($"Desk_{D.NDesk}_Pan", D.Pan);
             }
             Close();
         }
