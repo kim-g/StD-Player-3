@@ -286,7 +286,10 @@ namespace StD_Player_3
             for (int i = 0; i < SoundCards.Length; i++)
                 SoundCards[i].Sound.SoundCard = Channels[i];
             foreach (Desk D in SoundCards)
+            {
                 D.Sound.SetBalance(GetPan(D.DeskN));
+                D.CurrentTrack = D.CurrentTrack;
+            }
         }
 
         private void LoadButtonLabel_Loaded(object sender, RoutedEventArgs e)

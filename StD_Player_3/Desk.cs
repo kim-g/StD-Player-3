@@ -50,8 +50,10 @@ namespace StD_Player_3
         protected PlayState DeskState;
         protected Label[] ListLabels;
         protected ListClick LabelClick;
-        protected Rectangle Freq;
-        protected Rectangle FreqBkg;
+        protected Rectangle FreqLeft;
+        protected Rectangle FreqLeftBkg;
+        protected Rectangle FreqRight;
+        protected Rectangle FreqRightBkg;
         protected Rectangle RepeateRect;
         protected double Scale = 1.0;
         const byte LevelsThickness = 1;
@@ -460,26 +462,52 @@ namespace StD_Player_3
                 PositionLabel = SetTimeLabel(L2[0], "Прошло", "Green");
                 LengthLabel = SetTimeLabel(L2[1], "Всего", "Red");
 
+                // Настройка индикаторов уровня
                 FreqGrid = new Grid();
                 FreqGrid.Name = "FreqGrid";
+                Grid[] FreqGrids = new Grid[2];
+                FreqGrids[0] = new Grid();
+                FreqGrids[0].Name = "FreqLeftGrid";
+                Grid.SetRow(FreqGrids[0], 0);
+                FreqGrids[1] = new Grid();
+                FreqGrids[1].Name = "FreqRightGrid";
+                Grid.SetRow(FreqGrids[1], 1);
                 FreqGrid.Margin = new Thickness(0, ScaleTo(10.0), ScaleTo(10.0), ScaleTo(10.0));
-                FreqBkg = new Rectangle()
+                //Настройка левого индикатора
+                FreqLeftBkg = new Rectangle()
                 {
-                    Name = "FreqBkg",
+                    Name = "FreqLeftBkg",
                     Fill = MainWindow.LevelsI,
                     StrokeThickness = LevelsThickness
                 };
-                FreqBkg.SetResourceReference(Rectangle.StrokeProperty, "BorderSolid");
+                FreqLeftBkg.SetResourceReference(Rectangle.StrokeProperty, "BorderSolid");
 
-                Freq = new Rectangle()
+                FreqLeft = new Rectangle()
                 {
                     Margin = new Thickness(LevelsThickness),
                     Fill = MainWindow.LevelsO,
-                    Name = "Freq"
+                    Name = "FreLeft"
+                };
+                FreqGrids[0].Children.Add(FreqLeftBkg);
+                FreqGrids[0].Children.Add(FreqLeft);
+                //Настройка правого индикатора
+                FreqRightBkg = new Rectangle()
+                {
+                    Name = "FreqRightBkg",
+                    Fill = MainWindow.LevelsI,
+                    StrokeThickness = LevelsThickness
+                };
+                FreqRightBkg.SetResourceReference(Rectangle.StrokeProperty, "BorderSolid");
+
+                FreqRight = new Rectangle()
+                {
+                    Margin = new Thickness(LevelsThickness),
+                    Fill = MainWindow.LevelsO,
+                    Name = "FreRight"
                 };
 
-                FreqGrid.Children.Add(FreqBkg);
-                FreqGrid.Children.Add(Freq);
+                FreqGrid.Children.Add(FreqRightBkg);
+                FreqGrid.Children.Add(FreqRight);
 
                 Grid.SetColumn(LabelGrig, 0);
                 Grid.SetColumn(FreqGrid, 1);
@@ -958,30 +986,59 @@ namespace StD_Player_3
         /// </summary>
         public void DrawFriq()
         {
-            int Level;
+            int[] Level = new int[2];
             if (Sound.State)
             {
                 Int32 Levels = Bass.BASS_ChannelGetLevel(Sound.Channel);
-                Level = Sound.Balance == 1 ? Levels.HighWord() : Levels.LowWord();
+                Level[1] = Levels.HighWord();
+                Level[0] = Levels.LowWord();
             }
-            else Level = 0;
+            else
+            {
+                Level[0] = 0;
+                Level[1] = 0;
+            }
 
-            double db = 10 * Math.Log10(Level / 32768f);
-            db = db < -23 ? -23 : db;
+            double[] db = new double[2];
+            for (int i = 0; i < 2; i++)
+            {
+                db[i] = 10 * Math.Log10(Level[i] / 32768f);
+                db[i] = db[i] < -23 ? -23 : db[i];
+            }
 
-            double NewHeight =  FreqBkg.ActualHeight * ( 0 - db / 23);
+            double NewHeight =  FreqLeftBkg.ActualHeight * ( 0 - db[0] / 23);
             if (NewHeight < LevelsThickness) NewHeight = LevelsThickness;
-            if (NewHeight > FreqBkg.ActualHeight - LevelsThickness)
-                NewHeight = FreqBkg.ActualHeight - LevelsThickness;
+            if (NewHeight > FreqLeftBkg.ActualHeight - LevelsThickness)
+                NewHeight = FreqLeftBkg.ActualHeight - LevelsThickness;
             
-            Animator.Margin(Freq, new Thickness(LevelsThickness, LevelsThickness, LevelsThickness, 
-                FreqBkg.ActualHeight - NewHeight), 0, 100);
+            Animator.Margin(FreqLeft, new Thickness(LevelsThickness, LevelsThickness, LevelsThickness, 
+                FreqLeftBkg.ActualHeight - NewHeight), 0, 100);
+
+            NewHeight = FreqRightBkg.ActualHeight * (0 - db[1] / 23);
+            if (NewHeight < LevelsThickness) NewHeight = LevelsThickness;
+            if (NewHeight > FreqRightBkg.ActualHeight - LevelsThickness)
+                NewHeight = FreqRightBkg.ActualHeight - LevelsThickness;
+
+            Animator.Margin(FreqRight, new Thickness(LevelsThickness, LevelsThickness, LevelsThickness,
+                FreqRightBkg.ActualHeight - NewHeight), 0, 100);
         }
 
         public void SetLevels(Brush I, Brush O)
         {
-            Freq.Fill = O;
-            FreqBkg.Fill = I;
+            FreqLeft.Fill = O;
+            FreqLeftBkg.Fill = I;
+            FreqRight.Fill = O;
+            FreqRightBkg.Fill = I;
+        }
+
+        public void SetBalance(int balance)
+        {
+            Sound.SetBalance(balance);
+            /*switch (Sound.Balance)
+            {
+                case -1:
+                    
+            }*/
         }
     }
 

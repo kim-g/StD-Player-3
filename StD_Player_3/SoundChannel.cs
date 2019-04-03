@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using Un4seen.Bass;
 
 namespace StD_Player_3
@@ -60,7 +61,11 @@ namespace StD_Player_3
         /// <returns></returns>
         protected override bool SetDevice(int device)
         {
-            return Bass.BASS_SetDevice(device);
+            if (device == -1) return true;
+            if (Bass.BASS_SetDevice(device))
+                return true;
+            MessageBox.Show(Bass.BASS_ErrorGetCode().ToString());
+            return false;
         }
 
         /// <summary>

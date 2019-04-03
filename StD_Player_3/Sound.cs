@@ -22,7 +22,7 @@ namespace StD_Player_3
         public event EventHandler OnStop;
         public event EventHandler OnPause;
         public event EventHandler OnPlay;
-        public int SoundCard;
+        protected int _SoundCard;
         protected long LastPos;
         BASSFlag AudioChannel = BASSFlag.BASS_SPEAKER_FRONT;
 
@@ -96,6 +96,16 @@ namespace StD_Player_3
                 if (value > 1000) Pos = 1000;
 
                 SetPosition(Pos * Length / 1000);
+            }
+        }
+
+        public int SoundCard
+        {
+            get { return _SoundCard; }
+            set
+            {
+                _SoundCard = value;
+                SetDevice(_SoundCard);
             }
         }
 
@@ -285,7 +295,7 @@ namespace StD_Player_3
             double PosSeconds = Bass.BASS_ChannelBytes2Seconds(Channel,
                 position * Length / 1000);
             int PosMinute = Convert.ToInt32(Math.Floor(PosSeconds / 60f));
-            int PosSecond = Convert.ToInt32(Math.Round(PosSeconds - (PosMinute * 60)));
+            int PosSecond = Convert.ToInt32(Math.Floor(PosSeconds - (PosMinute * 60)));
             string Pos = PosMinute.ToString("D2") + ":" + PosSecond.ToString("D2");
             return Pos;
         }
