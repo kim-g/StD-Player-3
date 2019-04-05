@@ -42,6 +42,26 @@ namespace Extentions
         }
 
         /// <summary>
+        /// Изменяет ширину элемента
+        /// </summary>
+        /// <param name="Element"></param>
+        /// <param name="ToWidth"></param>
+        /// <param name="Time"></param>
+        /// <param name="Delay"></param>
+        public static void ChangeWidth(FrameworkElement Element, double ToWidth, int Time = 10,
+            int Delay = 0)
+        {
+            if (double.IsNaN(Element.Width))
+            {
+                Element.Width = 0;
+            }
+            DoubleAnimation Animation = new DoubleAnimation(ToWidth, TimeSpan.FromMilliseconds(Time));
+            Animation.From = Element.Width;
+            Animation.BeginTime = TimeSpan.FromMilliseconds(Delay);
+            Element.BeginAnimation(FrameworkElement.WidthProperty, Animation);
+        }
+
+        /// <summary>
         /// Анимация изменения размера RenderTransform.Scale
         /// </summary>
         /// <param name="Element">Элемент интерфейса</param>

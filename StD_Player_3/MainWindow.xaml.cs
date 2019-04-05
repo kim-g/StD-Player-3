@@ -28,12 +28,14 @@ namespace StD_Player_3
         Desk Channel_1;
         Desk Channel_2;
         DispatcherTimer timer;
+        DispatcherTimer LevelsTimer;
         DispatcherTimer TimeTimer;
         bool Loading = true;
         public SQLite.SQLiteConfig Config = new SQLite.SQLiteConfig("Config.db");
         protected double Scale;
         public static LinearGradientBrush LevelsO;
         public static LinearGradientBrush LevelsI;
+        public static int UpdateTime = 100;
 
         public MainWindow()
         {
@@ -47,17 +49,16 @@ namespace StD_Player_3
             Top = 0;
             Width = SystemParameters.WorkArea.Width;
             Height = SystemParameters.WorkArea.Height;
-            //Height = 400;
-
-            /*SoundChannel.Initiate();
-            for (int i = 1; i< Bass.BASS_GetDeviceInfos().Length; i++)
-                SoundChannel.Initiate(i);*/
-
 
             timer = new DispatcherTimer(DispatcherPriority.Normal);
             timer.Tick += new EventHandler(timerTick);
-            timer.Interval = new TimeSpan(0, 0, 0, 0, 100);
+            timer.Interval = new TimeSpan(0, 0, 0, 0, UpdateTime);
             timer.Start();
+
+            LevelsTimer = new DispatcherTimer(DispatcherPriority.Normal);
+            LevelsTimer.Tick += new EventHandler(LevelsTimerTick);
+            LevelsTimer.Interval = new TimeSpan(0, 0, 0, 0, 5);
+            LevelsTimer.Start();
 
             TimeTimer = new DispatcherTimer(DispatcherPriority.Normal);
             TimeTimer.Tick += new EventHandler(TimeTimerTick);
@@ -68,6 +69,12 @@ namespace StD_Player_3
 
 
 
+        }
+
+        private void LevelsTimerTick(object sender, EventArgs e)
+        {
+            Channel_1.SetLevels();
+            Channel_2.SetLevels();
         }
 
         /// <summary>
@@ -287,7 +294,7 @@ namespace StD_Player_3
                 SoundCards[i].Sound.SoundCard = Channels[i];
             foreach (Desk D in SoundCards)
             {
-                D.Sound.SetBalance(GetPan(D.DeskN));
+                D.SetBalance(GetPan(D.DeskN));
                 D.CurrentTrack = D.CurrentTrack;
             }
         }

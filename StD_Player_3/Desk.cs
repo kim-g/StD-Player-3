@@ -29,8 +29,11 @@ namespace StD_Player_3
         private double MouseX;
         public SoundBase Sound;
         private SoundType AudioCardType;
+        protected int[] Level = new int[2];
 
         // Элементы интерфейса
+        protected Grid FreqGrid;
+        protected Grid[] FreqGrids;
         protected Rectangle PositionRect;
         protected Rectangle BackgroundRect;
         protected Rectangle MiddleRect;
@@ -122,8 +125,7 @@ namespace StD_Player_3
             // Панели
             Grid ButtonsGrid;
             Grid LabelGrig;
-            Grid InfoGrid;
-            Grid FreqGrid;
+            Grid InfoGrid;            
             Grid ProgressGrid;
             Grid ListGrid;
             Grid[] ButtonGrids = new Grid[5];
@@ -465,13 +467,15 @@ namespace StD_Player_3
                 // Настройка индикаторов уровня
                 FreqGrid = new Grid();
                 FreqGrid.Name = "FreqGrid";
-                Grid[] FreqGrids = new Grid[2];
+                FreqGrid.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Star)});
+                FreqGrid.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Star)});
+                FreqGrids = new Grid[2];
                 FreqGrids[0] = new Grid();
                 FreqGrids[0].Name = "FreqLeftGrid";
-                Grid.SetRow(FreqGrids[0], 0);
+                Grid.SetColumn(FreqGrids[0], 0);
                 FreqGrids[1] = new Grid();
                 FreqGrids[1].Name = "FreqRightGrid";
-                Grid.SetRow(FreqGrids[1], 1);
+                Grid.SetColumn(FreqGrids[1], 1);
                 FreqGrid.Margin = new Thickness(0, ScaleTo(10.0), ScaleTo(10.0), ScaleTo(10.0));
                 //Настройка левого индикатора
                 FreqLeftBkg = new Rectangle()
@@ -505,9 +509,11 @@ namespace StD_Player_3
                     Fill = MainWindow.LevelsO,
                     Name = "FreRight"
                 };
+                FreqGrids[1].Children.Add(FreqRightBkg);
+                FreqGrids[1].Children.Add(FreqRight);
 
-                FreqGrid.Children.Add(FreqRightBkg);
-                FreqGrid.Children.Add(FreqRight);
+                FreqGrid.Children.Add(FreqGrids[0]);
+                FreqGrid.Children.Add(FreqGrids[1]);
 
                 Grid.SetColumn(LabelGrig, 0);
                 Grid.SetColumn(FreqGrid, 1);
@@ -649,7 +655,7 @@ namespace StD_Player_3
 
             //Отображение позиции трека
             long PositionT = Sound.Position;
-            PositionRect.Width = BackgroundRect.Width * PositionT / 1000;
+            Animator.ChangeWidth(PositionRect, BackgroundRect.Width * PositionT / 1000, MainWindow.UpdateTime);
             UpdateMiddleRect();
 
             // Отображение названия трека
@@ -986,19 +992,6 @@ namespace StD_Player_3
         /// </summary>
         public void DrawFriq()
         {
-            int[] Level = new int[2];
-            if (Sound.State)
-            {
-                Int32 Levels = Bass.BASS_ChannelGetLevel(Sound.Channel);
-                Level[1] = Levels.HighWord();
-                Level[0] = Levels.LowWord();
-            }
-            else
-            {
-                Level[0] = 0;
-                Level[1] = 0;
-            }
-
             double[] db = new double[2];
             for (int i = 0; i < 2; i++)
             {
@@ -1006,13 +999,15 @@ namespace StD_Player_3
                 db[i] = db[i] < -23 ? -23 : db[i];
             }
 
+            Level = new int[] { 0, 0 };
+
             double NewHeight =  FreqLeftBkg.ActualHeight * ( 0 - db[0] / 23);
             if (NewHeight < LevelsThickness) NewHeight = LevelsThickness;
             if (NewHeight > FreqLeftBkg.ActualHeight - LevelsThickness)
                 NewHeight = FreqLeftBkg.ActualHeight - LevelsThickness;
             
             Animator.Margin(FreqLeft, new Thickness(LevelsThickness, LevelsThickness, LevelsThickness, 
-                FreqLeftBkg.ActualHeight - NewHeight), 0, 100);
+                FreqLeftBkg.ActualHeight - NewHeight), 0, MainWindow.UpdateTime);
 
             NewHeight = FreqRightBkg.ActualHeight * (0 - db[1] / 23);
             if (NewHeight < LevelsThickness) NewHeight = LevelsThickness;
@@ -1020,7 +1015,7 @@ namespace StD_Player_3
                 NewHeight = FreqRightBkg.ActualHeight - LevelsThickness;
 
             Animator.Margin(FreqRight, new Thickness(LevelsThickness, LevelsThickness, LevelsThickness,
-                FreqRightBkg.ActualHeight - NewHeight), 0, 100);
+                FreqRightBkg.ActualHeight - NewHeight), 0, MainWindow.UpdateTime);
         }
 
         public void SetLevels(Brush I, Brush O)
@@ -1031,14 +1026,50 @@ namespace StD_Player_3
             FreqRightBkg.Fill = I;
         }
 
+        /// <summary>
+        /// Устанавливает баланс и рисует соответствующие линии уровней
+        /// </summary>
+        /// <param name="balance">Значение баланса (-1, 0, +1)</param>
         public void SetBalance(int balance)
         {
             Sound.SetBalance(balance);
-            /*switch (Sound.Balance)
+            FreqGrid.ColumnDefinitions.Clear();
+            switch (Sound.Balance)
             {
                 case -1:
-                    
-            }*/
+                    FreqGrid.ColumnDefinitions.Add(new ColumnDefinition()
+                        { Width = new GridLength(1, GridUnitType.Star)});
+                    FreqGrid.ColumnDefinitions.Add(new ColumnDefinition()
+                    { Width = new GridLength(0, GridUnitType.Star) });
+                    break;
+                case 0:
+                    FreqGrid.ColumnDefinitions.Add(new ColumnDefinition()
+                    { Width = new GridLength(1, GridUnitType.Star) });
+                    FreqGrid.ColumnDefinitions.Add(new ColumnDefinition()
+                    { Width = new GridLength(1, GridUnitType.Star) });
+                    break;
+                case 1:
+                    FreqGrid.ColumnDefinitions.Add(new ColumnDefinition()
+                    { Width = new GridLength(0, GridUnitType.Star) });
+                    FreqGrid.ColumnDefinitions.Add(new ColumnDefinition()
+                    { Width = new GridLength(1, GridUnitType.Star) });
+                    break;
+            }
+        }
+
+        public void SetLevels()
+        {
+            if (Sound.State)
+            {
+                Int32 Levels = Bass.BASS_ChannelGetLevel(Sound.Channel);
+                Level[1] = Math.Max(Levels.HighWord(), Level[1]);
+                Level[0] = Math.Max(Levels.LowWord(), Level[0]);
+            }
+            else
+            {
+                Level[0] = 0;
+                Level[1] = 0;
+            }
         }
     }
 
