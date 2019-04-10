@@ -40,6 +40,8 @@ namespace StD_Player_3
         public MainWindow()
         {
             Application.Current.Resources.MergedDictionaries.Clear();
+            if (Config.GetConfigValue("Theme") == "")
+                Config.SetConfigValue("Theme", "light");
             Application.Current.Resources.MergedDictionaries.Add(
                 new ResourceDictionary() { Source = new Uri($"pack://application:,,,/{Config.GetConfigValue("Theme")}.xaml") });
 

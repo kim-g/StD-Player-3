@@ -32,6 +32,8 @@
     <SolidColorBrush x:Key="DarkGray" Color="#8F8F8F" />
     <!-- Кнопка -->
     <Color x:Key="ButtonColor" R="#DD" G="#DD" B="#DD" A="255"/>
+	<Color x:Key="ButtonOverColor" R="#BB" G="#BB" B="#BB" A="255"/>
+    <Color x:Key="ButtonPressedColor" R="#99" G="#99" B="#99" A="255"/>
     <SolidColorBrush x:Key="ButtonSolid" Color="{DynamicResource ButtonColor}" />
     <!-- Фон загрузки -->
     <SolidColorBrush x:Key="LoadingBackground" Color="#FFFFFF" Opacity="0.625" />
