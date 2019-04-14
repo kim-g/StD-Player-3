@@ -25,8 +25,10 @@ namespace StD_Player_3
     /// </summary>
     public partial class MainWindow : Window
     {
+        Desk[] Channels;
         Desk Channel_1;
         Desk Channel_2;
+        Desk Channel_3;
         DispatcherTimer timer;
         DispatcherTimer LevelsTimer;
         DispatcherTimer TimeTimer;
@@ -75,8 +77,12 @@ namespace StD_Player_3
 
         private void LevelsTimerTick(object sender, EventArgs e)
         {
-            Channel_1.SetLevels();
+            foreach (Desk Channel in Channels)
+                Channel.SetLevels();
+
+            /*Channel_1.SetLevels();
             Channel_2.SetLevels();
+            Channel_3.SetLevels();*/
         }
 
         /// <summary>
@@ -135,7 +141,7 @@ namespace StD_Player_3
                             System.IO.Path.ChangeExtension(MusicDBFileName, ".sdb"))));
                 SpNameLabel.Content = MDB.Name;
 
-                LoadSDB(MDB, SpNameLabel, MusicDBFileName, new Desk[2] { Channel_1, Channel_2});
+                LoadSDB(MDB, SpNameLabel, MusicDBFileName, Channels);
 
                 MainGrid.Children.Remove(LoadGrid);
                 Loading = false;
@@ -144,21 +150,22 @@ namespace StD_Player_3
 
         private void LoadSDB(MusicDB MDB, Label NameLabel, string MusicDBFileName, Desk[] Channel)
         {
-            
+            Task<List<MusicTrack>>[] LoadDesks = new Task<List<MusicTrack>>[Channels.Length];
+            for (int i = 0; i < Channels.Length; i++)
+            {
+                int j = i;
+                LoadDesks[i] = Task.Run(() => { return MDB.LoadDesk(Channel[j].DeskN); });
+            }
 
-            Task<List<MusicTrack>> LoadDesk1 = Task.Run(() => { return MDB.LoadDesk(Channel[0].DeskN); });
+            /*Task<List<MusicTrack>> LoadDesk1 = Task.Run(() => { return MDB.LoadDesk(Channel[0].DeskN); });
             Task<List<MusicTrack>> LoadDesk2 = Task.Run(() => { return MDB.LoadDesk(Channel[1].DeskN); });
-            Task.WaitAll(new Task[2]
-                {
-                        LoadDesk1, LoadDesk2
-                });
-            Channel[0].LoadTrackList(LoadDesk1.Result);
+            Task<List<MusicTrack>> LoadDesk3 = Task.Run(() => { return MDB.LoadDesk(Channel[2].DeskN); });*/
+            Task.WaitAll(LoadDesks);
+            for (int i = 0; i < Channels.Length; i++)
+                Channel[i].LoadTrackList(LoadDesks[i].Result);
+            /*Channel[0].LoadTrackList(LoadDesk1.Result);
             Channel[1].LoadTrackList(LoadDesk2.Result);
-        }
-
-        private void LoadInThread(object x)
-        {
-            
+            Channel[2].LoadTrackList(LoadDesk3.Result);*/
         }
 
         private void timerTick(object sender, EventArgs e)
@@ -174,10 +181,17 @@ namespace StD_Player_3
         private void Update()
         {
             if (Loading) return;
-            Channel_1.UpdateVisualElements();
+            foreach (Desk Channel in Channels)
+            {
+                Channel.UpdateVisualElements();
+                Channel.DrawFriq();
+            }
+            /*Channel_1.UpdateVisualElements();
             Channel_2.UpdateVisualElements();
+            Channel_3.UpdateVisualElements();
             Channel_1.DrawFriq();
             Channel_2.DrawFriq();
+            Channel_3.DrawFriq();*/
         }
 
         
@@ -236,12 +250,14 @@ namespace StD_Player_3
                     LevelsI = (LinearGradientBrush)TryFindResource("LevelsOutLight");
                     LevelsO.EndPoint = new Point(0, ScaleTo(200.0));
                     LevelsI.EndPoint = new Point(0, ScaleTo(200.0));
-                    Channel_1.SetLevels(LevelsI, LevelsO);
-                    Channel_2.SetLevels(LevelsI, LevelsO);
+                    foreach (Desk Channel in Channels)
+                        Channel.SetLevels(LevelsI, LevelsO);
+                    /*Channel_1.SetLevels(LevelsI, LevelsO);
+                    Channel_2.SetLevels(LevelsI, LevelsO);*/
                     break;
                 case Key.Add:
                     Parameters.Set(this);
-                    SetSoundCards(new Desk[2] { Channel_1, Channel_2 });
+                    SetSoundCards(Channels);
                     break;
             }
         }
@@ -267,10 +283,13 @@ namespace StD_Player_3
             SoundChannel.Initiate();
             for (int i = 1; i < Bass.BASS_GetDeviceInfos().Length; i++)
                 SoundChannel.Initiate(i);
-            Channel_1 = new Desk(Desk1, GetPan(1), 100, 1, Scale, -1, SoundType.Standart);
-            Channel_2 = new Desk(Desk2, GetPan(2), 100, 2, Scale, -1, SoundType.Standart);
+            Channels = new Desk[3];
 
-            SetSoundCards(new Desk[2] { Channel_1, Channel_2 });
+            Channels[0] = new Desk(Desk1, GetPan(1), 100, 1, Scale, -1, SoundType.Standart);
+            Channels[1] = new Desk(Desk2, GetPan(2), 100, 2, Scale, -1, SoundType.Standart);
+            Channels[2] = new Desk(Desk3, GetPan(2), 100, 3, Scale, -1, SoundType.Standart);
+
+            SetSoundCards(Channels);
 
             LoadMusic(Config.GetConfigValue("file"));
         }

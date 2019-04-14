@@ -87,6 +87,11 @@ namespace StD_Player_3
             }
             set
             {
+                if (TrackList.Count == 0)
+                {
+                    сurrentrack = -1;
+                    return;
+                }
                 Sound.Stop();
                 сurrentrack = value;
                 if (value < 0) сurrentrack = 0;
