@@ -26,9 +26,6 @@ namespace StD_Player_3
     public partial class MainWindow : Window
     {
         Desk[] Channels;
-        Desk Channel_1;
-        Desk Channel_2;
-        Desk Channel_3;
         DispatcherTimer timer;
         DispatcherTimer LevelsTimer;
         DispatcherTimer TimeTimer;
@@ -220,25 +217,25 @@ namespace StD_Player_3
 
             switch (e.Key)
             {
-                case Key.S: Channel_1.Sound.Play(); Channel_1.UpdateVisualElements(); break;
-                case Key.D: Channel_1.Sound.Pause(); Channel_1.UpdateVisualElements(); break;
-                case Key.F: Channel_1.Sound.Stop(); Channel_1.UpdateVisualElements(); break;
+                case Key.S: Channels[0].Sound.Play(); Channels[0].UpdateVisualElements(); break;
+                case Key.D: Channels[0].Sound.Pause(); Channels[0].UpdateVisualElements(); break;
+                case Key.F: Channels[0].Sound.Stop(); Channels[0].UpdateVisualElements(); break;
                 case Key.E:
-                    Channel_1.Sound.Stop(); Channel_1.CurrentTrack--;
-                    Channel_1.UpdateVisualElements(); break;
+                    Channels[0].Sound.Stop(); Channels[0].CurrentTrack--;
+                    Channels[0].UpdateVisualElements(); break;
                 case Key.X:
-                    Channel_1.Sound.Stop(); Channel_1.CurrentTrack++;
-                    Channel_1.UpdateVisualElements(); break;
+                    Channels[0].Sound.Stop(); Channels[0].CurrentTrack++;
+                    Channels[0].UpdateVisualElements(); break;
 
-                case Key.K: Channel_2.Sound.Play(); Channel_2.UpdateVisualElements(); break;
-                case Key.L: Channel_2.Sound.Pause(); Channel_2.UpdateVisualElements(); break;
-                case Key.OemSemicolon: Channel_2.Sound.Stop(); Channel_2.UpdateVisualElements(); break;
+                case Key.K: Channels[1].Sound.Play(); Channels[1].UpdateVisualElements(); break;
+                case Key.L: Channels[1].Sound.Pause(); Channels[1].UpdateVisualElements(); break;
+                case Key.OemSemicolon: Channels[1].Sound.Stop(); Channels[1].UpdateVisualElements(); break;
                 case Key.O:
-                    Channel_2.Sound.Stop(); Channel_2.CurrentTrack--;
-                    Channel_2.UpdateVisualElements(); break;
+                    Channels[1].Sound.Stop(); Channels[1].CurrentTrack--;
+                    Channels[1].UpdateVisualElements(); break;
                 case Key.OemComma:
-                    Channel_2.Sound.Stop(); Channel_2.CurrentTrack++;
-                    Channel_2.UpdateVisualElements(); break;
+                    Channels[1].Sound.Stop(); Channels[1].CurrentTrack++;
+                    Channels[1].UpdateVisualElements(); break;
                 case Key.Tab:
                     if (Config.GetConfigValue("Theme") == "dark")
                         Config.SetConfigValue("Theme", "light");
