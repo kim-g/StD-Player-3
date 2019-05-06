@@ -65,7 +65,7 @@ namespace Editor
         {
             if (FileList.SelectedItem == null) return;
 
-            Result = (string)FileList.SelectedItem;
+            Result = FilesAndNames[(string)FileList.SelectedItem];
             Close();
         }
 

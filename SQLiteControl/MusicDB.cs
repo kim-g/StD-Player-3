@@ -42,12 +42,35 @@ COMMIT;";
                 CreateDB(CreationQuery);
         }
 
+        /// <summary>
+        /// Название спектакля
+        /// </summary>
         public string Name
         {
             get
             {
                 DataTable DT = ReadTable("SELECT name FROM info ORDER BY id DESC LIMIT 1");
-                return DT.Rows[0].ItemArray[0].ToString();
+                return DT?.Rows[0]?.ItemArray[0]?.ToString();
+            }
+            set
+            {
+                Execute($"UPDATE info SET name='{value}'");
+            }
+        }
+
+        /// <summary>
+        /// Комментарий к спектаклю
+        /// </summary>
+        public string Comment
+        {
+            get
+            {
+                DataTable DT = ReadTable("SELECT description FROM info ORDER BY id DESC LIMIT 1");
+                return DT?.Rows[0]?.ItemArray[0]?.ToString();
+            }
+            set
+            {
+                Execute($"UPDATE info SET description='{value}'");
             }
         }
 
@@ -76,6 +99,8 @@ ORDER BY desk.`order`");
 
             return DeskList;
         }
+
+        public 
     }
 
     //Класс одного муз. файла
@@ -145,6 +170,11 @@ ORDER BY desk.`order`");
                 this.Number = null;
             }
         }
+    }
+
+    public class MusicFile
+    {
+
     }
 
 }

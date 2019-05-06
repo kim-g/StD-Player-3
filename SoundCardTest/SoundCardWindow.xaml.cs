@@ -34,10 +34,10 @@ namespace SoundCardTest
 
             int channels = 0;
             float dummy;
-            while (Bass.BASS_ChannelGetAttribute(music, (BASSAttribute)((int)BASS_ATTRIB_MUSIC_VOL_CHAN + channels), ref dummy))
+            /*while (Bass.BASS_ChannelGetAttribute(music, (BASSAttribute)((int)BASS_ATTRIB_MUSIC_VOL_CHAN + channels), ref dummy))
             {
                 channels++;
-            }
+            }*/
         }
     }
 }

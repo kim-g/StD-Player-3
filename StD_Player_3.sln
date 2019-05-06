@@ -4,6 +4,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 15.0.26403.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StD_Player_3", "StD_Player_3\StD_Player_3.csproj", "{5E74329B-AA11-4C0E-B8BF-D51C717F28D1}"
+	ProjectSection(ProjectDependencies) = postProject
+		{44D4953C-E6EC-4454-A2C7-EF7DD8C72A1D} = {44D4953C-E6EC-4454-A2C7-EF7DD8C72A1D}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Launcher", "Launcher\Launcher.csproj", "{6987D2B1-679B-4DFA-927E-D2B3C0E0B14A}"
 EndProject
