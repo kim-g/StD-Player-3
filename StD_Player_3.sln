@@ -9,6 +9,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Launcher", "Launcher\Launch
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoundCardTest", "SoundCardTest\SoundCardTest.csproj", "{B7A1B294-9E65-4F86-A2C3-98EC25CD9574}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Editor", "Editor\Editor.csproj", "{44D4953C-E6EC-4454-A2C7-EF7DD8C72A1D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SQLiteControl", "SQLiteControl\SQLiteControl.csproj", "{146EEC18-A3CB-46E9-9D2C-B3DF4FB44009}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +31,14 @@ Global
 		{B7A1B294-9E65-4F86-A2C3-98EC25CD9574}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B7A1B294-9E65-4F86-A2C3-98EC25CD9574}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B7A1B294-9E65-4F86-A2C3-98EC25CD9574}.Release|Any CPU.Build.0 = Release|Any CPU
+		{44D4953C-E6EC-4454-A2C7-EF7DD8C72A1D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{44D4953C-E6EC-4454-A2C7-EF7DD8C72A1D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{44D4953C-E6EC-4454-A2C7-EF7DD8C72A1D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{44D4953C-E6EC-4454-A2C7-EF7DD8C72A1D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{146EEC18-A3CB-46E9-9D2C-B3DF4FB44009}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{146EEC18-A3CB-46E9-9D2C-B3DF4FB44009}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{146EEC18-A3CB-46E9-9D2C-B3DF4FB44009}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{146EEC18-A3CB-46E9-9D2C-B3DF4FB44009}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

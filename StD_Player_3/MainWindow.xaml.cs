@@ -17,6 +17,7 @@ using System.Windows.Shapes;
 using System.Windows.Threading;
 using Un4seen.Bass;
 using Extentions;
+using SQLite;
 
 namespace StD_Player_3
 {
@@ -30,7 +31,7 @@ namespace StD_Player_3
         DispatcherTimer LevelsTimer;
         DispatcherTimer TimeTimer;
         bool Loading = true;
-        public SQLite.SQLiteConfig Config = new SQLite.SQLiteConfig("Config.db");
+        public SQLiteConfig Config = new SQLiteConfig("Config.db");
         protected double Scale;
         public static LinearGradientBrush LevelsO;
         public static LinearGradientBrush LevelsI;
@@ -154,15 +155,9 @@ namespace StD_Player_3
                 LoadDesks[i] = Task.Run(() => { return MDB.LoadDesk(Channel[j].DeskN); });
             }
 
-            /*Task<List<MusicTrack>> LoadDesk1 = Task.Run(() => { return MDB.LoadDesk(Channel[0].DeskN); });
-            Task<List<MusicTrack>> LoadDesk2 = Task.Run(() => { return MDB.LoadDesk(Channel[1].DeskN); });
-            Task<List<MusicTrack>> LoadDesk3 = Task.Run(() => { return MDB.LoadDesk(Channel[2].DeskN); });*/
             Task.WaitAll(LoadDesks);
             for (int i = 0; i < Channels.Length; i++)
                 Channel[i].LoadTrackList(LoadDesks[i].Result);
-            /*Channel[0].LoadTrackList(LoadDesk1.Result);
-            Channel[1].LoadTrackList(LoadDesk2.Result);
-            Channel[2].LoadTrackList(LoadDesk3.Result);*/
         }
 
         private void timerTick(object sender, EventArgs e)
@@ -207,7 +202,7 @@ namespace StD_Player_3
             string LoadSp = OpenSpectacle.Open(this, Config.GetConfigValue("MusicDir"));
             if (LoadSp == null) return;
             Config.SetConfigValue("file", LoadSp);
-            if (File.Exists(System.IO.Path.Combine(Config.GetConfigValue("MusicDir"), LoadSp+".sdb")))
+            if (File.Exists(System.IO.Path.Combine(Config.GetConfigValue("MusicDir"), LoadSp)))
                 LoadMusic(LoadSp);
         }
 

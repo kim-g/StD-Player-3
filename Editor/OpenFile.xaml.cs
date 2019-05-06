@@ -1,8 +1,8 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -14,29 +14,29 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 
-namespace StD_Player_3
+namespace Editor
 {
     /// <summary>
-    /// Логика взаимодействия для OpenSpectacle.xaml
+    /// Логика взаимодействия для OpenFile.xaml
     /// </summary>
-    public partial class OpenSpectacle : Window
+    public partial class OpenFile : Window
     {
         private string Result = null;
-        private Drag WindowDrag = null;
+        private string InitialDirectory;
         List<string> Files;
         Dictionary<string, string> FilesAndNames = new Dictionary<string, string>();
 
-        public OpenSpectacle(Window DialogParentWindow)
+        public OpenFile()
         {
             InitializeComponent();
-            Owner = DialogParentWindow;
         }
 
-        public static string Open(Window ParentWindow, string FilesDir)
+        public static string Open(string FilesDir)
         {
-            OpenSpectacle OS = new OpenSpectacle(ParentWindow);
+            OpenFile OS = new OpenFile();
+            OS.InitialDirectory = FilesDir;
             if (!(Directory.Exists(FilesDir))) Directory.CreateDirectory(FilesDir);
-            OS.Files = Directory.EnumerateFiles(FilesDir,"*.sdb").ToList<string>();
+            OS.Files = Directory.EnumerateFiles(FilesDir, "*.sdb").ToList();
             foreach (string FileToAdd in OS.Files)
             {
                 SQLite.MusicDB MDB = new SQLite.MusicDB(FileToAdd);
@@ -65,7 +65,7 @@ namespace StD_Player_3
         {
             if (FileList.SelectedItem == null) return;
 
-            Result = FilesAndNames[(string)FileList.SelectedItem];
+            Result = (string)FileList.SelectedItem;
             Close();
         }
 
@@ -77,6 +77,40 @@ namespace StD_Player_3
         private void Grid_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             this.DragMove();
+        }
+
+        private void Browse_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog OD = new OpenFileDialog()
+            {
+                Filter = "StD Player List Database file (*.sdb) | *.sdb",
+                Multiselect = false,
+                Title = "Выберите спектакль",
+                InitialDirectory = System.IO.Path.Combine(Environment.CurrentDirectory, InitialDirectory)
+            };
+
+            if (OD.ShowDialog() == true)
+            {
+                Result = OD.FileName;
+                Close();
+            }
+        }
+
+        private void NewFile_Click(object sender, RoutedEventArgs e)
+        {
+            SaveFileDialog SD = new SaveFileDialog()
+            {
+                Filter = "StD Player List Database file (*.sdb) | *.sdb",
+                AddExtension = true,
+                Title = "Создание спектакля",
+                InitialDirectory = System.IO.Path.Combine(Environment.CurrentDirectory, InitialDirectory)
+            };
+
+            if (SD.ShowDialog() == true)
+            {
+                Result = SD.FileName;
+                Close();
+            }
         }
     }
 }
