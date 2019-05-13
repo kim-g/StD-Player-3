@@ -89,6 +89,11 @@ namespace SQLite
             return true;
         }
 
+        /// <summary>
+        /// Выполняет запрос. Возвращает таблицу.
+        /// </summary>
+        /// <param name="Query">Запрос</param>
+        /// <returns></returns>
         public DataTable ReadTable(string Query)
         {
             DataTable dTable = new DataTable();
@@ -113,6 +118,12 @@ namespace SQLite
             return dTable;
         }
 
+        /// <summary>
+        /// Выдаёт количество записей в таблице с условиями
+        /// </summary>
+        /// <param name="Table">Имя таблицы</param>
+        /// <param name="Where">Условия</param>
+        /// <returns></returns>
         public int GetCount(string Table, string Where = null)
         {
             DataTable dTable = new DataTable();
@@ -138,6 +149,11 @@ namespace SQLite
             return Convert.ToInt32(dTable.Rows[0].ItemArray[0].ToString());
         }
 
+        /// <summary>
+        /// Выполнить запрос. Возврещает true в случае удачного выполнения и false в случае ошибки
+        /// </summary>
+        /// <param name="Query">Запрос</param>
+        /// <returns></returns>
         public bool Execute(string Query)
         {
             if (Connection.State != ConnectionState.Open)
@@ -149,6 +165,37 @@ namespace SQLite
             try
             {
                 Command.CommandText = Query;
+                Command.ExecuteNonQuery();
+            }
+            catch (SQLiteException ex)
+            {
+                ErrorMsg = ex.Message;
+                return false;
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Выполнить запрос. Возврещает true в случае удачного выполнения и false в случае ошибки
+        /// </summary>
+        /// <param name="Query">Запрос. Значение @BLOB заменяется на поток</param>
+        /// <param name="BLOB">Поток для BLOB</param>
+        /// <returns></returns>
+        public bool ExecuteBLOB(string Query, Stream BLOB)
+        {
+            if (Connection.State != ConnectionState.Open)
+            {
+                ErrorMsg = "Open connection with database";
+                return false;
+            }
+
+            try
+            {
+                Command.CommandText = Query;
+                byte[] byteBLOB = new byte[BLOB.Length];
+                BLOB.Position = 0;
+                BLOB.Read(byteBLOB, 0, Convert.ToInt32(BLOB.Length));
+                Command.Parameters.Add(new SQLiteParameter("@BLOB", DbType.Binary, byteBLOB.Length, ParameterDirection.Input, false, 0, 0, null, DataRowVersion.Current, byteBLOB));
                 Command.ExecuteNonQuery();
             }
             catch (SQLiteException ex)

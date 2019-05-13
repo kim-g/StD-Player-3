@@ -13,12 +13,12 @@
             </LinearGradientBrush>
         </Grid.Background>
         <StackPanel Orientation="Vertical" Margin="5">
-            <Label x:Name="Title" FontSize="18" FontWeight="Bold">
+            <Label x:Name="TitleLabel" FontSize="18" FontWeight="Bold">
                 <TextBlock x:Name="TitleText" TextWrapping="Wrap">
                     НАЗВАНИЕ
                 </TextBlock>
             </Label>
-            <Label x:Name="Comment" FontSize="12">
+            <Label x:Name="CommentLabel" FontSize="12">
                 <TextBlock x:Name="CommentText" TextWrapping="Wrap">
                     Комментарий
                 </TextBlock>

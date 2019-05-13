@@ -100,7 +100,7 @@ ORDER BY desk.`order`");
             return DeskList;
         }
 
-        public 
+        //public 
     }
 
     //Класс одного муз. файла
@@ -172,9 +172,128 @@ ORDER BY desk.`order`");
         }
     }
 
-    public class MusicFile
+    public class MusicFile : IDisposable
     {
+        private MusicDB DB;
+        private string title;
+        private string comment;
+        private bool cycle;
 
+        /// <summary>
+        /// Создание пустого экземпляра
+        /// </summary>
+        private MusicFile()
+        {
+        }
+
+        public MusicFile(MusicDB db, int id)
+        {
+            DB = db;
+            ID = id;
+            Update();
+        }
+
+        /// <summary>
+        /// Номер в БД
+        /// </summary>
+        public int ID { get; }
+
+        /// <summary>
+        /// Заголовок файла
+        /// </summary>
+        public string Title
+        {
+            get { return title; }
+            set
+            {
+                title = value;
+                DB.Execute($"UPDATE `files` SET `title`='{title}' WHERE `id`={ID};");
+            }
+        }
+
+        /// <summary>
+        /// Комментарий к файлу
+        /// </summary>
+        public string Comment
+        {
+            get { return comment; }
+            set
+            {
+                comment = value;
+                DB.Execute($"UPDATE `files` SET `comment`='{comment}' WHERE `id`={ID};");
+            }
+        }
+
+        /// <summary>
+        /// Указывает, что звук должен быть зациклен
+        /// </summary>
+        public bool Cycle
+        {
+            get { return cycle; }
+            set
+            {
+                cycle = value;
+                string C = cycle ? "TRUE" : "FALSE";
+                DB.Execute($"UPDATE `files` SET `cycle`={C} WHERE `id`={ID};");
+            }
+        }
+
+        public MemoryStream Data
+        {
+            get
+            {
+                DataTable DeskData = DB.ReadTable($"SELECT `file` FROM `files` WHERE `id`={ID}; LIMIT 1");
+                if (DeskData.Rows.Count < 0) return null;
+
+                MemoryStream MS = new MemoryStream();
+                MS.Write((byte[])DeskData.Rows[0].ItemArray[0], 0,
+                    ((byte[])DeskData.Rows[0].ItemArray[0]).Length);
+                MS.Position = 0;
+                return MS;
+            }
+
+            set
+            {
+                DB.ExecuteBLOB("UPDATE `files` SET `file`=@BLOB", value);
+            }
+        }
+
+        /// <summary>
+        /// Загрузить все данные из БД
+        /// </summary>
+        public void Update()
+        {
+            DataTable dt = DB.ReadTable($"SELECT `title`, `comment`, `cycle` FROM `files` WHERE `id`={ID} LIMIT 1;");
+            if (dt.Rows.Count == 0)
+            {
+                title = "";
+                comment = "";
+                cycle = false;
+                return;
+            }
+            title = dt.Rows[0].ItemArray[dt.Columns.IndexOf("title")].ToString();
+            comment = dt.Rows[0].ItemArray[dt.Columns.IndexOf("comment")].ToString();
+            cycle = dt.Rows[0].ItemArray[dt.Columns.IndexOf("comment")].ToString() == "1";
+        }
+
+        /// <summary>
+        /// Удаление экземпляра
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                title = null;
+                comment = null;
+                DB = null;
+            }
+        }
     }
 
 }
