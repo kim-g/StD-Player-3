@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 using System.Windows.Threading;
 using Un4seen.Bass;
 
-namespace Sound
+namespace Editor
 {
     public abstract class SoundBase
     {

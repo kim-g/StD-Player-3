@@ -34,10 +34,10 @@
                 <TextBox Grid.Column="1" x:Name="PlayListComment" FontSize="16" VerticalContentAlignment="Center" TextChanged="PlayListComment_TextChanged"/>
             </Grid>
         </Grid>
-        <Grid Grid.Row="1" ScrollViewer.HorizontalScrollBarVisibility="Auto" UseLayoutRounding="False" Height="170" VerticalAlignment="Center">
-            <StackPanel x:Name="FilesPanel" Orientation="Horizontal" HorizontalAlignment="Left" Margin="-150,0,0,0">
+        <ScrollViewer Grid.Row="1" ScrollViewer.HorizontalScrollBarVisibility="Auto" UseLayoutRounding="False" Height="170" VerticalAlignment="Center" VerticalScrollBarVisibility="Disabled">
+            <StackPanel x:Name="FilesPanel" Orientation="Horizontal" HorizontalAlignment="Left" Margin="0,0,0,0">
                 
             </StackPanel>
-        </Grid>
+        </ScrollViewer>
     </Grid>
 </Window>

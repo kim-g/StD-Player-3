@@ -100,7 +100,28 @@ ORDER BY desk.`order`");
             return DeskList;
         }
 
-        //public 
+        /// <summary>
+        /// Выдаёт список файлов в таблице files
+        /// </summary>
+        /// <returns></returns>
+        public List<MusicFile> GetFiles(string Where = null)
+        {
+            List<MusicFile> Result = new List<MusicFile>();
+            string WhereCase = Where == null ? "" : $" WHERE {Where}";
+            DataTable DT = ReadTable($"SELECT `id`, `title`, `comment`, `cycle` FROM `files`{Where};");
+
+            foreach (DataRow row in DT.Rows)
+            {
+                MusicFile MF = new MusicFile(this, 
+                    Convert.ToInt32( row.ItemArray[DT.Columns.IndexOf("id")]),
+                    row.ItemArray[DT.Columns.IndexOf("title")].ToString(),
+                    row.ItemArray[DT.Columns.IndexOf("comment")].ToString(),
+                    row.ItemArray[DT.Columns.IndexOf("cycle")].ToString() == "1");
+                Result.Add(MF);
+            }
+
+            return Result;
+        }
     }
 
     //Класс одного муз. файла
@@ -182,8 +203,13 @@ ORDER BY desk.`order`");
         /// <summary>
         /// Создание пустого экземпляра
         /// </summary>
-        private MusicFile()
+        public MusicFile(MusicDB db, int id, string title, string comment, bool cycle)
         {
+            DB = db;
+            ID = id;
+            this.title = title;
+            this.comment = comment;
+            this.cycle = cycle;
         }
 
         public MusicFile(MusicDB db, int id)
@@ -196,7 +222,7 @@ ORDER BY desk.`order`");
         /// <summary>
         /// Номер в БД
         /// </summary>
-        public int ID { get; }
+        public int ID { get; private set; }
 
         /// <summary>
         /// Заголовок файла
@@ -233,7 +259,7 @@ ORDER BY desk.`order`");
             set
             {
                 cycle = value;
-                string C = cycle ? "TRUE" : "FALSE";
+                string C = cycle ? "1" : "0";
                 DB.Execute($"UPDATE `files` SET `cycle`={C} WHERE `id`={ID};");
             }
         }

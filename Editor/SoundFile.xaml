@@ -13,32 +13,38 @@
             </LinearGradientBrush>
         </Grid.Background>
         <StackPanel Orientation="Vertical" Margin="5">
-            <Label x:Name="TitleLabel" FontSize="18" FontWeight="Bold">
-                <TextBlock x:Name="TitleText" TextWrapping="Wrap">
-                    НАЗВАНИЕ
-                </TextBlock>
-            </Label>
-            <Label x:Name="CommentLabel" FontSize="12">
-                <TextBlock x:Name="CommentText" TextWrapping="Wrap">
-                    Комментарий
-                </TextBlock>
-            </Label>
+            <Grid>
+                <Label x:Name="TitleLabel" FontSize="18" FontWeight="Bold" MouseDoubleClick="TitleLabel_MouseDoubleClick">
+                    <TextBlock x:Name="TitleText" TextWrapping="Wrap">
+                        НАЗВАНИЕ
+                    </TextBlock>
+                </Label>
+                <TextBox x:Name="TitleBox" FontSize="18" Visibility="Collapsed" LostFocus="TitleBox_LostFocus" KeyUp="TitleBox_KeyUp"/>
+            </Grid>
+            <Grid>
+                <Label x:Name="CommentLabel" FontSize="12" MouseDoubleClick="CommentBox_MouseDoubleClick">
+                    <TextBlock x:Name="CommentText" TextWrapping="Wrap">
+                        Комментарий
+                    </TextBlock>
+                </Label>
+                <TextBox x:Name="CommentBox" FontSize="12" Visibility="Collapsed" LostFocus="CommentBox_LostFocus" KeyUp="CommentBox_KeyUp"/>
+            </Grid>
             <Label x:Name="Time" FontSize="12" HorizontalContentAlignment="Center">
                 <TextBlock x:Name="TimeText" TextWrapping="Wrap">
                     00:00 | 01:35
                 </TextBlock>
             </Label>
             <Grid x:Name="TimeLine" Height="10" Background="#FF787878" Margin="0,0,0,10">
-                <Rectangle x:Name="TimeLinePosition" Width="30" Height="Auto" Fill="#FFBDBDBD" Stroke="Black"/>
+                <Rectangle x:Name="TimeLinePosition" Width="30" Height="Auto" Fill="#FFBDBDBD" Stroke="Black" Margin="96,0,164,0" HorizontalAlignment="Left"/>
             </Grid>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                <Button x:Name="PlayPause" Width="32" Height="32" Margin="0,0,10,0">
+                <Button x:Name="PlayPause" Width="32" Height="32" Margin="0,0,10,0" Click="PlayPause_Click">
                     <Image x:Name="PlayPauseImage" Source="images/Play.png"/>
                 </Button>
-                <Button x:Name="Stop" Width="32" Height="32" Margin="0,0,10,0">
+                <Button x:Name="Stop" Width="32" Height="32" Margin="0,0,10,0" Click="Stop_Click">
                     <Image x:Name="StopImage" Source="images/Stop.png"/>
                 </Button>
-                <Button x:Name="Repeat" Width="32" Height="32" Margin="0,0,10,0">
+                <Button x:Name="Repeat" Width="32" Height="32" Margin="0,0,10,0" Click="Repeat_Click">
                     <Image x:Name="RepeatImage" Source="images/Repeat_Disabled.png"/>
                 </Button>
             </StackPanel>

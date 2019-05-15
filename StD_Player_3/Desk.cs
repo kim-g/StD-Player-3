@@ -12,6 +12,8 @@ using System.Windows.Shapes;
 using Un4seen.Bass;
 using SQLite;
 using Extentions;
+using Sound;
+
 
 namespace StD_Player_3
 {

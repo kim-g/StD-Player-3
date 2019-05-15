@@ -1,9 +1,10 @@
-﻿using Un4seen.Bass;
-using Un4seen.BassAsio;
+﻿using System;
+using System.Windows;
+using Un4seen.Bass;
 
-namespace Sound
+namespace Editor
 {
-    public class ASIO_Channel : SoundBase
+    public class SoundChannel : SoundBase
     {
         /// <summary>
         /// Инициализация звуковой карты в стандартном режиме.
@@ -14,7 +15,7 @@ namespace Sound
         public static void Initiate(int SoundCard = -1, int BitRate = 44100,
             BASSInit DeviceProperties = BASSInit.BASS_DEVICE_DEFAULT)
         {
-            BassAsio.BASS_ASIO_Init(SoundCard, BASSASIOInit.BASS_ASIO_DEFAULT);
+            Bass.BASS_Init(SoundCard, BitRate, DeviceProperties, IntPtr.Zero);
         }
 
         /// <summary>
@@ -22,9 +23,9 @@ namespace Sound
         /// </summary>
         /// <param name="balance"></param>
         /// <param name="volume"></param>
-        public ASIO_Channel(int balance = 0, int volume = 100) : base(balance, volume)
+        public SoundChannel(int balance=0, int volume=100): base(balance, volume)
         {
-
+           
         }
 
         /// <summary>
@@ -54,7 +55,11 @@ namespace Sound
         /// <returns></returns>
         protected override bool SetDevice(int device)
         {
-            return BassAsio.BASS_ASIO_SetDevice(device);
+            if (device == -1) return true;
+            if (Bass.BASS_SetDevice(device))
+                return true;
+            MessageBox.Show(Bass.BASS_ErrorGetCode().ToString());
+            return false;
         }
 
         /// <summary>
@@ -103,4 +108,5 @@ namespace Sound
             Bass.BASS_SetVolume(Volume / 100f);
         }
     }
+
 }

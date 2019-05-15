@@ -272,9 +272,9 @@ namespace StD_Player_3
             LevelsO.EndPoint = new Point(0, ScaleTo(200.0));
             LevelsI.EndPoint = new Point(0, ScaleTo(200.0));
 
-            SoundChannel.Initiate();
+            Sound.SoundChannel.Initiate();
             for (int i = 1; i < Bass.BASS_GetDeviceInfos().Length; i++)
-                SoundChannel.Initiate(i);
+                Sound.SoundChannel.Initiate(i);
             Channels = new Desk[3];
 
             Channels[0] = new Desk(Desk1, GetPan(1), 100, 1, Scale, -1, SoundType.Standart);
