@@ -268,7 +268,7 @@ ORDER BY desk.`order`");
         {
             get
             {
-                DataTable DeskData = DB.ReadTable($"SELECT `file` FROM `files` WHERE `id`={ID}; LIMIT 1");
+                DataTable DeskData = DB.ReadTable($"SELECT `file` FROM `files` WHERE `id`={ID} LIMIT 1");
                 if (DeskData.Rows.Count < 0) return null;
 
                 MemoryStream MS = new MemoryStream();
@@ -280,7 +280,7 @@ ORDER BY desk.`order`");
 
             set
             {
-                DB.ExecuteBLOB("UPDATE `files` SET `file`=@BLOB", value);
+                DB.ExecuteBLOB($"UPDATE `files` SET `file`=@BLOB WHERE `id`={ID}", value);
             }
         }
 
@@ -301,6 +301,14 @@ ORDER BY desk.`order`");
             comment = dt.Rows[0].ItemArray[dt.Columns.IndexOf("comment")].ToString();
             cycle = dt.Rows[0].ItemArray[dt.Columns.IndexOf("comment")].ToString() == "1";
         }
+
+        public void Delete()
+        {
+            DB.Execute($"DELETE FROM `desk` WHERE `file`={ID};");
+            DB.Execute($"DELETE FROM `files` WHERE `id`={ID};");
+            Dispose();
+        }
+
 
         /// <summary>
         /// Удаление экземпляра

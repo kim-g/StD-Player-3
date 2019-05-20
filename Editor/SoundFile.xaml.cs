@@ -123,13 +123,21 @@ namespace Editor
                 _Title = _Music.Title;
                 _Comment = _Music.Comment;
                 _Cycle = _Music.Cycle;
-                Sound.Open(_Music.Data);
-                Sound.Position = 0;
-                TimeText.Text = $"{Sound.PositionTime()} | {Sound.LengthTime()}";
+                OpenSound();
                 SetPositionRect(Sound.Position);
 
                 Update();
             }
+        }
+
+        /// <summary>
+        /// Открытие звука из БД
+        /// </summary>
+        private void OpenSound()
+        {
+            Sound.Open(_Music.Data);
+            Sound.Position = 0;
+            TimeText.Text = $"{Sound.PositionTime()} | {Sound.LengthTime()}";
         }
 
         public SoundFile()
@@ -275,6 +283,7 @@ namespace Editor
         {
             Sound.Stop();
             timer.Stop();
+            SetPositionRect(0);
         }
 
         private void TimeLine_MouseDown(object sender, MouseButtonEventArgs e)
@@ -333,6 +342,11 @@ namespace Editor
                 Animator.ChangeHeight(OtherFunctionsPanel, 0, 200);
         }
 
+        /// <summary>
+        /// Экспорт музыки в файл
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ExportButton_Click(object sender, RoutedEventArgs e)
         {
             Animator.ChangeHeight(OtherFunctionsPanel, 0, 0);
@@ -351,6 +365,48 @@ namespace Editor
                 {
                     Music.Data.CopyTo(fs);
                     fs.Close();
+                }
+            }
+        }
+
+        private void DeleteButton_Click(object sender, RoutedEventArgs e)
+        {
+            Animator.ChangeHeight(OtherFunctionsPanel, 0, 0);
+
+            if (MessageBox.Show("Вы уверены, что хотите удалить этот файл и все связанные с ним треки?\nОтменить это действие будет невозможно!",
+                $"Удаление файла {Title}", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+            {
+                Music.Delete();
+                ((Panel)Parent).Children.Remove(this);
+            }
+        }
+
+        private void ReplaceButton_Click(object sender, RoutedEventArgs e)
+        {
+            Animator.ChangeHeight(OtherFunctionsPanel, 0, 0);
+
+            if (MessageBox.Show("Вы уверены, что хотите заменить этот файл и все связанные с ним треки?\nОтменить это действие будет невозможно!",
+                $"Замена файла {Title}", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+            {
+                OpenFileDialog SD = new OpenFileDialog()
+                {
+                    Title = $"Замена файла «{Title}»",
+                    AddExtension = true,
+                    DefaultExt = "mp3",
+                    Filter = "MPEG Layer 3 Music file (*.mp3)|*.mp3",
+                    CheckFileExists = true,
+                    CheckPathExists = true
+                };
+                if (SD.ShowDialog() == true)
+                {
+                    using (FileStream fs = new FileStream(SD.FileName, FileMode.Open))
+                    {
+                        MemoryStream ms = new MemoryStream();
+                        fs.CopyTo(ms);
+                        Music.Data = ms;
+                        fs.Close();
+                    }
+                    OpenSound();
                 }
             }
         }
