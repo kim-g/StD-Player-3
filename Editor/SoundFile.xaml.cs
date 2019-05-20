@@ -1,5 +1,7 @@
 ﻿using Extentions;
+using Microsoft.Win32;
 using System;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -329,6 +331,28 @@ namespace Editor
         {
             if (OtherFunctionsPanel.Height > 0)
                 Animator.ChangeHeight(OtherFunctionsPanel, 0, 200);
+        }
+
+        private void ExportButton_Click(object sender, RoutedEventArgs e)
+        {
+            Animator.ChangeHeight(OtherFunctionsPanel, 0, 0);
+
+            SaveFileDialog SD = new SaveFileDialog()
+            {
+                Title = $"Экспорт дорожки «{Title}»",
+                FileName = $"{Title}.mp3",
+                AddExtension = true,
+                DefaultExt = "mp3",
+                Filter = "MPEG Layer 3 Music file (*.mp3)|*.mp3"
+            };
+            if (SD.ShowDialog() == true)
+            {
+                using (FileStream fs = new FileStream(SD.FileName, FileMode.Create))
+                {
+                    Music.Data.CopyTo(fs);
+                    fs.Close();
+                }
+            }
         }
     }
 }
