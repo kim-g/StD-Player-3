@@ -251,12 +251,8 @@ namespace Editor
 
         public void Stop()
         {
-            if (State)
-            {
-                ChannelStop(Channel);
-                State = false;
-            }
-
+            ChannelStop(Channel);
+            State = false;
             SetPosition(0);
             DoOnStop(null);
         }

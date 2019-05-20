@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Extentions;
+using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -21,6 +22,8 @@ namespace Editor
         private bool Escape = false;
         private SoundChannel Sound = new SoundChannel();
         private DispatcherTimer timer;
+        private bool PositionDrag = false;
+        private bool TimeLinePressed = false;
 
         /// <summary>
         /// Заголовок файла
@@ -131,18 +134,31 @@ namespace Editor
         {
             InitializeComponent();
             Sound.SoundCard = -1;
-            timer = new DispatcherTimer(DispatcherPriority.Background)
+            Sound.Stop();
+            Sound.AutoStop += new EventHandler((object sender, EventArgs e) => { timer.Stop(); });
+            timer = new DispatcherTimer(DispatcherPriority.Normal)
             {
-                Interval = new TimeSpan(0, 0, 0, 100),
+                Interval = new TimeSpan(0, 0, 0, 0, 100),
                 IsEnabled = false
             };
-            timer.Tick += new EventHandler((object sender, EventArgs e) => 
-            {
-                SetPositionRect(Sound.Position);
-                TimeText.Text = $"{Sound.PositionTime()} | {Sound.LengthTime()}";
-            });
+            timer.Tick += TimerTick;
+
         }
 
+        /// <summary>
+        /// Обновление строки навигации и времени
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void TimerTick(object sender, EventArgs e)
+        {
+            SetPositionRect(Sound.Position);
+            TimeText.Text = $"{Sound.PositionTime()} | {Sound.LengthTime()}";
+        }
+
+        /// <summary>
+        /// Загрузить данные из БД
+        /// </summary>
         public void Update()
         {
             SetTitle(_Title);
@@ -239,21 +255,80 @@ namespace Editor
 
         private void SetPositionRect(int Pos)
         {
+            if (PositionDrag) return;
+
             double Max = TimeLine.ActualWidth - TimeLinePosition.ActualWidth;
-            double NewPos = Pos / 1000 * Max;
+            double NewPos = Convert.ToDouble(Pos) / 1000f * Max;
             TimeLinePosition.Margin = new Thickness(NewPos, 0, 0, 0);
         }
 
         private void PlayPause_Click(object sender, RoutedEventArgs e)
         {
+            if (Sound.State) timer.Stop();
+            else timer.Start();
             Sound.Pause();
-            timer.IsEnabled = Sound.State;
         }
 
         private void Stop_Click(object sender, RoutedEventArgs e)
         {
             Sound.Stop();
-            timer.IsEnabled = Sound.State;
+            timer.Stop();
+        }
+
+        private void TimeLine_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            PositionDrag = true;
+            TimeLinePressed = true;
+
+            double NewPos = e.GetPosition((Grid)sender).X - TimeLinePosition.ActualWidth / 2;
+            if (NewPos < 0) NewPos = 0;
+            if (NewPos > TimeLine.ActualWidth - TimeLinePosition.ActualWidth)
+                NewPos = TimeLine.ActualWidth - TimeLinePosition.ActualWidth;
+            TimeLinePosition.Margin = new Thickness(NewPos, 0, 0, 0);
+        }
+
+        private void TimeLine_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (e.LeftButton == MouseButtonState.Released) return;
+
+            double NewPos = e.GetPosition((Grid)sender).X - TimeLinePosition.ActualWidth / 2;
+            if (NewPos < 0) NewPos = 0;
+            if (NewPos > TimeLine.ActualWidth - TimeLinePosition.ActualWidth)
+                NewPos = TimeLine.ActualWidth - TimeLinePosition.ActualWidth;
+            TimeLinePosition.Margin = new Thickness(NewPos, 0, 0, 0);
+        }
+
+        private void TimeLine_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            Sound.Position = Convert.ToInt32( Math.Round( TimeLinePosition.Margin.Left /
+                (TimeLine.ActualWidth - TimeLinePosition.ActualWidth) * 1000));
+            PositionDrag = false;
+            TimeLinePressed = false;
+        }
+
+        private void TimeLine_MouseEnter(object sender, MouseEventArgs e)
+        {
+            if (TimeLinePressed)
+                PositionDrag = true;
+        }
+
+        private void TimeLine_MouseLeave(object sender, MouseEventArgs e)
+        {
+            if (TimeLinePressed)
+                PositionDrag = false;
+        }
+
+        private void Other_Click(object sender, RoutedEventArgs e)
+        {
+            if (OtherFunctionsPanel.Height == 0)
+                Animator.ChangeHeight(OtherFunctionsPanel, 74, 200);
+            else Animator.ChangeHeight(OtherFunctionsPanel, 0, 200);
+        }
+
+        private void Grid_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            if (OtherFunctionsPanel.Height > 0)
+                Animator.ChangeHeight(OtherFunctionsPanel, 0, 200);
         }
     }
 }
