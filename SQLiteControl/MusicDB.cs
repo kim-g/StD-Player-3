@@ -39,7 +39,10 @@ COMMIT;";
             if (File.Exists(FileName))
                 OpenDB();
             else
+            {
                 CreateDB(CreationQuery);
+                Initiate();
+            }
         }
 
         /// <summary>
@@ -50,6 +53,11 @@ COMMIT;";
             get
             {
                 DataTable DT = ReadTable("SELECT name FROM info ORDER BY id DESC LIMIT 1");
+                if (DT?.Rows.Count == 0)
+                {
+                    Initiate();
+                    return "";
+                }
                 return DT?.Rows[0]?.ItemArray[0]?.ToString();
             }
             set
@@ -66,6 +74,11 @@ COMMIT;";
             get
             {
                 DataTable DT = ReadTable("SELECT description FROM info ORDER BY id DESC LIMIT 1");
+                if (DT?.Rows.Count == 0)
+                {
+                    Initiate();
+                    return "";
+                }
                 return DT?.Rows[0]?.ItemArray[0]?.ToString();
             }
             set
@@ -121,6 +134,11 @@ ORDER BY desk.`order`");
             }
 
             return Result;
+        }
+
+        public void Initiate()
+        {
+            Execute("INSERT INTO `info`(`name`, `description`) VALUES ('', '');");
         }
     }
 
@@ -203,7 +221,7 @@ ORDER BY desk.`order`");
         /// <summary>
         /// Создание пустого экземпляра
         /// </summary>
-        public MusicFile(MusicDB db, int id, string title, string comment, bool cycle)
+        public MusicFile(MusicDB db, long id, string title, string comment, bool cycle)
         {
             DB = db;
             ID = id;
@@ -212,7 +230,7 @@ ORDER BY desk.`order`");
             this.cycle = cycle;
         }
 
-        public MusicFile(MusicDB db, int id)
+        public MusicFile(MusicDB db, long id)
         {
             DB = db;
             ID = id;
@@ -222,7 +240,7 @@ ORDER BY desk.`order`");
         /// <summary>
         /// Номер в БД
         /// </summary>
-        public int ID { get; private set; }
+        public long ID { get; private set; }
 
         /// <summary>
         /// Заголовок файла
@@ -307,6 +325,15 @@ ORDER BY desk.`order`");
             DB.Execute($"DELETE FROM `desk` WHERE `file`={ID};");
             DB.Execute($"DELETE FROM `files` WHERE `id`={ID};");
             Dispose();
+        }
+
+        public static MusicFile CreateNewRecord(MusicDB db, string Title, string Comment, bool Cycle, MemoryStream Data)
+        {
+            string CycleS = Cycle ? "1" : "0";
+            db.Execute($"INSERT INTO `files` (`title`, `comment`, `cycle`) VALUES ('{Title}', '{Comment}', {CycleS});");
+            long ID = db.LastID;
+            db.ExecuteBLOB($"UPDATE `files` SET `file`=@BLOB WHERE `id`={ID};", Data);
+            return new MusicFile(db, ID);
         }
 
 

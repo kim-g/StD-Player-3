@@ -157,6 +157,10 @@
     <Content Include="bass.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Resource Include="images\Add_left_Up.png" />
+    <Resource Include="images\Add_right_Up.png" />
+    <Resource Include="images\Add_left.png" />
+    <Resource Include="images\Add_right.png" />
     <Resource Include="images\other.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

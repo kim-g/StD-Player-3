@@ -14,6 +14,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Un4seen.Bass;
+using Microsoft.Win32;
 
 namespace Editor
 {
@@ -61,6 +62,56 @@ namespace Editor
         private void PlayListComment_TextChanged(object sender, TextChangedEventArgs e)
         {
             PlayList.Comment = PlayListComment.Text;
+        }
+
+        private void ScrollViewer_Drop(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                // Note that you can have more than one file.
+                string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+
+                AddFiles(files);
+            }
+        }
+
+        /// <summary>
+        /// Добавление файлов в БД и на панель
+        /// </summary>
+        /// <param name="files"></param>
+        private void AddFiles(string[] files)
+        {
+            foreach (string file in files)
+            {
+                if (System.IO.Path.GetExtension(file) != ".mp3")
+                    continue;
+
+                SQLite.MusicFile MF;
+                using (FileStream fs = new FileStream(file, FileMode.Open))
+                {
+                    string NewTitle = System.IO.Path.GetFileNameWithoutExtension(file);
+                    MemoryStream ms = new MemoryStream();
+                    fs.CopyTo(ms);
+
+                    MF = SQLite.MusicFile.CreateNewRecord(PlayList, NewTitle, "",
+                        false, ms);
+                }
+
+                SoundFile SF = new SoundFile() { Music = MF };
+                FilesPanel.Children.Add(SF);
+
+            }
+        }
+
+        private void Add_Image_Click(object sender, MouseButtonEventArgs e)
+        {
+            OpenFileDialog OD = new OpenFileDialog()
+            {
+                Title = "Выберите файлы для добавления",
+                Multiselect = true
+            };
+            if (OD.ShowDialog() == true)
+                AddFiles(OD.FileNames);
         }
     }
 }

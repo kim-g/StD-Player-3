@@ -34,9 +34,35 @@
                 <TextBox Grid.Column="1" x:Name="PlayListComment" FontSize="16" VerticalContentAlignment="Center" TextChanged="PlayListComment_TextChanged"/>
             </Grid>
         </Grid>
-        <ScrollViewer Grid.Row="1" ScrollViewer.HorizontalScrollBarVisibility="Auto" UseLayoutRounding="False" Height="170" VerticalAlignment="Center" VerticalScrollBarVisibility="Disabled">
-            <StackPanel x:Name="FilesPanel" Orientation="Horizontal" HorizontalAlignment="Left" Margin="0,0,0,0">
+        <ScrollViewer Grid.Row="1" ScrollViewer.HorizontalScrollBarVisibility="Auto" UseLayoutRounding="False" Height="170" VerticalAlignment="Center" VerticalScrollBarVisibility="Disabled" Drop="ScrollViewer_Drop" AllowDrop="True">
+            <StackPanel Orientation="Horizontal" Height="150">
+                <Image x:Name="Add_Left" HorizontalAlignment="Left" VerticalAlignment="Top" Height="150" MouseLeftButtonUp="Add_Image_Click">
+                    <Image.Style>
+                        <Style TargetType="{x:Type Image}">
+                            <Setter Property="Source" Value="pack://application:,,,/images/Add_left.png"/>
+                            <Style.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Source" Value="pack://application:,,,/images/Add_left_Up.png"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Image.Style>
+                </Image>
+                <StackPanel x:Name="FilesPanel" Orientation="Horizontal" HorizontalAlignment="Left" Margin="0,0,0,0">
                 
+                </StackPanel>
+                <Image x:Name="Add_Right" HorizontalAlignment="Left" VerticalAlignment="Top" Height="150" MouseLeftButtonUp="Add_Image_Click">
+                    <Image.Style>
+                        <Style TargetType="{x:Type Image}">
+                            <Setter Property="Source" Value="pack://application:,,,/images/Add_Right.png"/>
+                            <Style.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Source" Value="pack://application:,,,/images/Add_Right_Up.png"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Image.Style>
+                </Image>
             </StackPanel>
         </ScrollViewer>
     </Grid>

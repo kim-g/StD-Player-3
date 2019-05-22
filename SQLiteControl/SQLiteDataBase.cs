@@ -195,7 +195,7 @@ namespace SQLite
                 byte[] byteBLOB = new byte[BLOB.Length];
                 BLOB.Position = 0;
                 BLOB.Read(byteBLOB, 0, Convert.ToInt32(BLOB.Length));
-                Command.Parameters.Add(new SQLiteParameter("@BLOB", DbType.Binary, byteBLOB.Length, ParameterDirection.Input, false, 0, 0, null, DataRowVersion.Current, byteBLOB));
+                Command.Parameters.Add("@BLOB", DbType.Binary, byteBLOB.Length).Value = byteBLOB;
                 Command.ExecuteNonQuery();
             }
             catch (SQLiteException ex)
@@ -204,6 +204,11 @@ namespace SQLite
                 return false;
             }
             return true;
+        }
+
+        public long LastID
+        {
+            get { return Connection.LastInsertRowId; }
         }
 
     }
