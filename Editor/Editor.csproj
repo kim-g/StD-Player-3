@@ -85,6 +85,9 @@
     <Compile Include="SoundFile.xaml.cs">
       <DependentUpon>SoundFile.xaml</DependentUpon>
     </Compile>
+    <Compile Include="SoundTrack.xaml.cs">
+      <DependentUpon>SoundTrack.xaml</DependentUpon>
+    </Compile>
     <Page Include="EditorWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -102,6 +105,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="SoundFile.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="SoundTrack.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -157,6 +164,8 @@
     <Content Include="bass.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Resource Include="images\Down.png" />
+    <Resource Include="images\Up.png" />
     <Resource Include="images\Add_left_Up.png" />
     <Resource Include="images\Add_right_Up.png" />
     <Resource Include="images\Add_left.png" />
