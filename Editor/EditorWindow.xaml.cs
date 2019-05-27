@@ -28,6 +28,9 @@ namespace Editor
 
         List<SQLite.MusicFile> Files;
 
+        Point ClickPoint;
+        object ClickObject;
+
         public EditorWindow()
         {
             InitializeComponent();
@@ -50,6 +53,8 @@ namespace Editor
             foreach (SQLite.MusicFile MF in Files)
             {
                 SoundFile SF = new SoundFile() { Music = MF };
+                SF.MouseDown += MusicFileMouseDown;
+                SF.MouseMove += MusicFileMouseMove;
                 FilesPanel.Children.Add(SF);
             }
         }
@@ -98,6 +103,8 @@ namespace Editor
                 }
 
                 SoundFile SF = new SoundFile() { Music = MF };
+                SF.MouseDown += MusicFileMouseDown;
+                SF.MouseMove += MusicFileMouseMove;
                 FilesPanel.Children.Add(SF);
 
             }
@@ -112,6 +119,33 @@ namespace Editor
             };
             if (OD.ShowDialog() == true)
                 AddFiles(OD.FileNames);
+        }
+
+        private void MusicFileMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if ( (new string[2] { "TimeLine", "TimeLinePosition" }).Contains(
+                ((FrameworkElement)(e.OriginalSource)).Name))
+                return;
+
+            ClickPoint = e.GetPosition((IInputElement)sender);
+            ClickObject = sender;
+            /*SoundFile SF = (SoundFile)sender;
+            DragDrop.DoDragDrop(SF, SF.Music, DragDropEffects.Copy | DragDropEffects.Move);*/
+        }
+
+        private void MusicFileMouseMove(object sender, MouseEventArgs e)
+        {
+            if (e.LeftButton == MouseButtonState.Released) return;
+            if ((new string[2] { "TimeLine", "TimeLinePosition" }).Contains(
+                ((FrameworkElement)(e.OriginalSource)).Name))
+                return;
+
+            Point Pos = e.GetPosition((IInputElement)sender);
+            if (Math.Sqrt(Math.Pow(ClickPoint.X - Pos.X, 2) + Math.Pow(ClickPoint.Y - Pos.Y, 2)) > 20)
+            {
+                SoundFile SF = (SoundFile)ClickObject;
+                DragDrop.DoDragDrop(SF, SF.Music, DragDropEffects.Copy | DragDropEffects.Move);
+            }
         }
     }
 }
