@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Editor"
         mc:Ignorable="d"
-        Title="EditorWindow" Height="450" Width="800" WindowStartupLocation="CenterScreen">
+        Title="EditorWindow" Height="543.926" Width="1006.075" WindowStartupLocation="CenterScreen">
     <Grid Margin="10">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -49,7 +49,7 @@
                     </Image.Style>
                 </Image>
                 <StackPanel x:Name="FilesPanel" Orientation="Horizontal" HorizontalAlignment="Left" Margin="0,0,0,0">
-                
+
                 </StackPanel>
                 <Image x:Name="Add_Right" HorizontalAlignment="Left" VerticalAlignment="Top" Height="150" MouseLeftButtonUp="Add_Image_Click">
                     <Image.Style>
@@ -65,5 +65,20 @@
                 </Image>
             </StackPanel>
         </ScrollViewer>
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <ScrollViewer Grid.Column="0" x:Name="Desk1">
+                <StackPanel Orientation="Vertical">
+                    <local:SoundTrack VerticalAlignment="Top"/>
+                    <local:SoundTrack VerticalAlignment="Top"/>
+                    <local:SoundTrack VerticalAlignment="Top"/>
+                </StackPanel>
+
+            </ScrollViewer>
+        </Grid>
     </Grid>
 </Window>
