@@ -121,7 +121,7 @@ ORDER BY desk.`order`");
         {
             List<MusicFile> Result = new List<MusicFile>();
             string WhereCase = Where == null ? "" : $" WHERE {Where}";
-            DataTable DT = ReadTable($"SELECT `id`, `title`, `comment`, `cycle` FROM `files`{Where};");
+            DataTable DT = ReadTable($"SELECT `id`, `title`, `comment`, `cycle` FROM `files`{WhereCase};");
 
             foreach (DataRow row in DT.Rows)
             {
@@ -136,225 +136,32 @@ ORDER BY desk.`order`");
             return Result;
         }
 
+        public List<Track> GetTracks(int Desk, string Where=null)
+        {
+            List<Track> Result = new List<Track>();
+
+            string WhereCase = Where == null ? $" WHERE `desk_n`={Desk}" : $" WHERE `desk_n`={Desk} AND {Where}";
+            DataTable DT = ReadTable($"SELECT `id`, `number`, `file`, `title`, `order` FROM `desk`{WhereCase} ORDER BY `order`;");
+
+            foreach (DataRow row in DT.Rows)
+            {
+                Track track = new Track(this,
+                    Convert.ToInt32(row.ItemArray[DT.Columns.IndexOf("id")]),
+                    Desk,
+                    row.ItemArray[DT.Columns.IndexOf("number")].ToString(),
+                    row.ItemArray[DT.Columns.IndexOf("title")].ToString(),
+                    Convert.ToInt32(row.ItemArray[DT.Columns.IndexOf("file")]),
+                    Convert.ToInt32(row.ItemArray[DT.Columns.IndexOf("order")])
+                    );
+                Result.Add(track);
+            }
+
+            return Result;
+        }
+
         public void Initiate()
         {
             Execute("INSERT INTO `info`(`name`, `description`) VALUES ('', '');");
         }
     }
-
-    //Класс одного муз. файла
-    public class MusicTrack : IDisposable
-    {
-        public string Number { get; set; }
-        public string Name { get; set; }
-        public Stream Data { get; set; }
-        public bool Repeat { get; set; }
-
-        /// <summary>
-        /// Открыть файл из файла
-        /// </summary>
-        /// <param name="FileName">Имя файла для открытия</param>
-        /// <param name="number">Номер трека</param>
-        /// <param name="name">Название трека</param>
-        /// <param name="repeate">Повторять ли звук после окончания</param>
-        public MusicTrack(string FileName, string number, string name, bool repeat)
-        {
-            Number = number;
-            Name = name;
-            Repeat = repeat;
-            FileStream FS = new FileStream(FileName, FileMode.Open);
-            Data = new MemoryStream();
-            FS.CopyTo(Data);
-            FS.Close();
-            FS.Dispose();
-        }
-
-        /// <summary>
-        /// Открыть файл из файла
-        /// </summary>
-        /// <param name="FileStream">Имя файла для открытия</param>
-        /// <param name="number">Номер трека</param>
-        /// <param name="name">Название трека</param>
-        /// <param name="repeate">Повторять ли звук после окончания</param>
-        public MusicTrack(Stream FileStream, string number, string name, bool repeat)
-        {
-            Number = number;
-            Name = name;
-            Repeat = repeat;
-            Data = new MemoryStream();
-            FileStream.CopyTo(Data);
-        }
-
-        /// <summary>
-        /// Получить номер трека и его название
-        /// </summary>
-        public string FullName()
-        {
-            return Number + " — " + Name;
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                Data.Dispose();
-                Data = null;
-                this.Name = null;
-                this.Number = null;
-            }
-        }
-    }
-
-    public class MusicFile : IDisposable
-    {
-        private MusicDB DB;
-        private string title;
-        private string comment;
-        private bool cycle;
-
-        /// <summary>
-        /// Создание пустого экземпляра
-        /// </summary>
-        public MusicFile(MusicDB db, long id, string title, string comment, bool cycle)
-        {
-            DB = db;
-            ID = id;
-            this.title = title;
-            this.comment = comment;
-            this.cycle = cycle;
-        }
-
-        public MusicFile(MusicDB db, long id)
-        {
-            DB = db;
-            ID = id;
-            Update();
-        }
-
-        /// <summary>
-        /// Номер в БД
-        /// </summary>
-        public long ID { get; private set; }
-
-        /// <summary>
-        /// Заголовок файла
-        /// </summary>
-        public string Title
-        {
-            get { return title; }
-            set
-            {
-                title = value;
-                DB.Execute($"UPDATE `files` SET `title`='{title}' WHERE `id`={ID};");
-            }
-        }
-
-        /// <summary>
-        /// Комментарий к файлу
-        /// </summary>
-        public string Comment
-        {
-            get { return comment; }
-            set
-            {
-                comment = value;
-                DB.Execute($"UPDATE `files` SET `comment`='{comment}' WHERE `id`={ID};");
-            }
-        }
-
-        /// <summary>
-        /// Указывает, что звук должен быть зациклен
-        /// </summary>
-        public bool Cycle
-        {
-            get { return cycle; }
-            set
-            {
-                cycle = value;
-                string C = cycle ? "1" : "0";
-                DB.Execute($"UPDATE `files` SET `cycle`={C} WHERE `id`={ID};");
-            }
-        }
-
-        public MemoryStream Data
-        {
-            get
-            {
-                DataTable DeskData = DB.ReadTable($"SELECT `file` FROM `files` WHERE `id`={ID} LIMIT 1");
-                if (DeskData.Rows.Count < 0) return null;
-
-                MemoryStream MS = new MemoryStream();
-                MS.Write((byte[])DeskData.Rows[0].ItemArray[0], 0,
-                    ((byte[])DeskData.Rows[0].ItemArray[0]).Length);
-                MS.Position = 0;
-                return MS;
-            }
-
-            set
-            {
-                DB.ExecuteBLOB($"UPDATE `files` SET `file`=@BLOB WHERE `id`={ID}", value);
-            }
-        }
-
-        /// <summary>
-        /// Загрузить все данные из БД
-        /// </summary>
-        public void Update()
-        {
-            DataTable dt = DB.ReadTable($"SELECT `title`, `comment`, `cycle` FROM `files` WHERE `id`={ID} LIMIT 1;");
-            if (dt.Rows.Count == 0)
-            {
-                title = "";
-                comment = "";
-                cycle = false;
-                return;
-            }
-            title = dt.Rows[0].ItemArray[dt.Columns.IndexOf("title")].ToString();
-            comment = dt.Rows[0].ItemArray[dt.Columns.IndexOf("comment")].ToString();
-            cycle = dt.Rows[0].ItemArray[dt.Columns.IndexOf("comment")].ToString() == "1";
-        }
-
-        public void Delete()
-        {
-            DB.Execute($"DELETE FROM `desk` WHERE `file`={ID};");
-            DB.Execute($"DELETE FROM `files` WHERE `id`={ID};");
-            Dispose();
-        }
-
-        public static MusicFile CreateNewRecord(MusicDB db, string Title, string Comment, bool Cycle, MemoryStream Data)
-        {
-            string CycleS = Cycle ? "1" : "0";
-            db.Execute($"INSERT INTO `files` (`title`, `comment`, `cycle`) VALUES ('{Title}', '{Comment}', {CycleS});");
-            long ID = db.LastID;
-            db.ExecuteBLOB($"UPDATE `files` SET `file`=@BLOB WHERE `id`={ID};", Data);
-            return new MusicFile(db, ID);
-        }
-
-
-        /// <summary>
-        /// Удаление экземпляра
-        /// </summary>
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                title = null;
-                comment = null;
-                DB = null;
-            }
-        }
-    }
-
 }

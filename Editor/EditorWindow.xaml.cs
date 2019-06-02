@@ -27,6 +27,7 @@ namespace Editor
         SQLite.MusicDB PlayList;
 
         List<SQLite.MusicFile> Files;
+        StackPanel[] DeskPanels;
 
         Point ClickPoint;
         object ClickObject;
@@ -34,6 +35,8 @@ namespace Editor
         public EditorWindow()
         {
             InitializeComponent();
+            DeskPanels = new StackPanel[] { Desk1Stack, Desk2Stack, Desk3Stack };
+
             SoundChannel.Initiate();
             for (int i = 1; i < Bass.BASS_GetDeviceInfos().Length; i++)
                 SoundChannel.Initiate(i);
@@ -55,8 +58,18 @@ namespace Editor
                 SoundFile SF = new SoundFile() { Music = MF };
                 SF.MouseDown += MusicFileMouseDown;
                 SF.MouseMove += MusicFileMouseMove;
+                SF.InformationChanged += MusicFileChanged;
                 FilesPanel.Children.Add(SF);
             }
+
+            
+            int Desk = 1;
+            foreach (StackPanel DeskStack in DeskPanels)
+                foreach (SQLite.Track track in PlayList.GetTracks(Desk++))
+                {
+                    SoundTrack ST = new SoundTrack() { Track = track, Opened = false, Margin = new Thickness(0,0,0,10) };
+                    DeskStack.Children.Add(ST);
+                }
         }
 
         private void PlayListName_TextChanged(object sender, TextChangedEventArgs e)
@@ -136,7 +149,8 @@ namespace Editor
         private void MusicFileMouseMove(object sender, MouseEventArgs e)
         {
             if (e.LeftButton == MouseButtonState.Released) return;
-            if ((new string[2] { "TimeLine", "TimeLinePosition" }).Contains(
+            if (ClickObject == null) return;
+            if ((new string[] { "TimeLine", "TimeLinePosition", "TitleBox", "CommentBox" }).Contains(
                 ((FrameworkElement)(e.OriginalSource)).Name))
                 return;
 
@@ -145,6 +159,16 @@ namespace Editor
             {
                 SoundFile SF = (SoundFile)ClickObject;
                 DragDrop.DoDragDrop(SF, SF.Music, DragDropEffects.Copy | DragDropEffects.Move);
+            }
+        }
+
+        private void MusicFileChanged(object sender, EventMusicFileArgs e)
+        {
+            foreach (StackPanel DeskPanel in DeskPanels)
+            {
+                List<SoundTrack> ST_To_Change = DeskPanel.Children.OfType<SoundTrack>().Where(x => x.Track.File == e.FileID).ToList();
+                foreach (SoundTrack STrack in ST_To_Change)
+                    STrack.Update();
             }
         }
     }

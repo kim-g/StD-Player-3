@@ -16,6 +16,7 @@ using System.Windows.Shapes;
 using System.Windows.Threading;
 using Extentions;
 using Microsoft.Win32;
+using Un4seen.Bass;
 
 namespace Editor
 {
@@ -24,10 +25,7 @@ namespace Editor
     /// </summary>
     public partial class SoundTrack : UserControl
     {
-        private string _Title;
-        private string _Comment;
-        private bool _Cycle;
-        private SQLite.MusicFile _Music;
+        private SQLite.Track _Track;
         private bool Escape = false;
         private SoundChannel Sound = new SoundChannel();
         private DispatcherTimer timer;
@@ -35,30 +33,30 @@ namespace Editor
         private bool TimeLinePressed = false;
         private bool _Opened = true;
 
-        /// <summary>
-        /// Заголовок файла
-        /// </summary>
-        public string Title
+        public SQLite.Track Track
         {
-            get { return _Title; }
+            get => _Track;
             set
             {
-                SetTitle(value);
-                _Music.Title = _Title;
+                _Track = value;
+                OpenSound();
+                SetPositionRect(Sound.Position);
 
+                Update();
             }
         }
 
         /// <summary>
         /// Заголовок файла
         /// </summary>
-        public string Comment
+        public string Title
         {
-            get { return _Comment; }
+            get => Track.Title == "" ? Track.Sound.Title : Track.Title;
             set
             {
-                SetComment(value);
-                _Music.Comment = _Comment;
+                SetTitle(value);
+                Track.Title = value;
+
             }
         }
 
@@ -82,20 +80,10 @@ namespace Editor
         /// <param name="value"></param>
         private void SetTitle(string value)
         {
-            string LastTitle = _Title;
-            _Title = value;
+            string Text = value == "" ? Track.Sound.Title : value;
+            SetComment(Track.Sound.Comment);
 
-            TitleText.Text = _Title == "" ? Music.Title : _Title;
-            if (_Title == "" && TitleLabel.FontStyle == FontStyles.Normal)
-            {
-                TitleLabel.FontStyle = FontStyles.Italic;
-                TitleLabel.Foreground = new SolidColorBrush(Colors.Gray);
-            }
-            else if (_Title != "" && LastTitle == "")
-            {
-                TitleLabel.FontStyle = FontStyles.Normal;
-                TitleLabel.Foreground = new SolidColorBrush(Colors.Black);
-            }
+            TitleText.Text = Text;
         }
 
         /// <summary>
@@ -104,52 +92,18 @@ namespace Editor
         /// <param name="value"></param>
         private void SetComment(string value)
         {
-            string LastComment = _Comment;
-            _Comment = value;
+            string comment = Track.Title == "" ? value : $"{Track.Sound.Title} ({value})";
+            comment = comment == "" ? " " : comment;
 
-            CommentText.Text = _Comment == "" ? "Введите комментарий" : _Comment;
-            if (_Comment == "" && CommentLabel.FontStyle == FontStyles.Normal)
-            {
-                CommentLabel.FontStyle = FontStyles.Italic;
-                CommentLabel.Foreground = new SolidColorBrush(Colors.Gray);
-            }
-            else if (_Comment != "" && LastComment == "")
-            {
-                CommentLabel.FontStyle = FontStyles.Normal;
-                CommentLabel.Foreground = new SolidColorBrush(Colors.Black);
-            }
-        }
-
-        public bool Cycle
-        {
-            get { return _Cycle; }
-            set
-            {
-                _Cycle = value;
-                _Music.Cycle = _Cycle;
-                RepeatImage.Source = LoadBitmapFromResources(_Cycle
-                    ? "images/Repeat.png"
-                    : "images/Repeat_Disabled.png");
-            }
+            CommentText.Text = comment;
         }
 
         /// <summary>
-        /// Запись в БД, связанная с панелью
+        /// Зацикленность файла
         /// </summary>
-        public SQLite.MusicFile Music
+        public bool Cycle
         {
-            get { return _Music; }
-            set
-            {
-                _Music = value;
-                _Title = _Music.Title;
-                _Comment = _Music.Comment;
-                _Cycle = _Music.Cycle;
-                OpenSound();
-                SetPositionRect(Sound.Position);
-
-                Update();
-            }
+            get => Track.Cycle;
         }
 
         /// <summary>
@@ -157,7 +111,7 @@ namespace Editor
         /// </summary>
         private void OpenSound()
         {
-            Sound.Open(_Music.Data);
+            Sound.Open(Track.Data);
             Sound.Position = 0;
             TimeText.Text = $"{Sound.PositionTime()} | {Sound.LengthTime()}";
         }
@@ -174,7 +128,6 @@ namespace Editor
                 IsEnabled = false
             };
             timer.Tick += TimerTick;
-
         }
 
         /// <summary>
@@ -193,9 +146,13 @@ namespace Editor
         /// </summary>
         public void Update()
         {
-            SetTitle(_Title);
-            SetComment(_Comment);
-            RepeatImage.Source = LoadBitmapFromResources(_Cycle
+            Track.Update();
+            SetTitle(Track.Title);
+            SetComment(Track.Comment);
+            RepeatImage.Source = LoadBitmapFromResources(Track.Cycle
+                    ? "images/Repeat.png"
+                    : "images/Repeat_Disabled.png");
+            RepeatImageTop.Source = LoadBitmapFromResources(Track.Cycle
                     ? "images/Repeat.png"
                     : "images/Repeat_Disabled.png");
         }
@@ -212,11 +169,6 @@ namespace Editor
             { CreateOptions = BitmapCreateOptions.IgnoreImageCache };
         }
 
-        private void Repeat_Click(object sender, RoutedEventArgs e)
-        {
-            Cycle = !Cycle;
-        }
-
         private void TitleLabel_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             Escape = false;
@@ -229,7 +181,7 @@ namespace Editor
         {
             if (Escape)
                 return;
-            Title = TitleBox.Text;
+            Title = TitleBox.Text == Track.Sound.Title ? "" : TitleBox.Text;
             TitleBox.Visibility = Visibility.Collapsed;
             TitleLabel.Visibility = Visibility.Visible;
         }
@@ -239,7 +191,7 @@ namespace Editor
             switch (e.Key)
             {
                 case Key.Return:
-                    Title = TitleBox.Text;
+                    Title = TitleBox.Text == Track.Sound.Title ? "" : TitleBox.Text;
                     TitleBox.Visibility = Visibility.Collapsed;
                     TitleLabel.Visibility = Visibility.Visible;
                     break;
@@ -247,40 +199,6 @@ namespace Editor
                     Escape = true;
                     TitleBox.Visibility = Visibility.Collapsed;
                     TitleLabel.Visibility = Visibility.Visible;
-                    break;
-            }
-        }
-
-        private void CommentBox_MouseDoubleClick(object sender, MouseButtonEventArgs e)
-        {
-            Escape = false;
-            CommentBox.Text = Comment;
-            CommentBox.Visibility = Visibility.Visible;
-            CommentLabel.Visibility = Visibility.Collapsed;
-        }
-
-        private void CommentBox_LostFocus(object sender, RoutedEventArgs e)
-        {
-            if (Escape)
-                return;
-            Comment = CommentBox.Text;
-            CommentBox.Visibility = Visibility.Collapsed;
-            CommentLabel.Visibility = Visibility.Visible;
-        }
-
-        private void CommentBox_KeyUp(object sender, KeyEventArgs e)
-        {
-            switch (e.Key)
-            {
-                case Key.Return:
-                    Comment = CommentBox.Text;
-                    CommentBox.Visibility = Visibility.Collapsed;
-                    CommentLabel.Visibility = Visibility.Visible;
-                    break;
-                case Key.Escape:
-                    Escape = true;
-                    CommentBox.Visibility = Visibility.Collapsed;
-                    CommentLabel.Visibility = Visibility.Visible;
                     break;
             }
         }
@@ -385,7 +303,7 @@ namespace Editor
             {
                 using (FileStream fs = new FileStream(SD.FileName, FileMode.Create))
                 {
-                    Music.Data.CopyTo(fs);
+                    Track.Data.CopyTo(fs);
                     fs.Close();
                 }
             }
@@ -395,41 +313,11 @@ namespace Editor
         {
             Animator.ChangeHeight(OtherFunctionsPanel, 0, 0);
 
-            if (MessageBox.Show("Вы уверены, что хотите удалить этот файл и все связанные с ним треки?\nОтменить это действие будет невозможно!",
-                $"Удаление файла {Title}", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+            if (MessageBox.Show("Вы уверены, что хотите удалить этот трек?\nОтменить это действие будет невозможно!",
+                $"Удаление трека {Track.Number} – {Title}", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
             {
-                Music.Delete();
+                Track.Delete();
                 ((Panel)Parent).Children.Remove(this);
-            }
-        }
-
-        private void ReplaceButton_Click(object sender, RoutedEventArgs e)
-        {
-            Animator.ChangeHeight(OtherFunctionsPanel, 0, 0);
-
-            if (MessageBox.Show("Вы уверены, что хотите заменить этот файл и все связанные с ним треки?\nОтменить это действие будет невозможно!",
-                $"Замена файла {Title}", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
-            {
-                OpenFileDialog SD = new OpenFileDialog()
-                {
-                    Title = $"Замена файла «{Title}»",
-                    AddExtension = true,
-                    DefaultExt = "mp3",
-                    Filter = "MPEG Layer 3 Music file (*.mp3)|*.mp3",
-                    CheckFileExists = true,
-                    CheckPathExists = true
-                };
-                if (SD.ShowDialog() == true)
-                {
-                    using (FileStream fs = new FileStream(SD.FileName, FileMode.Open))
-                    {
-                        MemoryStream ms = new MemoryStream();
-                        fs.CopyTo(ms);
-                        Music.Data = ms;
-                        fs.Close();
-                    }
-                    OpenSound();
-                }
             }
         }
 

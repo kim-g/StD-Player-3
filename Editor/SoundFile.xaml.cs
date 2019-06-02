@@ -12,6 +12,13 @@ using Un4seen.Bass;
 
 namespace Editor
 {
+    public class EventMusicFileArgs : EventArgs
+    {
+        public long FileID;
+    }
+
+    public delegate void EventMusicFileHandler(object sender, EventMusicFileArgs e);
+
     /// <summary>
     /// Логика взаимодействия для SoundFile.xaml
     /// </summary>
@@ -27,6 +34,10 @@ namespace Editor
         private bool PositionDrag = false;
         private bool TimeLinePressed = false;
 
+        // События
+        public event EventMusicFileHandler InformationChanged;
+        public event EventMusicFileHandler FileDeleted;
+
         /// <summary>
         /// Заголовок файла
         /// </summary>
@@ -37,7 +48,7 @@ namespace Editor
             {
                 SetTitle(value);
                 _Music.Title = _Title;
-                               
+                OnInfoChanged(new EventMusicFileArgs() { FileID = Music.ID });
             }
         }
 
@@ -51,6 +62,7 @@ namespace Editor
             {
                 SetComment(value);
                 _Music.Comment = _Comment;
+                OnInfoChanged(new EventMusicFileArgs() { FileID = Music.ID });
             }
         }
 
@@ -108,6 +120,7 @@ namespace Editor
                 RepeatImage.Source = LoadBitmapFromResources(_Cycle
                     ? "images/Repeat.png"
                     : "images/Repeat_Disabled.png");
+                OnInfoChanged(new EventMusicFileArgs() { FileID = Music.ID });
             }
         }
 
@@ -176,6 +189,7 @@ namespace Editor
             RepeatImage.Source = LoadBitmapFromResources(_Cycle
                     ? "images/Repeat.png"
                     : "images/Repeat_Disabled.png");
+            OnInfoChanged(new EventMusicFileArgs() { FileID = Music.ID });
         }
 
         /// <summary>
@@ -376,6 +390,7 @@ namespace Editor
             if (MessageBox.Show("Вы уверены, что хотите удалить этот файл и все связанные с ним треки?\nОтменить это действие будет невозможно!",
                 $"Удаление файла {Title}", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
             {
+                InformationChanged?.Invoke(this, new EventMusicFileArgs() { FileID = Music.ID });
                 Music.Delete();
                 ((Panel)Parent).Children.Remove(this);
             }
@@ -407,8 +422,18 @@ namespace Editor
                         fs.Close();
                     }
                     OpenSound();
+                    OnInfoChanged(new EventMusicFileArgs() { FileID = Music.ID });
                 }
             }
+        }
+
+        /// <summary>
+        /// Событие остановки по окончанию.
+        /// </summary>
+        /// <param name="e"></param>
+        protected virtual void OnInfoChanged(EventMusicFileArgs e)
+        {
+            InformationChanged?.Invoke(this, e);
         }
     }
 }

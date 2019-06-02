@@ -17,20 +17,24 @@
         </Grid.Background>
         <StackPanel Orientation="Vertical" Margin="5">
             <Grid>
-                <Label x:Name="TitleLabel" FontSize="18" FontWeight="Bold" MouseDoubleClick="TitleLabel_MouseDoubleClick">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="42"/>
+                </Grid.ColumnDefinitions>
+                <Label x:Name="TitleLabel" Grid.Column="0" FontSize="18" FontWeight="Bold" MouseDoubleClick="TitleLabel_MouseDoubleClick">
                     <TextBlock x:Name="TitleText" TextWrapping="Wrap">
                         НАЗВАНИЕ
                     </TextBlock>
                 </Label>
-                <TextBox x:Name="TitleBox" FontSize="18" Visibility="Collapsed" LostFocus="TitleBox_LostFocus" KeyUp="TitleBox_KeyUp"/>
+                <TextBox x:Name="TitleBox" Grid.Column="0" FontSize="18" Visibility="Collapsed" LostFocus="TitleBox_LostFocus" KeyUp="TitleBox_KeyUp"/>
+                <Image Grid.Column="1" Width="32" Height="32" Margin="0" x:Name="RepeatImageTop" Source="images/Repeat_Disabled.png" HorizontalAlignment="Right" />
             </Grid>
             <Grid>
-                <Label x:Name="CommentLabel" FontSize="12" MouseDoubleClick="CommentBox_MouseDoubleClick">
+                <Label x:Name="CommentLabel" FontSize="12">
                     <TextBlock x:Name="CommentText" TextWrapping="Wrap">
                         Комментарий
                     </TextBlock>
                 </Label>
-                <TextBox x:Name="CommentBox" FontSize="12" Visibility="Collapsed" LostFocus="CommentBox_LostFocus" KeyUp="CommentBox_KeyUp"/>
             </Grid>
             <Label x:Name="Time" FontSize="12" HorizontalContentAlignment="Center">
                 <TextBlock x:Name="TimeText" TextWrapping="Wrap">
@@ -47,16 +51,14 @@
                 <Button x:Name="Stop" Width="32" Height="32" Margin="0,0,10,0" Click="Stop_Click">
                     <Image x:Name="StopImage" Source="images/Stop.png"/>
                 </Button>
-                <Button x:Name="Repeat" Width="32" Height="32" Margin="0,0,40,0" Click="Repeat_Click">
-                    <Image x:Name="RepeatImage" Source="images/Repeat_Disabled.png"/>
-                </Button>
+                <Image Width="32" Height="32" Margin="0,0,42,0" x:Name="RepeatImage" Source="images/Repeat_Disabled.png"/>
                 <Button x:Name="Other" Width="32" Height="32" Click="Other_Click">
                     <Image x:Name="OtherImage" Source="images/other.png"/>
                 </Button>
             </StackPanel>
-            
+
         </StackPanel>
-        <Grid x:Name="OtherFunctionsPanel" Margin="0,0,56,41" VerticalAlignment="Bottom" HorizontalAlignment="Right" Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" ScrollViewer.VerticalScrollBarVisibility="Disabled" Height="0">
+        <Grid x:Name="OtherFunctionsPanel" Margin="40,0,0,25" VerticalAlignment="Bottom" HorizontalAlignment="Center" Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" ScrollViewer.VerticalScrollBarVisibility="Disabled" Height="0">
             <Grid Margin="10">
                 <Grid.RowDefinitions>
                     <RowDefinition/>
@@ -64,19 +66,18 @@
                     <RowDefinition/>
                 </Grid.RowDefinitions>
                 <Button Grid.Row="0" x:Name="ExportButton" Content="Экспорт в файл" Padding="20,0" Click="ExportButton_Click"/>
-                <Button Grid.Row="1" x:Name="ReplaceButton" Content="Заменить" Padding="20,0" Click="ReplaceButton_Click"/>
                 <Button Grid.Row="2" x:Name="DeleteButton" Content="Удалить" Padding="20,0" Click="DeleteButton_Click"/>
             </Grid>
         </Grid>
-        
+
         <Button x:Name="UpDown" Margin="0,10,0,0" BorderBrush="{x:Null}" Foreground="{x:Null}" Click="UpDown_Click" Height="20" VerticalAlignment="Bottom">
-                <Button.Background>
-                    <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                        <GradientStop Color="#FFA0A0A0" Offset="0.003"/>
-                        <GradientStop Color="#FFC7C7C7" Offset="1"/>
-                    </LinearGradientBrush>
-                </Button.Background>
-                <Image x:Name="UpDownImage" Source="images/Up.png" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Fill" Width="16" Height="16"/>
-            </Button>
+            <Button.Background>
+                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                    <GradientStop Color="#FFA0A0A0" Offset="0.003"/>
+                    <GradientStop Color="#FFC7C7C7" Offset="1"/>
+                </LinearGradientBrush>
+            </Button.Background>
+            <Image x:Name="UpDownImage" Source="images/Up.png" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Fill" Width="16" Height="16"/>
+        </Button>
     </Grid>
 </UserControl>
