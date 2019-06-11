@@ -86,9 +86,12 @@ namespace SQLite
                 if (DeskData.Rows.Count < 0) return null;
 
                 MemoryStream MS = new MemoryStream();
-                MS.Write((byte[])DeskData.Rows[0].ItemArray[0], 0,
-                    ((byte[])DeskData.Rows[0].ItemArray[0]).Length);
-                MS.Position = 0;
+                if (DeskData.Rows.Count > 0)
+                {
+                    MS.Write((byte[])DeskData.Rows[0].ItemArray[0], 0,
+                        ((byte[])DeskData.Rows[0].ItemArray[0]).Length);
+                    MS.Position = 0;
+                }
                 return MS;
             }
 

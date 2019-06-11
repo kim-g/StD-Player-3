@@ -15,6 +15,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Un4seen.Bass;
 using Microsoft.Win32;
+using System.Data;
 
 namespace Editor
 {
@@ -170,6 +171,33 @@ namespace Editor
                 foreach (SoundTrack STrack in ST_To_Change)
                     STrack.Update();
             }
+        }
+
+        private void TrackDesk_Drop(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(typeof(SQLite.MusicFile)))
+            {
+                ScrollViewer Desk = (ScrollViewer)sender;
+                SQLite.MusicFile MF = (SQLite.MusicFile)e.Data.GetData(typeof(SQLite.MusicFile));
+                int DeskN = Convert.ToInt32(Desk.Tag);
+
+                int NewNumber = 0;
+                while (PlayList.GetCount("desk", $"`number`={++NewNumber}") > 0) ;
+                DataTable dt = PlayList.ReadTable($"SELECT `order` FROM `desk` WHERE `desk_n`={DeskN} ORDER BY `order` DESC LIMIT 1");
+                int Order = Convert.ToInt32(dt.Rows.Count == 0 ? 1 : dt.Rows[0].ItemArray[0]) + 1;
+
+                SQLite.Track track = SQLite.Track.Create(PlayList, DeskN, NewNumber.ToString(), "",
+                    MF.ID, Order);
+
+                SoundTrack ST = new SoundTrack()
+                {
+                    Track = track,
+                    Opened = false,
+                    Margin = new Thickness(0, 0, 0, 10)
+                };
+                DeskPanels[DeskN - 1].Children.Add(ST);
+            }
+                
         }
     }
 }

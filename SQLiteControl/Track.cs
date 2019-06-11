@@ -133,6 +133,17 @@ namespace SQLite
             get => Sound.Data;
         }
 
+        public static Track Create(MusicDB db, int desk, string number, string title, 
+            long file, int order)
+        {
+            db.Execute("INSERT INTO `desk` (`desk_n`, `number`, `file`, `title`, `order`) "+
+                $"VALUES ({desk}, '{number}', {file}, '{title}', {order})");
+
+            long ID = db.LastID;
+
+            return new Track(db, ID);
+        }
+
         /// <summary>
         /// Загрузить все данные из БД
         /// </summary>
