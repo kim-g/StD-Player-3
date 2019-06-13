@@ -66,11 +66,16 @@ namespace Editor
             
             int Desk = 1;
             foreach (StackPanel DeskStack in DeskPanels)
+            {
                 foreach (SQLite.Track track in PlayList.GetTracks(Desk++))
                 {
-                    SoundTrack ST = new SoundTrack() { Track = track, Opened = false, Margin = new Thickness(0,0,0,10) };
+                    SoundTrack ST = new SoundTrack() { Track = track, Opened = false, Margin = new Thickness(0, 0, 0, 10) };
+                    ST.MouseDown += MusicFileMouseDown;
+                    ST.MouseMove += MusicFileMouseMove;
                     DeskStack.Children.Add(ST);
                 }
+                DeskStack.SizeChanged += (object Sender, SizeChangedEventArgs e) => { SetOrder((StackPanel)Sender); };
+            }
         }
 
         private void PlayListName_TextChanged(object sender, TextChangedEventArgs e)
@@ -137,14 +142,12 @@ namespace Editor
 
         private void MusicFileMouseDown(object sender, MouseButtonEventArgs e)
         {
-            if ( (new string[2] { "TimeLine", "TimeLinePosition" }).Contains(
+            if ( (new string[] { "TimeLine", "TimeLinePosition", "TitleBox", "CommentBox" }).Contains(
                 ((FrameworkElement)(e.OriginalSource)).Name))
                 return;
 
             ClickPoint = e.GetPosition((IInputElement)sender);
             ClickObject = sender;
-            /*SoundFile SF = (SoundFile)sender;
-            DragDrop.DoDragDrop(SF, SF.Music, DragDropEffects.Copy | DragDropEffects.Move);*/
         }
 
         private void MusicFileMouseMove(object sender, MouseEventArgs e)
@@ -158,8 +161,18 @@ namespace Editor
             Point Pos = e.GetPosition((IInputElement)sender);
             if (Math.Sqrt(Math.Pow(ClickPoint.X - Pos.X, 2) + Math.Pow(ClickPoint.Y - Pos.Y, 2)) > 20)
             {
-                SoundFile SF = (SoundFile)ClickObject;
-                DragDrop.DoDragDrop(SF, SF.Music, DragDropEffects.Copy | DragDropEffects.Move);
+                object Object = null;
+                if (ClickObject.GetType() == typeof(SoundFile))
+                {
+                    SoundFile SF = (SoundFile)ClickObject;
+                    Object = SF.Music;
+                }
+                if (ClickObject.GetType() == typeof(SoundTrack))
+                {
+                    SoundTrack SF = (SoundTrack)ClickObject;
+                    Object = SF.Track;
+                }
+                DragDrop.DoDragDrop((DependencyObject)ClickObject, Object, DragDropEffects.Copy | DragDropEffects.Move);
             }
         }
 
@@ -195,9 +208,40 @@ namespace Editor
                     Opened = false,
                     Margin = new Thickness(0, 0, 0, 10)
                 };
+                ST.MouseDown += MusicFileMouseDown;
+                ST.MouseMove += MusicFileMouseMove;
                 DeskPanels[DeskN - 1].Children.Add(ST);
             }
                 
+        }
+
+        private void SetOrder(ScrollViewer Desk)
+        {
+            int DeskN = Convert.ToInt32(Desk.Tag);
+            SetOrder(DeskPanels[DeskN - 1]);
+        }
+
+        private void SetOrder(StackPanel Desk)
+        {
+            for (int i = 0; i < Desk.Children.Count; i++)
+            {
+                ((SoundTrack)(Desk.Children[i])).Track.Order = i+1;
+            }
+        }
+
+        private void Desk1_DragEnter(object sender, DragEventArgs e)
+        {
+
+        }
+
+        private void Desk1_DragLeave(object sender, DragEventArgs e)
+        {
+
+        }
+
+        private void Desk1_DragOver(object sender, DragEventArgs e)
+        {
+            InfoPanel.Content = "DragOver";
         }
     }
 }

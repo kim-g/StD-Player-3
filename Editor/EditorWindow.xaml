@@ -11,6 +11,7 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <Grid Grid.Row="0" Margin="0,0,0,10">
             <Grid.RowDefinitions>
@@ -71,7 +72,7 @@
                 <ColumnDefinition/>
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
-            <ScrollViewer Grid.Column="0" x:Name="Desk1" Margin="0,0,10,0" Drop="TrackDesk_Drop" AllowDrop="True" Tag="1">
+            <ScrollViewer Grid.Column="0" x:Name="Desk1" Margin="0,0,10,0" Drop="TrackDesk_Drop" AllowDrop="True" Tag="1" DragEnter="Desk1_DragEnter" DragLeave="Desk1_DragLeave" DragOver="Desk1_DragOver">
                 <StackPanel x:Name="Desk1Stack" Orientation="Vertical"/>
             </ScrollViewer>
             <ScrollViewer Grid.Column="1" x:Name="Desk2" Margin="0,0,10,0" Drop="TrackDesk_Drop" AllowDrop="True" Tag="2">
@@ -80,6 +81,9 @@
             <ScrollViewer Grid.Column="2" x:Name="Desk3" Drop="TrackDesk_Drop" AllowDrop="True" Tag="3">
                 <StackPanel x:Name="Desk3Stack" Orientation="Vertical"/>
             </ScrollViewer>
+        </Grid>
+        <Grid Grid.Row="3">
+            <Label x:Name="InfoPanel" Content=""/>
         </Grid>
     </Grid>
 </Window>
