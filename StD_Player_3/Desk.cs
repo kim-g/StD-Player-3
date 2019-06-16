@@ -82,6 +82,12 @@ namespace StD_Player_3
                 UpdateList();
             }
         }
+
+        public int TracksCount
+        {
+            get => TrackList.Count;
+        }
+
         public int CurrentTrack
         {
             get

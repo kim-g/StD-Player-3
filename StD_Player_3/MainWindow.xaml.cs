@@ -37,6 +37,23 @@ namespace StD_Player_3
         public static LinearGradientBrush LevelsI;
         public static int UpdateTime = 100;
 
+        private byte DeskCount
+        {
+            get
+            {
+                byte Desks = 3;
+                if (Channels[2].TracksCount == 0)
+                {
+                    if (Channels[1].TracksCount == 0)
+                        Desks = 1;
+                    else
+                        Desks = 2;
+                }
+
+                return Desks;
+            }
+        }
+
         public MainWindow()
         {
             Application.Current.Resources.MergedDictionaries.Clear();
@@ -142,6 +159,7 @@ namespace StD_Player_3
                 LoadSDB(MDB, SpNameLabel, MusicDBFileName, Channels);
 
                 MainGrid.Children.Remove(LoadGrid);
+
                 Loading = false;
             }));
         }
@@ -158,6 +176,33 @@ namespace StD_Player_3
             Task.WaitAll(LoadDesks);
             for (int i = 0; i < Channels.Length; i++)
                 Channel[i].LoadTrackList(LoadDesks[i].Result);
+
+            
+
+            switch (DeskCount)
+            {
+                case 1:
+                    Grid.SetColumnSpan(Desk1, 6);
+                    Desk2.Visibility = Visibility.Collapsed;
+                    Desk3.Visibility = Visibility.Collapsed;
+                    break;
+                case 2:
+                    Grid.SetColumnSpan(Desk1, 3);
+                    Grid.SetColumnSpan(Desk2, 3);
+                    Grid.SetColumn(Desk2, 3);
+                    Desk2.Visibility = Visibility.Visible;
+                    Desk3.Visibility = Visibility.Collapsed;
+                    break;
+                case 3:
+                    Grid.SetColumnSpan(Desk1, 2);
+                    Grid.SetColumnSpan(Desk2, 2);
+                    Grid.SetColumnSpan(Desk3, 2);
+                    Grid.SetColumn(Desk2, 2);
+                    Grid.SetColumn(Desk3, 4);
+                    Desk2.Visibility = Visibility.Visible;
+                    Desk3.Visibility = Visibility.Visible;
+                    break;
+            }
         }
 
         private void timerTick(object sender, EventArgs e)
@@ -178,12 +223,6 @@ namespace StD_Player_3
                 Channel.UpdateVisualElements();
                 Channel.DrawFriq();
             }
-            /*Channel_1.UpdateVisualElements();
-            Channel_2.UpdateVisualElements();
-            Channel_3.UpdateVisualElements();
-            Channel_1.DrawFriq();
-            Channel_2.DrawFriq();
-            Channel_3.DrawFriq();*/
         }
 
         
@@ -244,8 +283,6 @@ namespace StD_Player_3
                     LevelsI.EndPoint = new Point(0, ScaleTo(200.0));
                     foreach (Desk Channel in Channels)
                         Channel.SetLevels(LevelsI, LevelsO);
-                    /*Channel_1.SetLevels(LevelsI, LevelsO);
-                    Channel_2.SetLevels(LevelsI, LevelsO);*/
                     break;
                 case Key.Add:
                     Parameters.Set(this);
