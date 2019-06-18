@@ -32,6 +32,19 @@ namespace Editor
 
         Point ClickPoint;
         object ClickObject;
+        DataBaseElement _SelectedElement = null;
+
+        public DataBaseElement SelectedElemen
+        {
+            get => _SelectedElement;
+            set
+            {
+                if (_SelectedElement != null)
+                    _SelectedElement.Selected = false;
+                _SelectedElement = value;
+                _SelectedElement.Selected = true;
+            }
+        }
 
         public EditorWindow()
         {
@@ -70,12 +83,17 @@ namespace Editor
                 foreach (SQLite.Track track in PlayList.GetTracks(Desk++))
                 {
                     SoundTrack ST = new SoundTrack() { Track = track, Opened = false, Margin = new Thickness(0, 0, 0, 10) };
-                    ST.MouseDown += MusicFileMouseDown;
-                    ST.MouseMove += MusicFileMouseMove;
+                    SoundTrackEventsAdd(ST);
                     DeskStack.Children.Add(ST);
                 }
                 DeskStack.SizeChanged += (object Sender, SizeChangedEventArgs e) => { SetOrder((StackPanel)Sender); };
             }
+        }
+
+        private void SoundTrackEventsAdd(SoundTrack ST)
+        {
+            ST.MouseDown += MusicFileMouseDown;
+            ST.MouseMove += MusicFileMouseMove;
         }
 
         private void PlayListName_TextChanged(object sender, TextChangedEventArgs e)
@@ -148,6 +166,7 @@ namespace Editor
 
             ClickPoint = e.GetPosition((IInputElement)sender);
             ClickObject = sender;
+            SelectedElemen = (DataBaseElement)sender;
         }
 
         private void MusicFileMouseMove(object sender, MouseEventArgs e)
@@ -173,6 +192,7 @@ namespace Editor
                     Object = SF.Track;
                 }
                 DragDrop.DoDragDrop((DependencyObject)ClickObject, Object, DragDropEffects.Copy | DragDropEffects.Move);
+                ClickObject = null;
             }
         }
 
@@ -208,11 +228,45 @@ namespace Editor
                     Opened = false,
                     Margin = new Thickness(0, 0, 0, 10)
                 };
-                ST.MouseDown += MusicFileMouseDown;
-                ST.MouseMove += MusicFileMouseMove;
+                SoundTrackEventsAdd(ST);
                 DeskPanels[DeskN - 1].Children.Add(ST);
             }
-                
+
+            if (e.Data.GetDataPresent(typeof(SQLite.Track)))
+            {
+                ScrollViewer Desk = (ScrollViewer)sender;
+                SQLite.Track Track = (SQLite.Track)e.Data.GetData(typeof(SQLite.Track));
+                int DeskN = Convert.ToInt32(Desk.Tag);
+
+                if (Track.Desk == DeskN)
+                {
+
+                }
+                else
+                {
+                    Track.Desk = DeskN;
+
+                    SoundTrack STD = null;
+                    foreach (StackPanel DeskStack in DeskPanels)
+                    {
+                        foreach (SoundTrack ST in
+                            DeskStack.Children.OfType<SoundTrack>().Where(X => X.Track.ID == Track.ID))
+                        {
+                            STD = ST;
+                        }
+                    }
+                    ((StackPanel)(STD.Parent)).Children.Remove(STD);
+
+                    SoundTrack NST = new SoundTrack()
+                    {
+                        Track = Track,
+                        Opened = false,
+                        Margin = new Thickness(0, 0, 0, 10)
+                    };
+                    SoundTrackEventsAdd(NST);
+                    ((StackPanel)Desk.Content).Children.Add(NST);
+                }
+            }
         }
 
         private void SetOrder(ScrollViewer Desk)

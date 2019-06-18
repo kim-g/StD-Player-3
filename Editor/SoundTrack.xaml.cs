@@ -23,7 +23,7 @@ namespace Editor
     /// <summary>
     /// Логика взаимодействия для SoundTrack.xaml
     /// </summary>
-    public partial class SoundTrack : UserControl
+    public partial class SoundTrack : DataBaseElement
     {
         private SQLite.Track _Track;
         private bool Escape = false;
@@ -31,7 +31,7 @@ namespace Editor
         private DispatcherTimer timer;
         private bool PositionDrag = false;
         private bool TimeLinePressed = false;
-        private bool _Opened = true;
+        private bool _Opened = false;        
 
         public SQLite.Track Track
         {
@@ -119,6 +119,11 @@ namespace Editor
         public SoundTrack()
         {
             InitializeComponent();
+            SelectedRect = SelectedRectangle;
+
+            Animator.ChangeHeight(this, _Opened ? 170 : 60, 0);
+            UpDownImage.Source = LoadBitmapFromResources(_Opened ? "images/Up.png" : "images/Down.png");
+
             Sound.SoundCard = -1;
             Sound.Stop();
             Sound.AutoStop += new EventHandler((object sender, EventArgs e) => { timer.Stop(); });

@@ -80,6 +80,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Animator.cs" />
+    <Compile Include="DataBaseElement.cs" />
     <Compile Include="Sound.cs" />
     <Compile Include="SoundChannel.cs" />
     <Compile Include="SoundFile.xaml.cs">

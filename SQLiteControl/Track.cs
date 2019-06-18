@@ -52,7 +52,7 @@ namespace SQLite
         /// <summary>
         /// Номер деки
         /// </summary>
-        private int Desk
+        public int Desk
         {
             get => desk;
             set
