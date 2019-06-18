@@ -22,7 +22,7 @@ namespace Editor
     /// <summary>
     /// Логика взаимодействия для SoundFile.xaml
     /// </summary>
-    public partial class SoundFile : UserControl
+    public partial class SoundFile : DataBaseElement
     {
         private string _Title;
         private string _Comment;
@@ -156,6 +156,8 @@ namespace Editor
         public SoundFile()
         {
             InitializeComponent();
+            SelectedRect = SelectedRectangle;
+
             Sound.SoundCard = -1;
             Sound.Stop();
             Sound.AutoStop += new EventHandler((object sender, EventArgs e) => { timer.Stop(); });
@@ -434,6 +436,11 @@ namespace Editor
         protected virtual void OnInfoChanged(EventMusicFileArgs e)
         {
             InformationChanged?.Invoke(this, e);
+        }
+
+        public override void Play()
+        {
+            throw new NotImplementedException();
         }
     }
 }

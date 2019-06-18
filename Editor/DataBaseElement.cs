@@ -18,7 +18,7 @@ namespace Editor
     /// <summary>
     /// Логика взаимодействия для DataBaseElement.xaml
     /// </summary>
-    public class DataBaseElement : UserControl
+    public abstract class DataBaseElement : UserControl
     {
         private bool selected = false;
         protected Rectangle SelectedRect;
@@ -40,6 +40,16 @@ namespace Editor
                 SelectedRect.Visibility = selected ? Visibility.Visible : Visibility.Hidden;
             }
         }
+
+        /// <summary>
+        /// Запуск / остановка воспроизведения
+        /// </summary>
+        public abstract void Play();
+
+        /// <summary>
+        /// Удаление объекта
+        /// </summary>
+        public abstract void Delete();
     }
 }
 
