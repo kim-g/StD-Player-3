@@ -219,9 +219,7 @@ namespace Editor
 
         private void PlayPause_Click(object sender, RoutedEventArgs e)
         {
-            if (Sound.State) timer.Stop();
-            else timer.Start();
-            Sound.Pause();
+            Play();
         }
 
         private void Stop_Click(object sender, RoutedEventArgs e)
@@ -316,14 +314,7 @@ namespace Editor
 
         private void DeleteButton_Click(object sender, RoutedEventArgs e)
         {
-            Animator.ChangeHeight(OtherFunctionsPanel, 0, 0);
-
-            if (MessageBox.Show("Вы уверены, что хотите удалить этот трек?\nОтменить это действие будет невозможно!",
-                $"Удаление трека {Track.Number} – {Title}", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
-            {
-                Track.Delete();
-                ((Panel)Parent).Children.Remove(this);
-            }
+            Delete();
         }
 
         private void UpDown_Click(object sender, RoutedEventArgs e)
@@ -347,6 +338,25 @@ namespace Editor
         {
             Animator.ChangeHeight(this, 170, 250);
             UpDownImage.Source = LoadBitmapFromResources("images/Up.png");
+        }
+
+        public override void Play()
+        {
+            if (Sound.State) timer.Stop();
+            else timer.Start();
+            Sound.Pause();
+        }
+
+        public override void Delete()
+        {
+            Animator.ChangeHeight(OtherFunctionsPanel, 0, 0);
+
+            if (MessageBox.Show("Вы уверены, что хотите удалить этот трек?\nОтменить это действие будет невозможно!",
+                $"Удаление трека {Track.Number} – {Title}", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+            {
+                Track.Delete();
+                ((Panel)Parent).Children.Remove(this);
+            }
         }
     }
 }

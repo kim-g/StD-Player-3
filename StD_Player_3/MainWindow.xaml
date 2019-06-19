@@ -27,9 +27,9 @@
                 <ColumnDefinition/>
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
-            <Grid Grid.Column="0" x:Name="Desk1" />
-            <Grid Grid.Column="1" x:Name="Desk2"/>
-            <Grid Grid.Column="2" x:Name="Desk3"/>
+            <Grid Grid.Column="0" Grid.ColumnSpan="2" x:Name="Desk1" />
+            <Grid Grid.Column="2" Grid.ColumnSpan="2" x:Name="Desk2"/>
+            <Grid Grid.Column="4" Grid.ColumnSpan="2" x:Name="Desk3"/>
         </Grid>
         <Grid Grid.Column="0" Grid.Row="2" x:Name="BottomPanel" Margin="0,0,0,0">
             <Grid.ColumnDefinitions>

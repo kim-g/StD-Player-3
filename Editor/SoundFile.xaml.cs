@@ -442,5 +442,10 @@ namespace Editor
         {
             throw new NotImplementedException();
         }
+
+        public override void Delete()
+        {
+            throw new NotImplementedException();
+        }
     }
 }
