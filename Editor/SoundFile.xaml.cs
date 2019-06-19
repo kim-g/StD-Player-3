@@ -290,9 +290,7 @@ namespace Editor
 
         private void PlayPause_Click(object sender, RoutedEventArgs e)
         {
-            if (Sound.State) timer.Stop();
-            else timer.Start();
-            Sound.Pause();
+            Play();
         }
 
         private void Stop_Click(object sender, RoutedEventArgs e)
@@ -389,13 +387,7 @@ namespace Editor
         {
             Animator.ChangeHeight(OtherFunctionsPanel, 0, 0);
 
-            if (MessageBox.Show("Вы уверены, что хотите удалить этот файл и все связанные с ним треки?\nОтменить это действие будет невозможно!",
-                $"Удаление файла {Title}", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
-            {
-                InformationChanged?.Invoke(this, new EventMusicFileArgs() { FileID = Music.ID });
-                Music.Delete();
-                ((Panel)Parent).Children.Remove(this);
-            }
+            Delete();
         }
 
         private void ReplaceButton_Click(object sender, RoutedEventArgs e)
@@ -440,12 +432,20 @@ namespace Editor
 
         public override void Play()
         {
-            throw new NotImplementedException();
+            if (Sound.State) timer.Stop();
+            else timer.Start();
+            Sound.Pause();
         }
 
         public override void Delete()
         {
-            throw new NotImplementedException();
+            if (MessageBox.Show("Вы уверены, что хотите удалить этот файл и все связанные с ним треки?\nОтменить это действие будет невозможно!",
+                $"Удаление файла {Title}", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+            {
+                InformationChanged?.Invoke(this, new EventMusicFileArgs() { FileID = Music.ID });
+                Music.Delete();
+                ((Panel)Parent).Children.Remove(this);
+            }
         }
     }
 }

@@ -34,7 +34,7 @@ namespace Editor
         object ClickObject;
         DataBaseElement _SelectedElement = null;
 
-        public DataBaseElement SelectedElemen
+        public DataBaseElement SelectedElement
         {
             get => _SelectedElement;
             set
@@ -166,7 +166,7 @@ namespace Editor
 
             ClickPoint = e.GetPosition((IInputElement)sender);
             ClickObject = sender;
-            SelectedElemen = (DataBaseElement)sender;
+            SelectedElement = (DataBaseElement)sender;
         }
 
         private void MusicFileMouseMove(object sender, MouseEventArgs e)
@@ -296,6 +296,20 @@ namespace Editor
         private void Desk1_DragOver(object sender, DragEventArgs e)
         {
             InfoPanel.Content = "DragOver";
+        }
+
+        private void Window_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (SelectedElement == null) return;
+            switch (e.Key)
+            {
+                case Key.Space:
+                    SelectedElement.Play();
+                    break;
+                case Key.Delete:
+                    SelectedElement.Delete();
+                    break;
+            }
         }
     }
 }
