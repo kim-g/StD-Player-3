@@ -73,6 +73,7 @@ namespace Editor
                 SF.MouseDown += MusicFileMouseDown;
                 SF.MouseMove += MusicFileMouseMove;
                 SF.InformationChanged += MusicFileChanged;
+                SF.FileDeleted += SoundFileDeleted;
                 FilesPanel.Children.Add(SF);
             }
 
@@ -142,6 +143,8 @@ namespace Editor
                 SoundFile SF = new SoundFile() { Music = MF };
                 SF.MouseDown += MusicFileMouseDown;
                 SF.MouseMove += MusicFileMouseMove;
+                SF.InformationChanged += MusicFileChanged;
+                SF.FileDeleted += SoundFileDeleted;
                 FilesPanel.Children.Add(SF);
 
             }
@@ -300,6 +303,10 @@ namespace Editor
 
         private void Window_KeyUp(object sender, KeyEventArgs e)
         {
+            if ((new string[] { "TitleBox", "CommentBox" }).Contains(
+                ((FrameworkElement)(e.OriginalSource)).Name))
+                return;
+
             if (SelectedElement == null) return;
             switch (e.Key)
             {
@@ -310,6 +317,23 @@ namespace Editor
                     SelectedElement.Delete();
                     break;
             }
+        }
+
+        public void DeleteAllTracks(long FileID)
+        {
+            List<SoundTrack> ListToDelete = new List<SoundTrack>();
+            foreach (StackPanel SP in DeskPanels)
+            {
+                ListToDelete.AddRange(SP.Children.OfType<SoundTrack>().Where<SoundTrack>(X => 
+                    X.Track.File == FileID));
+            }
+            for (int i = 0; i < ListToDelete.Count(); i++)
+                ListToDelete[i].ForceDelete();
+        }
+
+        private void SoundFileDeleted(object sender, EventMusicFileArgs e)
+        {
+            DeleteAllTracks(e.FileID);
         }
     }
 }

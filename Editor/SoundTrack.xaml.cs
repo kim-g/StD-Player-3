@@ -353,10 +353,13 @@ namespace Editor
 
             if (MessageBox.Show("Вы уверены, что хотите удалить этот трек?\nОтменить это действие будет невозможно!",
                 $"Удаление трека {Track.Number} – {Title}", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
-            {
-                Track.Delete();
-                ((Panel)Parent).Children.Remove(this);
-            }
+                ForceDelete();
+        }
+
+        public void ForceDelete()
+        {
+            Track.Delete();
+            ((Panel)Parent).Children.Remove(this);
         }
     }
 }

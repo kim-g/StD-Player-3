@@ -442,8 +442,9 @@ namespace Editor
             if (MessageBox.Show("Вы уверены, что хотите удалить этот файл и все связанные с ним треки?\nОтменить это действие будет невозможно!",
                 $"Удаление файла {Title}", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
             {
-                InformationChanged?.Invoke(this, new EventMusicFileArgs() { FileID = Music.ID });
+                FileDeleted?.Invoke(this, new EventMusicFileArgs() { FileID = Music.ID });
                 Music.Delete();
+
                 ((Panel)Parent).Children.Remove(this);
             }
         }
