@@ -34,6 +34,8 @@ namespace Editor
         object ClickObject;
         DataBaseElement _SelectedElement = null;
 
+        string[] ElementsExclude = new string[] { "TimeLine", "TimeLinePosition", "TitleBox", "CommentBox", "NumberBox" };
+
         public DataBaseElement SelectedElement
         {
             get => _SelectedElement;
@@ -163,7 +165,7 @@ namespace Editor
 
         private void MusicFileMouseDown(object sender, MouseButtonEventArgs e)
         {
-            if ( (new string[] { "TimeLine", "TimeLinePosition", "TitleBox", "CommentBox" }).Contains(
+            if ( (ElementsExclude).Contains(
                 ((FrameworkElement)(e.OriginalSource)).Name))
                 return;
 
@@ -176,7 +178,7 @@ namespace Editor
         {
             if (e.LeftButton == MouseButtonState.Released) return;
             if (ClickObject == null) return;
-            if ((new string[] { "TimeLine", "TimeLinePosition", "TitleBox", "CommentBox" }).Contains(
+            if ((ElementsExclude).Contains(
                 ((FrameworkElement)(e.OriginalSource)).Name))
                 return;
 
@@ -243,7 +245,7 @@ namespace Editor
 
                 if (Track.Desk == DeskN)
                 {
-
+                    
                 }
                 else
                 {
@@ -267,7 +269,22 @@ namespace Editor
                         Margin = new Thickness(0, 0, 0, 10)
                     };
                     SoundTrackEventsAdd(NST);
-                    ((StackPanel)Desk.Content).Children.Add(NST);
+
+                    int Num = -1;
+                    StackPanel DescContent = (StackPanel)Desk.Content;
+
+                    for (int i = 0; i < DescContent.Children.Count; i++)
+                    {
+                        double ElementY = e.GetPosition(DescContent.Children[i]).Y;
+                        if (ElementY > 0 - ((SoundTrack)DescContent.Children[i]).Margin.Bottom &&
+                            ElementY < ((SoundTrack)DescContent.Children[i]).ActualHeight)
+                        {
+                            if (DescContent.Children[i].Equals(STD)) return;
+                            Num = i;
+                        }
+                    }
+                    DescContent.Children.Insert(Num == -1 ? DescContent.Children.Count : Num, NST);
+                    SetOrder(DescContent);
                 }
             }
         }
@@ -298,12 +315,45 @@ namespace Editor
 
         private void Desk1_DragOver(object sender, DragEventArgs e)
         {
-            InfoPanel.Content = "DragOver";
+            if (e.Data.GetDataPresent(typeof(SQLite.Track)))
+            {
+                ScrollViewer Desk = (ScrollViewer)sender;
+                SQLite.Track Track = (SQLite.Track)e.Data.GetData(typeof(SQLite.Track));
+                int DeskN = Convert.ToInt32(Desk.Tag);
+
+                if (Track.Desk == DeskN)
+                {
+                    int Num = -1;
+                    StackPanel DescContent = (StackPanel)(Desk.Content);
+
+                    SoundTrack STD = null;
+                    foreach (SoundTrack ST in
+                        DescContent.Children.OfType<SoundTrack>().Where(X => X.Track.ID == Track.ID))
+                    {
+                        STD = ST;
+                    }
+
+                    for (int i = 0; i < DescContent.Children.Count; i++)
+                    {
+                        double ElementY = e.GetPosition(DescContent.Children[i]).Y;
+                        if (ElementY > 0 - ((SoundTrack)DescContent.Children[i]).Margin.Bottom && 
+                            ElementY < ((SoundTrack)DescContent.Children[i]).ActualHeight)
+                        {
+                            if (DescContent.Children[i].Equals(STD)) return;
+                            Num = i;
+                        }
+                    }
+
+                    DescContent.Children.Remove(STD);
+                    DescContent.Children.Insert(Num == -1 ? DescContent.Children.Count : Num, STD);
+                    SetOrder(DescContent);
+               }
+            }
         }
 
         private void Window_KeyUp(object sender, KeyEventArgs e)
         {
-            if ((new string[] { "TitleBox", "CommentBox" }).Contains(
+            if ((new string[] { "TitleBox", "CommentBox", "NumberBox" }).Contains(
                 ((FrameworkElement)(e.OriginalSource)).Name))
                 return;
 

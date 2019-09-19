@@ -213,5 +213,12 @@ namespace SQLite
                 DB = null;
             }
         }
+
+        public bool IsNumberUnique(string number = null)
+        {
+            return number == null
+                ? !DB.NumberExists(Number, Desk)
+                : !DB.NumberExists(number, Desk, ID);
+        }
     }
 }

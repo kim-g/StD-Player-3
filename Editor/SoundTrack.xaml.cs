@@ -60,6 +60,9 @@ namespace Editor
             }
         }
 
+        /// <summary>
+        /// Развёрнутость трека
+        /// </summary>
         public bool Opened
         {
             get => _Opened;
@@ -72,6 +75,22 @@ namespace Editor
                 else
                     CloseSpoiler();
             }
+        }
+
+        /// <summary>
+        /// Установка значения Number с учётом пустого поля и проверки корректности ввода
+        /// </summary>
+        /// <param name="value"></param>
+        private bool SetNumber(string value)
+        {
+            if (value == "") return false;
+            if (Track.IsNumberUnique(value))
+            {
+                Track.Number = value;
+                NumberText.Text = Track.Number;
+                return true;
+            }
+            else return false;
         }
 
         /// <summary>
@@ -154,6 +173,7 @@ namespace Editor
             Track.Update();
             SetTitle(Track.Title);
             SetComment(Track.Comment);
+            NumberText.Text = Track.Number;
             RepeatImage.Source = LoadBitmapFromResources(Track.Cycle
                     ? "images/Repeat.png"
                     : "images/Repeat_Disabled.png");
@@ -360,6 +380,56 @@ namespace Editor
         {
             Track.Delete();
             ((Panel)Parent).Children.Remove(this);
+        }
+
+        private void NumberLabel_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            Escape = false;
+            NumberBox.Text = Track.Number;
+            NumberBox.Visibility = Visibility.Visible;
+            NumberLabel.Visibility = Visibility.Collapsed;
+        }
+
+        private void NumberBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if (Escape)
+                return;
+            if (Track.IsNumberUnique(NumberBox.Text))
+                Track.Number = NumberBox.Text;
+            else
+            {
+                MessageBox.Show("Трек повторяется!");
+                return;
+            }
+
+            NumberText.Text = Track.Number;
+            NumberBox.Visibility = Visibility.Collapsed;
+            NumberLabel.Visibility = Visibility.Visible;
+        }
+
+        private void NumberBox_KeyUp(object sender, KeyEventArgs e)
+        {
+            switch (e.Key)
+            {
+                case Key.Return:
+                    if (Track.IsNumberUnique(NumberBox.Text))
+                        Track.Number = NumberBox.Text;
+                    else
+                    {
+                        MessageBox.Show("Трек повторяется!");
+                        return;
+                    }
+
+                    NumberText.Text = Track.Number;
+                    NumberBox.Visibility = Visibility.Collapsed;
+                    NumberLabel.Visibility = Visibility.Visible;
+                    break;
+                case Key.Escape:
+                    Escape = true;
+                    NumberBox.Visibility = Visibility.Collapsed;
+                    NumberLabel.Visibility = Visibility.Visible;
+                    break;
+            }
         }
     }
 }

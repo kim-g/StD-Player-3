@@ -72,13 +72,20 @@
                 <ColumnDefinition/>
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
-            <ScrollViewer Grid.Column="0" x:Name="Desk1" Margin="0,0,10,0" Drop="TrackDesk_Drop" AllowDrop="True" Tag="1" DragEnter="Desk1_DragEnter" DragLeave="Desk1_DragLeave" DragOver="Desk1_DragOver">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <Label Grid.Column="0" Grid.Row="0" Content="Дека 1" FontSize="20"/>
+            <ScrollViewer Grid.Column="0" Grid.Row="1" x:Name="Desk1" Margin="0,0,10,0" Drop="TrackDesk_Drop" AllowDrop="True" Tag="1" DragEnter="Desk1_DragEnter" DragLeave="Desk1_DragLeave" DragOver="Desk1_DragOver">
                 <StackPanel x:Name="Desk1Stack" Orientation="Vertical"/>
             </ScrollViewer>
-            <ScrollViewer Grid.Column="1" x:Name="Desk2" Margin="0,0,10,0" Drop="TrackDesk_Drop" AllowDrop="True" Tag="2">
+            <Label Grid.Column="1" Grid.Row="0" Content="Дека 2" FontSize="20"/>
+            <ScrollViewer Grid.Column="1" Grid.Row="1" x:Name="Desk2" Margin="0,0,10,0" Drop="TrackDesk_Drop" AllowDrop="True" Tag="2" DragOver="Desk1_DragOver">
                 <StackPanel x:Name="Desk2Stack" Orientation="Vertical"/>
             </ScrollViewer>
-            <ScrollViewer Grid.Column="2" x:Name="Desk3" Drop="TrackDesk_Drop" AllowDrop="True" Tag="3">
+            <Label Grid.Column="2" Grid.Row="0" Content="Дека 3" FontSize="20"/>
+            <ScrollViewer Grid.Column="2" Grid.Row="1" x:Name="Desk3" Drop="TrackDesk_Drop" AllowDrop="True" Tag="3" DragOver="Desk1_DragOver">
                 <StackPanel x:Name="Desk3Stack" Orientation="Vertical"/>
             </ScrollViewer>
         </Grid>

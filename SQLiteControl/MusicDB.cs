@@ -87,6 +87,11 @@ COMMIT;";
             }
         }
 
+        /// <summary>
+        /// Производит загрузку деки
+        /// </summary>
+        /// <param name="DeskN"></param>
+        /// <returns></returns>
         public List<MusicTrack> LoadDesk(byte DeskN)
         {
             List<MusicTrack> DeskList = new List<MusicTrack>();
@@ -136,6 +141,12 @@ ORDER BY desk.`order`");
             return Result;
         }
 
+        /// <summary>
+        /// Позволяет получить все треки определённой деки
+        /// </summary>
+        /// <param name="Desk"></param>
+        /// <param name="Where"></param>
+        /// <returns></returns>
         public List<Track> GetTracks(int Desk, string Where=null)
         {
             List<Track> Result = new List<Track>();
@@ -159,9 +170,36 @@ ORDER BY desk.`order`");
             return Result;
         }
 
+        /// <summary>
+        /// Инициация новой базы с нужной информацией о названии и комментарии
+        /// </summary>
         public void Initiate()
         {
             Execute("INSERT INTO `info`(`name`, `description`) VALUES ('', '');");
+        }
+
+        /// <summary>
+        /// Показывает, имеется ли номер на треке
+        /// </summary>
+        /// <param name="Number">Номер трека</param>
+        /// <param name="Desk">Номер деки</param>
+        /// <returns></returns>
+        public bool NumberExists(string Number, int Desk)
+        {
+            return NumberExists(Number, Desk, 0);
+        }
+
+        /// <summary>
+        /// Показывает, имеется ли номер на треке
+        /// </summary>
+        /// <param name="Number">Номер трека</param>
+        /// <param name="Desk">Номер деки</param>
+        /// <param name="TrackToExclude">ID трека, который нужно игнорировать (0 - ничего не игнорировать)</param>
+        /// <returns></returns>
+        public bool NumberExists(string Number, int Desk, long TrackToExclude)
+        {
+            string Condition = TrackToExclude == 0 ? "" : $" AND (`id`<>{TrackToExclude})";
+            return GetCount("desk", $"(`desk_n`={Desk}) AND (`number`=\"{Number}\"){Condition}") > 0;
         }
     }
 }

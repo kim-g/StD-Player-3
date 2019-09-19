@@ -21,12 +21,24 @@
                     <ColumnDefinition/>
                     <ColumnDefinition Width="42"/>
                 </Grid.ColumnDefinitions>
-                <Label x:Name="TitleLabel" Grid.Column="0" FontSize="18" FontWeight="Bold" MouseDoubleClick="TitleLabel_MouseDoubleClick">
-                    <TextBlock x:Name="TitleText" TextWrapping="Wrap">
-                        НАЗВАНИЕ
-                    </TextBlock>
-                </Label>
-                <TextBox x:Name="TitleBox" Grid.Column="0" FontSize="18" Visibility="Collapsed" LostFocus="TitleBox_LostFocus" KeyUp="TitleBox_KeyUp"/>
+                <StackPanel Orientation="Horizontal">
+                    <Grid>
+                        <Label x:Name="NumberLabel" Grid.Column="0" FontSize="18" FontWeight="Bold" MouseDoubleClick="NumberLabel_MouseDoubleClick">
+                            <TextBlock x:Name="NumberText" TextWrapping="Wrap">
+                                №
+                            </TextBlock>
+                        </Label>
+                        <TextBox x:Name="NumberBox" Grid.Column="0" FontSize="18" Visibility="Collapsed" KeyUp="NumberBox_KeyUp" LostFocus="NumberBox_LostFocus"/>
+                    </Grid>
+                    <Grid>
+                        <Label x:Name="TitleLabel" Grid.Column="0" FontSize="18" FontWeight="Bold" MouseDoubleClick="TitleLabel_MouseDoubleClick">
+                            <TextBlock x:Name="TitleText" TextWrapping="Wrap">
+                                НАЗВАНИЕ
+                            </TextBlock>
+                        </Label>
+                        <TextBox x:Name="TitleBox" Grid.Column="0" FontSize="18" Visibility="Collapsed" LostFocus="TitleBox_LostFocus" KeyUp="TitleBox_KeyUp"/>
+                    </Grid>
+                </StackPanel>
                 <Image Grid.Column="1" Width="32" Height="32" Margin="0" x:Name="RepeatImageTop" Source="images/Repeat_Disabled.png" HorizontalAlignment="Right" />
             </Grid>
             <Grid>
