@@ -16,6 +16,7 @@ using System.Windows.Shapes;
 using Un4seen.Bass;
 using Microsoft.Win32;
 using System.Data;
+using System.Reflection;
 
 namespace Editor
 {
@@ -24,7 +25,10 @@ namespace Editor
     /// </summary>
     public partial class EditorWindow : Window
     {
-        public SQLite.SQLiteConfig Config = new SQLite.SQLiteConfig("Config.db");
+        public SQLite.SQLiteConfig Config = 
+            new SQLite.SQLiteConfig(
+                System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
+                    "Config.db"));
         SQLite.MusicDB PlayList;
 
         List<SQLite.MusicFile> Files;
@@ -48,7 +52,7 @@ namespace Editor
             }
         }
 
-        public EditorWindow()
+        public EditorWindow(string OpenFileName = "")
         {
             InitializeComponent();
             DeskPanels = new StackPanel[] { Desk1Stack, Desk2Stack, Desk3Stack };
@@ -57,14 +61,17 @@ namespace Editor
             for (int i = 1; i < Bass.BASS_GetDeviceInfos().Length; i++)
                 SoundChannel.Initiate(i);
 
-            string FileName = OpenFile.Open(Config.GetConfigValue("MusicDir"));
+            string FileName = OpenFileName == ""
+                ? System.IO.Path.Combine(Config.GetConfigValue("MusicDir"),
+                    OpenFile.Open(Config.GetConfigValue("MusicDir")))
+                : OpenFileName;
             if (FileName == null)
             {
                 Close();
                 return;
             }
 
-            PlayList = new SQLite.MusicDB(System.IO.Path.Combine(Config.GetConfigValue("MusicDir"), FileName));
+            PlayList = new SQLite.MusicDB(FileName);
             PlayListName.Text = PlayList.Name;
             PlayListComment.Text = PlayList.Comment;
 

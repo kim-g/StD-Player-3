@@ -35,6 +35,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>std_player_icon_34k_icon.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Bass.Net">
       <HintPath>..\StD_Player_3\Bass.Net.dll</HintPath>
@@ -161,6 +164,7 @@
     <Content Include="bass.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Resource Include="std_player_icon_34k_icon.ico" />
     <Resource Include="images\Down.png" />
     <Resource Include="images\Up.png" />
     <Resource Include="images\Add_left_Up.png" />

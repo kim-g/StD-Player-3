@@ -261,13 +261,15 @@ namespace StD_Player_3
                     Channels[0].Sound.Stop(); Channels[0].CurrentTrack++;
                     Channels[0].UpdateVisualElements(); break;
 
-                case Key.K: Channels[1].Sound.Play(); Channels[1].UpdateVisualElements(); break;
-                case Key.L: Channels[1].Sound.Pause(); Channels[1].UpdateVisualElements(); break;
-                case Key.OemSemicolon: Channels[1].Sound.Stop(); Channels[1].UpdateVisualElements(); break;
+                case Key.K: if (DeskCount < 2) return; Channels[1].Sound.Play(); Channels[1].UpdateVisualElements(); break;
+                case Key.L: if (DeskCount < 2) return; Channels[1].Sound.Pause(); Channels[1].UpdateVisualElements(); break;
+                case Key.OemSemicolon: if (DeskCount < 2) return; Channels[1].Sound.Stop(); Channels[1].UpdateVisualElements(); break;
                 case Key.O:
+                    if (DeskCount < 2) return;
                     Channels[1].Sound.Stop(); Channels[1].CurrentTrack--;
                     Channels[1].UpdateVisualElements(); break;
                 case Key.OemComma:
+                    if (DeskCount < 2) return;
                     Channels[1].Sound.Stop(); Channels[1].CurrentTrack++;
                     Channels[1].UpdateVisualElements(); break;
                 case Key.Tab:

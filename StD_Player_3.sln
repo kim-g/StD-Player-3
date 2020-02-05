@@ -16,6 +16,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Editor", "Editor\Editor.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SQLiteControl", "SQLiteControl\SQLiteControl.csproj", "{146EEC18-A3CB-46E9-9D2C-B3DF4FB44009}"
 EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "StD_Player_Installer", "StD_Player_Installer\StD_Player_Installer.vdproj", "{BAD9FF99-B39D-4FB3-B721-87009F83B19E}"
+EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "StD_Player (with Music)", "StD_Player (with Music)\StD_Player (with Music).vdproj", "{E2484F52-D0A1-4E4D-83AA-51063DDCEA85}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -42,6 +46,10 @@ Global
 		{146EEC18-A3CB-46E9-9D2C-B3DF4FB44009}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{146EEC18-A3CB-46E9-9D2C-B3DF4FB44009}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{146EEC18-A3CB-46E9-9D2C-B3DF4FB44009}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BAD9FF99-B39D-4FB3-B721-87009F83B19E}.Debug|Any CPU.ActiveCfg = Debug
+		{BAD9FF99-B39D-4FB3-B721-87009F83B19E}.Release|Any CPU.ActiveCfg = Release
+		{E2484F52-D0A1-4E4D-83AA-51063DDCEA85}.Debug|Any CPU.ActiveCfg = Debug
+		{E2484F52-D0A1-4E4D-83AA-51063DDCEA85}.Release|Any CPU.ActiveCfg = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
