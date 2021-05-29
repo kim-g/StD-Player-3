@@ -136,6 +136,8 @@ namespace SQLite
         public static Track Create(MusicDB db, int desk, string number, string title, 
             long file, int order)
         {
+            if (db == null) return null;
+            
             db.Execute("INSERT INTO `desk` (`desk_n`, `number`, `file`, `title`, `order`) "+
                 $"VALUES ({desk}, '{number}', {file}, '{title}', {order})");
 
@@ -180,15 +182,15 @@ namespace SQLite
         /// Создать новую запись
         /// </summary>
         /// <param name="db"></param>
-        /// <param name="desk_n"></param>
+        /// <param name="deskn"></param>
         /// <param name="number"></param>
         /// <param name="file"></param>
         /// <param name="title"></param>
         /// <param name="order"></param>
         /// <returns></returns>
-        public static Track CreateNewRecord(MusicDB db, int desk_n, string number, int file, string title, int order)
+        public static Track CreateNewRecord(MusicDB db, int deskn, string number, int file, string title, int order)
         {
-            db.Execute($"INSERT INTO `desk` (`desk_n`, `number`, `file`, `title`, `order`) VALUES ('{desk_n}', '{number}', {file}, '{title}', {order});");
+            db.Execute($"INSERT INTO `desk` (`desk_n`, `number`, `file`, `title`, `order`) VALUES ('{deskn}', '{number}', {file}, '{title}', {order});");
             long ID = db.LastID;
             return new Track(db, ID);
         }

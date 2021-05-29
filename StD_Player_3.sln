@@ -1,16 +1,12 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.26403.0
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29806.167
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StD_Player_3", "StD_Player_3\StD_Player_3.csproj", "{5E74329B-AA11-4C0E-B8BF-D51C717F28D1}"
 	ProjectSection(ProjectDependencies) = postProject
 		{44D4953C-E6EC-4454-A2C7-EF7DD8C72A1D} = {44D4953C-E6EC-4454-A2C7-EF7DD8C72A1D}
 	EndProjectSection
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Launcher", "Launcher\Launcher.csproj", "{6987D2B1-679B-4DFA-927E-D2B3C0E0B14A}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoundCardTest", "SoundCardTest\SoundCardTest.csproj", "{B7A1B294-9E65-4F86-A2C3-98EC25CD9574}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Editor", "Editor\Editor.csproj", "{44D4953C-E6EC-4454-A2C7-EF7DD8C72A1D}"
 EndProject
@@ -30,14 +26,6 @@ Global
 		{5E74329B-AA11-4C0E-B8BF-D51C717F28D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5E74329B-AA11-4C0E-B8BF-D51C717F28D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5E74329B-AA11-4C0E-B8BF-D51C717F28D1}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6987D2B1-679B-4DFA-927E-D2B3C0E0B14A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6987D2B1-679B-4DFA-927E-D2B3C0E0B14A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6987D2B1-679B-4DFA-927E-D2B3C0E0B14A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6987D2B1-679B-4DFA-927E-D2B3C0E0B14A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B7A1B294-9E65-4F86-A2C3-98EC25CD9574}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B7A1B294-9E65-4F86-A2C3-98EC25CD9574}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B7A1B294-9E65-4F86-A2C3-98EC25CD9574}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B7A1B294-9E65-4F86-A2C3-98EC25CD9574}.Release|Any CPU.Build.0 = Release|Any CPU
 		{44D4953C-E6EC-4454-A2C7-EF7DD8C72A1D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{44D4953C-E6EC-4454-A2C7-EF7DD8C72A1D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{44D4953C-E6EC-4454-A2C7-EF7DD8C72A1D}.Release|Any CPU.ActiveCfg = Release|Any CPU

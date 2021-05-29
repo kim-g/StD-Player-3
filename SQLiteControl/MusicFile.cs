@@ -82,17 +82,20 @@ namespace SQLite
         {
             get
             {
-                DataTable DeskData = DB.ReadTable($"SELECT `file` FROM `files` WHERE `id`={ID} LIMIT 1");
-                if (DeskData.Rows.Count < 0) return null;
-
-                MemoryStream MS = new MemoryStream();
-                if (DeskData.Rows.Count > 0)
+                using (DataTable DeskData = DB.ReadTable($"SELECT `file` FROM `files` WHERE `id`={ID} LIMIT 1"))
                 {
-                    MS.Write((byte[])DeskData.Rows[0].ItemArray[0], 0,
-                        ((byte[])DeskData.Rows[0].ItemArray[0]).Length);
-                    MS.Position = 0;
+                    if (DeskData.Rows.Count < 0) return null;
+
+                    MemoryStream MS = new MemoryStream();
+                    if (DeskData.Rows.Count > 0)
+                    {
+                        MS.Write((byte[])DeskData.Rows[0].ItemArray[0], 0,
+                            ((byte[])DeskData.Rows[0].ItemArray[0]).Length);
+                        MS.Position = 0;
+                    }
+                    DeskData.Dispose();
+                    return MS;
                 }
-                return MS;
             }
 
             set
@@ -106,17 +109,19 @@ namespace SQLite
         /// </summary>
         public void Update()
         {
-            DataTable dt = DB.ReadTable($"SELECT `title`, `comment`, `cycle` FROM `files` WHERE `id`={ID} LIMIT 1;");
-            if (dt.Rows.Count == 0)
+            using (DataTable dt = DB.ReadTable($"SELECT `title`, `comment`, `cycle` FROM `files` WHERE `id`={ID} LIMIT 1;"))
             {
-                title = "";
-                comment = "";
-                cycle = false;
-                return;
+                if (dt.Rows.Count == 0)
+                {
+                    title = "";
+                    comment = "";
+                    cycle = false;
+                    return;
+                }
+                title = dt.Rows[0].ItemArray[dt.Columns.IndexOf("title")].ToString();
+                comment = dt.Rows[0].ItemArray[dt.Columns.IndexOf("comment")].ToString();
+                cycle = dt.Rows[0].ItemArray[dt.Columns.IndexOf("cycle")].ToString() == "1";
             }
-            title = dt.Rows[0].ItemArray[dt.Columns.IndexOf("title")].ToString();
-            comment = dt.Rows[0].ItemArray[dt.Columns.IndexOf("comment")].ToString();
-            cycle = dt.Rows[0].ItemArray[dt.Columns.IndexOf("cycle")].ToString() == "1";
         }
 
         public void Delete()
@@ -128,6 +133,8 @@ namespace SQLite
 
         public static MusicFile CreateNewRecord(MusicDB db, string Title, string Comment, bool Cycle, MemoryStream Data)
         {
+            if (db == null) return null;
+            
             string CycleS = Cycle ? "1" : "0";
             db.Execute($"INSERT INTO `files` (`title`, `comment`, `cycle`) VALUES ('{Title}', '{Comment}', {CycleS});");
             long ID = db.LastID;

@@ -3,6 +3,7 @@ using SQLite;
 using System.Data;
 using System.IO;
 using System;
+using System.Globalization;
 
 namespace SQLite
 {
@@ -33,6 +34,7 @@ CREATE TABLE IF NOT EXISTS `desk` (
 	`order`	INTEGER
 );
 COMMIT;";
+        readonly CultureInfo EnCI = new CultureInfo("en-US");
 
         public MusicDB(string FileName) : base (FileName)
         {
@@ -56,9 +58,12 @@ COMMIT;";
                 if (DT?.Rows.Count == 0)
                 {
                     Initiate();
+                    DT.Dispose();
                     return "";
                 }
-                return DT?.Rows[0]?.ItemArray[0]?.ToString();
+                string Out = DT?.Rows[0]?.ItemArray[0]?.ToString();
+                DT.Dispose();
+                return Out;
             }
             set
             {
@@ -77,9 +82,12 @@ COMMIT;";
                 if (DT?.Rows.Count == 0)
                 {
                     Initiate();
+                    DT.Dispose();
                     return "";
                 }
-                return DT?.Rows[0]?.ItemArray[0]?.ToString();
+                string Out = DT?.Rows[0]?.ItemArray[0]?.ToString();
+                DT.Dispose();
+                return Out;
             }
             set
             {
@@ -99,7 +107,7 @@ COMMIT;";
             DataTable DeskData = ReadTable(@"SELECT desk.id, desk.number, files.file, 
 	case when desk.title='' then files.title else desk.title end title, files.cycle  
 FROM files INNER JOIN desk ON (desk.file = files.id) 
-WHERE desk.desk_n = " + DeskN.ToString() + @" 
+WHERE desk.desk_n = " + DeskN.ToString(EnCI) + @" 
 ORDER BY desk.`order`");
 
             for (int i=0; i< DeskData.Rows.Count; i++)
@@ -113,7 +121,10 @@ ORDER BY desk.`order`");
                     DeskData.Rows[i].ItemArray[1].ToString(), DeskData.Rows[i].ItemArray[3].ToString(),
                     DeskData.Rows[i].ItemArray[4].ToString() == "1");
                 DeskList.Add(MT);
+                MS.Dispose();
             }
+
+            DeskData.Dispose();
 
             return DeskList;
         }
@@ -131,12 +142,14 @@ ORDER BY desk.`order`");
             foreach (DataRow row in DT.Rows)
             {
                 MusicFile MF = new MusicFile(this, 
-                    Convert.ToInt32( row.ItemArray[DT.Columns.IndexOf("id")]),
+                    Convert.ToInt32( row.ItemArray[DT.Columns.IndexOf("id")], EnCI),
                     row.ItemArray[DT.Columns.IndexOf("title")].ToString(),
                     row.ItemArray[DT.Columns.IndexOf("comment")].ToString(),
                     row.ItemArray[DT.Columns.IndexOf("cycle")].ToString() == "1");
                 Result.Add(MF);
             }
+
+            DT.Dispose();
 
             return Result;
         }
@@ -157,16 +170,17 @@ ORDER BY desk.`order`");
             foreach (DataRow row in DT.Rows)
             {
                 Track track = new Track(this,
-                    Convert.ToInt32(row.ItemArray[DT.Columns.IndexOf("id")]),
+                    Convert.ToInt32(row.ItemArray[DT.Columns.IndexOf("id")], EnCI),
                     Desk,
                     row.ItemArray[DT.Columns.IndexOf("number")].ToString(),
                     row.ItemArray[DT.Columns.IndexOf("title")].ToString(),
-                    Convert.ToInt32(row.ItemArray[DT.Columns.IndexOf("file")]),
-                    Convert.ToInt32(row.ItemArray[DT.Columns.IndexOf("order")])
+                    Convert.ToInt32(row.ItemArray[DT.Columns.IndexOf("file")], EnCI),
+                    Convert.ToInt32(row.ItemArray[DT.Columns.IndexOf("order")], EnCI)
                     );
                 Result.Add(track);
             }
 
+            DT.Dispose();
             return Result;
         }
 

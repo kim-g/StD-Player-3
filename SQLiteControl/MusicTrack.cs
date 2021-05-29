@@ -23,11 +23,12 @@ namespace SQLite
             Number = number;
             Name = name;
             Repeat = repeat;
-            FileStream FS = new FileStream(FileName, FileMode.Open);
-            Data = new MemoryStream();
-            FS.CopyTo(Data);
-            FS.Close();
-            FS.Dispose();
+            using (FileStream FS = new FileStream(FileName, FileMode.Open))
+            {
+                Data = new MemoryStream();
+                FS.CopyTo(Data);
+                FS.Close();
+            }
         }
 
         /// <summary>
@@ -43,7 +44,7 @@ namespace SQLite
             Name = name;
             Repeat = repeat;
             Data = new MemoryStream();
-            FileStream.CopyTo(Data);
+            if (FileStream != null) FileStream.CopyTo(Data);
         }
 
         /// <summary>

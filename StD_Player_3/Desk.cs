@@ -1159,9 +1159,6 @@ namespace StD_Player_3
         // Внутренние параметры
         private byte state = 0;
         private Rectangle Rect;
-        private Brush StopBrush;
-        private Brush PlayBrush;
-        private Brush PauseBrush;
 
         // Константы
         public const byte Stop = 0;

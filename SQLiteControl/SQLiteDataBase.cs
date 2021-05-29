@@ -6,9 +6,9 @@ using System.IO;
 
 namespace SQLite
 {
-    public class SQLiteDataBase
+    public class SQLiteDataBase : IDisposable
     {
-        protected String dbFileName;
+        protected string dbFileName;
         protected SQLiteConnection Connection;
         protected SQLiteCommand Command;
 
@@ -106,8 +106,8 @@ namespace SQLite
 
             try
             {
-                SQLiteDataAdapter adapter = new SQLiteDataAdapter(Query, Connection);
-                adapter.Fill(dTable);
+                using (SQLiteDataAdapter adapter = new SQLiteDataAdapter(Query, Connection))
+                    adapter.Fill(dTable);
             }
             catch (SQLiteException ex)
             {
@@ -137,8 +137,8 @@ namespace SQLite
             try
             {
                 string Query = Where == null ? "SELECT COUNT() AS 'C' FROM `" + Table + ";" : "SELECT COUNT() AS 'C' FROM `" + Table + "` WHERE " + Where + ";";
-                SQLiteDataAdapter adapter = new SQLiteDataAdapter(Query, Connection);
-                adapter.Fill(dTable);
+                using (SQLiteDataAdapter adapter = new SQLiteDataAdapter(Query, Connection))
+                    adapter.Fill(dTable);
             }
             catch (SQLiteException ex)
             {
@@ -211,6 +211,15 @@ namespace SQLite
             get { return Connection.LastInsertRowId; }
         }
 
+        public void Dispose()
+        {
+            Connection.Dispose();
+            Command.Dispose();
+            Connection = null;
+            Command = null;
+            dbFileName = null;
+            ErrorMsg = null;
+        }
     }
 
     public class SQLiteConfig : SQLiteDataBase
@@ -236,23 +245,29 @@ namespace SQLite
 
         public string GetConfigValue(string name)
         {
-            DataTable Conf = ReadTable("SELECT `value` FROM `config` WHERE `name`='" + name + "' LIMIT 1");
-            if (Conf.Rows.Count == 0) return "";
-            return Conf.Rows[0].ItemArray[0].ToString();
+            using (DataTable Conf = ReadTable("SELECT `value` FROM `config` WHERE `name`='" + name + "' LIMIT 1"))
+            {
+                if (Conf.Rows.Count == 0) return "";
+                return Conf.Rows[0].ItemArray[0].ToString();
+            }
         }
 
         public int GetConfigValueInt(string name)
         {
-            DataTable Conf = ReadTable("SELECT `value` FROM `config` WHERE `name`='" + name + "' LIMIT 1");
-            if (Conf.Rows.Count == 0) return 0;
-            return Convert.ToInt32(Conf.Rows[0].ItemArray[0].ToString());
+            using (DataTable Conf = ReadTable("SELECT `value` FROM `config` WHERE `name`='" + name + "' LIMIT 1"))
+            {
+                if (Conf.Rows.Count == 0) return 0;
+                return Convert.ToInt32(Conf.Rows[0].ItemArray[0].ToString());
+            }
         }
 
         public bool GetConfigValueBool(string name)
         {
-            DataTable Conf = ReadTable("SELECT `value` FROM `config` WHERE `name`='" + name + "' LIMIT 1");
-            if (Conf.Rows.Count == 0) return false;
-            return Conf.Rows[0].ItemArray[0].ToString() == "1";
+            using (DataTable Conf = ReadTable("SELECT `value` FROM `config` WHERE `name`='" + name + "' LIMIT 1"))
+            {
+                if (Conf.Rows.Count == 0) return false;
+                return Conf.Rows[0].ItemArray[0].ToString() == "1";
+            }
         }
 
 
@@ -297,25 +312,25 @@ namespace SQLite
 
         public static SQLiteLanguage Open(string FileName, string Lang="ru")
         {
-            if (File.Exists(FileName))
-            {
-                SQLiteLanguage NewConf = new SQLiteLanguage(FileName)
-                { Language = Lang };
+            if (Lang == null) Lang = "ru";
 
-                if (NewConf.OpenDB())
-                    return NewConf;
-                else
-                    return null;
-            }
+            if (File.Exists(FileName))
+                using (SQLiteLanguage NewConf = new SQLiteLanguage(FileName){ Language = Lang })
+                {
+                    if (NewConf.OpenDB())
+                        return NewConf;
+                    else
+                        return null;
+                }
             else
-            {
-                SQLiteLanguage NewConf = new SQLiteLanguage(FileName)
-                { Language = Lang == "" ? "ru" : Lang };
-                if (NewConf.CreateDB("CREATE TABLE `texts` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `class` TEXT NOT NULL, `name` TEXT NOT NULL, `text_" + Lang + "` TEXT); "))
-                    return NewConf;
-                else
-                    return null;
-            }
+                using (SQLiteLanguage NewConf = new SQLiteLanguage(FileName)
+                    { Language = Lang.Length == 0 ? "ru" : Lang })
+                {
+                    if (NewConf.CreateDB("CREATE TABLE `texts` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `class` TEXT NOT NULL, `name` TEXT NOT NULL, `text_" + Lang + "` TEXT); "))
+                        return NewConf;
+                    else
+                        return null;
+                }
         }
 
         public void AddLanguage(string LanguageName)
@@ -325,8 +340,8 @@ namespace SQLite
 
         public string GetText(string Class, string TextName)
         {
-            DataTable Conf = ReadTable("SELECT `text_" + Language + "` AS 'text' FROM `texts` WHERE `class`='" + Class + "' AND `name`='" + TextName + "' LIMIT 1");
-            return Conf == null ? "ERROR" : Conf.Rows[0].ItemArray[Conf.Columns.IndexOf("text")].ToString();
+            using (DataTable Conf = ReadTable("SELECT `text_" + Language + "` AS 'text' FROM `texts` WHERE `class`='" + Class + "' AND `name`='" + TextName + "' LIMIT 1"))
+                return Conf == null ? "ERROR" : Conf.Rows[0].ItemArray[Conf.Columns.IndexOf("text")].ToString();
         }
     }
 }

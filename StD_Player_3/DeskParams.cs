@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media;
 using Un4seen.Bass;
 
 namespace StD_Player_3
@@ -21,7 +16,6 @@ namespace StD_Player_3
         private RadioButton LeftRB;
         private RadioButton CenterRB;
         private RadioButton RightRB;
-        private SQLite.SQLiteConfig Config;
 
         public byte NDesk { get; set; }
         public string SoundCard
