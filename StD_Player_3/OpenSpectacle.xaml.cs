@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Windows;
@@ -24,16 +25,39 @@ namespace StD_Player_3
         public static string Open(Window ParentWindow, string FilesDir)
         {
             OpenSpectacle OS = new OpenSpectacle(ParentWindow);
-            if (!(Directory.Exists(FilesDir))) Directory.CreateDirectory(FilesDir);
-            OS.Files = Directory.EnumerateFiles(FilesDir,"*.sdb").ToList<string>();
+            try
+            {
+                if (!(Directory.Exists(FilesDir))) Directory.CreateDirectory(FilesDir);
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show($"Ошибка создания звуковой директории\n{e.Message}");
+            }
+
+            try
+            {
+                OS.Files = Directory.EnumerateFiles(FilesDir, "*.sdb").ToList<string>();
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show($"Ошибка парсинга звуковой директории\n{e.Message}");
+            }
+
             foreach (string FileToAdd in OS.Files)
             {
-                SQLite.MusicDB MDB = new SQLite.MusicDB(FileToAdd);
-                string Key = MDB.Name;
-                string FileName = System.IO.Path.GetFileName(FileToAdd);
-                Key = OS.FilesAndNames.ContainsKey(Key) ? Key + $" ({FileName})" : Key;
-                OS.FileList.Items.Add(Key);
-                OS.FilesAndNames.Add(Key, FileName);
+                try
+                {
+                    SQLite.MusicDB MDB = new SQLite.MusicDB(FileToAdd);
+                    string Key = MDB.Name;
+                    string FileName = System.IO.Path.GetFileName(FileToAdd);
+                    Key = OS.FilesAndNames.ContainsKey(Key) ? Key + $" ({FileName})" : Key;
+                    OS.FileList.Items.Add(Key);
+                    OS.FilesAndNames.Add(Key, FileName);
+                }
+                catch (Exception e)
+                {
+                    MessageBox.Show($"Ошибка открытия файла \"{FileToAdd}\"\n{e.Message}");
+                }
             }
 
             OS.ShowDialog();
