@@ -107,6 +107,26 @@ namespace Sound
             Volume = volume;
             Bass.BASS_SetVolume(Volume / 100f);
         }
+
+        public override void ConnectToSoundProtocol()
+        {
+            // Дополнительных операций не требуется.
+        }
+
+        protected override void MethodPlay()
+        {
+            ChannelPlay(Channel, false);
+        }
+
+        protected override void MethodPause()
+        {
+            ChannelPause(Channel);
+        }
+
+        protected override void MethodStop()
+        {
+            ChannelStop(Channel);
+        }
     }
 
 }

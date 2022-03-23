@@ -1,10 +1,17 @@
-﻿using Un4seen.Bass;
+﻿using System;
+using Un4seen.Bass;
 using Un4seen.BassAsio;
 
 namespace Sound
 {
     public class ASIO_Channel : SoundBase
     {
+        private ASIOPROC _myAsioProc; // make it global, so that it can not be removed by the Garbage Collector
+        private BassAsioHandler AsioChannel;
+
+        public int[] OutputChannels;
+
+
         /// <summary>
         /// Инициализация звуковой карты в стандартном режиме.
         /// </summary>
@@ -14,17 +21,33 @@ namespace Sound
         public static void Initiate(int SoundCard = -1, int BitRate = 44100,
             BASSInit DeviceProperties = BASSInit.BASS_DEVICE_DEFAULT)
         {
-            BassAsio.BASS_ASIO_Init(SoundCard, BASSASIOInit.BASS_ASIO_DEFAULT);
+            Bass.BASS_Init(SoundCard, BitRate, DeviceProperties, IntPtr.Zero);
+            int ASIOCard = SoundCard == -1 ? 0 : SoundCard - 1;
+            BassAsio.BASS_ASIO_Init(ASIOCard, BASSASIOInit.BASS_ASIO_DEFAULT);
+            BASSError Error = BassAsio.BASS_ASIO_ErrorGetCode();
+
         }
 
         /// <summary>
         /// Создание нового экземпляра SoundChannel
         /// </summary>
-        /// <param name="balance"></param>
-        /// <param name="volume"></param>
-        public ASIO_Channel(int balance = 0, int volume = 100) : base(balance, volume)
+        /// <param name="outputChannels">Список выводных каналов ASIO. Первый смитается основным, остальные - зеркала. </param>
+        /// <param name="volume">Громкость</param>
+        public ASIO_Channel(int[] outputChannels, int volume = 100) : base(0, volume)
         {
+            OutputChannels =  outputChannels;
+            AudioChannel = BASSFlag.BASS_STREAM_DECODE | BASSFlag.BASS_SAMPLE_FLOAT;
+        }
 
+        /// <summary>
+        /// Создание нового экземпляра SoundChannel
+        /// </summary>
+        /// <param name="OutputChannel">Выводной канал ASIO </param>
+        /// <param name="volume">Громкость</param>
+        public ASIO_Channel(int OutputChannel, int volume = 100) : base(0, volume)
+        {
+            OutputChannels = new int[1] { OutputChannel };
+            AudioChannel = BASSFlag.BASS_STREAM_DECODE | BASSFlag.BASS_SAMPLE_FLOAT;
         }
 
         /// <summary>
@@ -54,7 +77,7 @@ namespace Sound
         /// <returns></returns>
         protected override bool SetDevice(int device)
         {
-            return BassAsio.BASS_ASIO_SetDevice(device);
+            return BassAsio.BASS_ASIO_SetDevice(0);
         }
 
         /// <summary>
@@ -101,6 +124,35 @@ namespace Sound
         {
             Volume = volume;
             Bass.BASS_SetVolume(Volume / 100f);
+        }
+
+        public override void ConnectToSoundProtocol()
+        {
+            if (Channel == 0)
+            {
+                new Exception("Ошибка файла. Файл не был загружен.");
+                return;
+            }
+
+            AsioChannel = new BassAsioHandler(SoundCard, 0, Channel);
+            if (OutputChannels.Length > 1)
+                for ( int i = 1; i < OutputChannels.Length; i++)    
+                    AsioChannel.SetMirror(OutputChannels[i]);
+        }
+
+        protected override void MethodPlay()
+        {
+            AsioChannel.Start(0,0);
+        }
+
+        protected override void MethodPause()
+        {
+            AsioChannel.Pause(true);
+        }
+
+        protected override void MethodStop()
+        {
+            AsioChannel.Stop();
         }
     }
 }

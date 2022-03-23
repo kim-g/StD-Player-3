@@ -33,6 +33,7 @@ namespace StD_Player_3
         public SoundBase Sound;
         private SoundType AudioCardType;
         protected int[] Level = new int[2];
+        protected double[] old_db = new double[2] { 0, 0 };
 
         // Элементы интерфейса
         protected Grid FreqGrid;
@@ -573,13 +574,14 @@ namespace StD_Player_3
             }
 
             AudioCardType = SCType;
+            int ASIO_Output_Channel = 0;
             switch (AudioCardType)
             {
                 case SoundType.Standart:
                     Sound = new SoundChannel(balance);
                     break;
                 case SoundType.ASIO:
-                    Sound = new ASIO_Channel(balance);
+                    Sound = new ASIO_Channel(ASIO_Output_Channel);
                     break;
             }
             Sound.AutoStop += AutoStop;
@@ -1015,13 +1017,18 @@ namespace StD_Player_3
 
             Level = new int[] { 0, 0 };
 
+            bool[] Rise = new bool[2];
+            for (int i = 0; i < 2; i++)
+                Rise[i] = db[i] > old_db[i];
+            old_db = db;
+
             double NewHeight =  FreqLeftBkg.ActualHeight * ( 0 - db[0] / 23);
             if (NewHeight < LevelsThickness) NewHeight = LevelsThickness;
             if (NewHeight > FreqLeftBkg.ActualHeight - LevelsThickness)
                 NewHeight = FreqLeftBkg.ActualHeight - LevelsThickness;
             
             Animator.Margin(FreqLeft, new Thickness(LevelsThickness, LevelsThickness, LevelsThickness, 
-                FreqLeftBkg.ActualHeight - NewHeight), 0, MainWindow.UpdateTime);
+                FreqLeftBkg.ActualHeight - NewHeight), 0, Rise[0] ? 10 : MainWindow.UpdateTime);
 
             NewHeight = FreqRightBkg.ActualHeight * (0 - db[1] / 23);
             if (NewHeight < LevelsThickness) NewHeight = LevelsThickness;
@@ -1029,7 +1036,7 @@ namespace StD_Player_3
                 NewHeight = FreqRightBkg.ActualHeight - LevelsThickness;
 
             Animator.Margin(FreqRight, new Thickness(LevelsThickness, LevelsThickness, LevelsThickness,
-                FreqRightBkg.ActualHeight - NewHeight), 0, MainWindow.UpdateTime);
+                FreqRightBkg.ActualHeight - NewHeight), 0, Rise[1] ? 10 : MainWindow.UpdateTime);
         }
 
         public void SetLevels(Brush I, Brush O)
@@ -1075,7 +1082,7 @@ namespace StD_Player_3
         {
             if (Sound.State)
             {
-                Int32 Levels = Bass.BASS_ChannelGetLevel(Sound.Channel);
+                int Levels = Bass.BASS_ChannelGetLevel(Sound.Channel);
                 Level[1] = Math.Max(Levels.HighWord(), Level[1]);
                 Level[0] = Math.Max(Levels.LowWord(), Level[0]);
             }

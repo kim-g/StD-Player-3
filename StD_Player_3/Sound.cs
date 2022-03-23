@@ -21,12 +21,10 @@ namespace Sound
         public event EventHandler OnPlay;
         protected int _SoundCard;
         protected long LastPos;
-        BASSFlag AudioChannel = BASSFlag.BASS_SPEAKER_FRONT;
+        protected BASSFlag AudioChannel = BASSFlag.BASS_SPEAKER_FRONT;
 
         /// <summary>
         /// Получение текущей позиции.
-        /// </summary>
-        /// <param name="Chanel">Канал</param>
         /// <returns></returns>
         protected abstract long GetPosition();
 
@@ -73,6 +71,29 @@ namespace Sound
         /// </summary>
         /// <param name="volume">Громкость</param>
         public abstract void SetVolume(int volume);
+
+        /// <summary>
+        /// Добавляет канал в протокол воспроизведения, если это требуется.
+        /// </summary>
+        public abstract void ConnectToSoundProtocol();
+
+        /// <summary>
+        /// Запуск воспроизведения для конкретной реализации класса
+        /// </summary>
+        /// <param name="Channel"></param>
+        protected abstract void MethodPlay();
+
+        /// <summary>
+        /// Приостановка воспроизведения для конкретной реализации класса
+        /// </summary>
+        /// <param name="Channel"></param>
+        protected abstract void MethodPause();
+
+        /// <summary>
+        /// Остановка воспроизведения для конкретной реализации класса
+        /// </summary>
+        /// <param name="Channel"></param>
+        protected abstract void MethodStop();
 
         /// <summary>
         /// Определяет позицию трека в промилле (десятые процента)
@@ -159,6 +180,8 @@ namespace Sound
                 : BASSFlag.BASS_DEFAULT;
             Channel = Bass.BASS_StreamCreateFile(FileName, 0, 0, BASSFlag.BASS_SAMPLE_FLOAT | Loop | AudioChannel);
             SetOpenParameters();
+
+            ConnectToSoundProtocol();
         }
 
         /// <summary>
@@ -209,7 +232,10 @@ namespace Sound
             // create the stream (AddrOfPinnedObject delivers the necessary IntPtr)
             Channel = Bass.BASS_StreamCreateFile(_hGCFile.AddrOfPinnedObject(),
                               0L, ByteStream.Length, BASSFlag.BASS_SAMPLE_FLOAT | Loop | AudioChannel);
+            Bass.BASS_ErrorGetCode();
             SetOpenParameters();
+
+            ConnectToSoundProtocol();
         }
 
         /// <summary>
@@ -218,7 +244,7 @@ namespace Sound
         public void Play()
         {
             if (Channel == 0) return;
-            ChannelPlay(Channel, false);
+            MethodPlay();
             State = true;
             DoOnPlay(null);
         }
@@ -232,13 +258,13 @@ namespace Sound
         {
             if (State)
             {
-                ChannelPause(Channel);
+                MethodPause();
                 State = false;
                 DoOnPause(null);
             }
             else
             {
-                ChannelPlay(Channel, false);
+                MethodPlay();
                 State = true;
                 DoOnPlay(null);
             }
@@ -253,7 +279,7 @@ namespace Sound
         {
             if (State)
             {
-                ChannelStop(Channel);
+                MethodStop();
                 State = false;
             }
 
@@ -320,7 +346,7 @@ namespace Sound
         {
             Balance = balance;
             Bass.BASS_ChannelSetAttribute(Channel, BASSAttribute.BASS_ATTRIB_PAN, Balance);
-            AudioChannel = BASSFlag.BASS_SPEAKER_FRONT;
+            //AudioChannel = BASSFlag.BASS_SPEAKER_FRONT;
             /*switch (Balance)
             {
                 case -1: AudioChannel = BASSFlag.BASS_SPEAKER_FRONTLEFT; break;

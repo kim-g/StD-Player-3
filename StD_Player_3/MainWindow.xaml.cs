@@ -16,6 +16,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 using Un4seen.Bass;
+using Un4seen.BassAsio;
 using Extentions;
 using SQLite;
 
@@ -35,7 +36,7 @@ namespace StD_Player_3
         protected double Scale;
         public static LinearGradientBrush LevelsO;
         public static LinearGradientBrush LevelsI;
-        public static int UpdateTime = 100;
+        public static int UpdateTime = 50;
 
         private byte DeskCount
         {
@@ -93,7 +94,7 @@ namespace StD_Player_3
         private void LevelsTimerTick(object sender, EventArgs e)
         {
             foreach (Desk Channel in Channels)
-                Channel.SetLevels();
+                Channel?.SetLevels();
 
             /*Channel_1.SetLevels();
             Channel_2.SetLevels();
@@ -311,14 +312,14 @@ namespace StD_Player_3
             LevelsO.EndPoint = new Point(0, ScaleTo(200.0));
             LevelsI.EndPoint = new Point(0, ScaleTo(200.0));
 
-            Sound.SoundChannel.Initiate();
-            for (int i = 1; i < Bass.BASS_GetDeviceInfos().Length; i++)
-                Sound.SoundChannel.Initiate(i);
+            //Sound.ASIO_Channel.Initiate();
+            for (int i = 1; i < BassAsio.BASS_ASIO_GetDeviceCount()+1; i++)
+                Sound.ASIO_Channel.Initiate(i);
             Channels = new Desk[3];
 
-            Channels[0] = new Desk(Desk1, GetPan(1), 100, 1, Scale, -1, SoundType.Standart);
-            Channels[1] = new Desk(Desk2, GetPan(2), 100, 2, Scale, -1, SoundType.Standart);
-            Channels[2] = new Desk(Desk3, GetPan(2), 100, 3, Scale, -1, SoundType.Standart);
+            Channels[0] = new Desk(Desk1, GetPan(1), 100, 1, Scale, -1, SoundType.ASIO);
+            Channels[1] = new Desk(Desk2, GetPan(2), 100, 2, Scale, -1, SoundType.ASIO);
+            Channels[2] = new Desk(Desk3, GetPan(2), 100, 3, Scale, -1, SoundType.ASIO);
 
             SetSoundCards(Channels);
 
