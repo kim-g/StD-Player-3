@@ -112,21 +112,6 @@ namespace Sound
         {
             // Дополнительных операций не требуется.
         }
-
-        protected override void MethodPlay()
-        {
-            ChannelPlay(Channel, false);
-        }
-
-        protected override void MethodPause()
-        {
-            ChannelPause(Channel);
-        }
-
-        protected override void MethodStop()
-        {
-            ChannelStop(Channel);
-        }
     }
 
 }

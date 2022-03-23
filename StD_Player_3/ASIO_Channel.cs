@@ -8,6 +8,7 @@ namespace Sound
     {
         private ASIOPROC _myAsioProc; // make it global, so that it can not be removed by the Garbage Collector
         private BassAsioHandler AsioChannel;
+        private BassAsioHandler _asio1;
 
         public int[] OutputChannels;
 
@@ -21,9 +22,12 @@ namespace Sound
         public static void Initiate(int SoundCard = -1, int BitRate = 44100,
             BASSInit DeviceProperties = BASSInit.BASS_DEVICE_DEFAULT)
         {
-            Bass.BASS_Init(SoundCard, BitRate, DeviceProperties, IntPtr.Zero);
+            Bass.BASS_Free();
+            BassAsio.BASS_ASIO_Free();
+            Bass.BASS_SetConfig(BASSConfig.BASS_CONFIG_UPDATEPERIOD, 0);
+            Bass.BASS_Init(0, 44100, BASSInit.BASS_DEVICE_DEFAULT, IntPtr.Zero);
             int ASIOCard = SoundCard == -1 ? 0 : SoundCard - 1;
-            BassAsio.BASS_ASIO_Init(ASIOCard, BASSASIOInit.BASS_ASIO_DEFAULT);
+            BassAsio.BASS_ASIO_Init(0, BASSASIOInit.BASS_ASIO_THREAD);
             BASSError Error = BassAsio.BASS_ASIO_ErrorGetCode();
 
         }
@@ -36,7 +40,7 @@ namespace Sound
         public ASIO_Channel(int[] outputChannels, int volume = 100) : base(0, volume)
         {
             OutputChannels =  outputChannels;
-            AudioChannel = BASSFlag.BASS_STREAM_DECODE | BASSFlag.BASS_SAMPLE_FLOAT;
+            AudioChannel = BASSFlag.BASS_STREAM_DECODE;
         }
 
         /// <summary>
@@ -47,7 +51,7 @@ namespace Sound
         public ASIO_Channel(int OutputChannel, int volume = 100) : base(0, volume)
         {
             OutputChannels = new int[1] { OutputChannel };
-            AudioChannel = BASSFlag.BASS_STREAM_DECODE | BASSFlag.BASS_SAMPLE_FLOAT;
+            AudioChannel = BASSFlag.BASS_STREAM_DECODE;
         }
 
         /// <summary>
@@ -77,7 +81,7 @@ namespace Sound
         /// <returns></returns>
         protected override bool SetDevice(int device)
         {
-            return BassAsio.BASS_ASIO_SetDevice(0);
+            return BassAsio.BASS_ASIO_SetDevice(device);
         }
 
         /// <summary>
@@ -95,7 +99,7 @@ namespace Sound
         /// <returns></returns>
         protected override bool ChannelPlay(int Channel, bool repeate)
         {
-            return Bass.BASS_ChannelPlay(Channel, repeate);
+            return AsioChannel.Start(1000, 2);
         }
 
         /// <summary>
@@ -104,7 +108,7 @@ namespace Sound
         /// <returns></returns>
         protected override bool ChannelPause(int Channele)
         {
-            return Bass.BASS_ChannelPause(Channel);
+            return AsioChannel.Pause(true);
         }
 
         /// <summary>
@@ -113,7 +117,7 @@ namespace Sound
         /// <returns></returns>
         protected override bool ChannelStop(int Channel)
         {
-            return Bass.BASS_ChannelStop(Channel);
+            return AsioChannel.Stop();
         }
 
         /// <summary>
@@ -123,7 +127,7 @@ namespace Sound
         public override void SetVolume(int volume)
         {
             Volume = volume;
-            Bass.BASS_SetVolume(Volume / 100f);
+            if (AsioChannel != null) AsioChannel.Volume = volume / 100f;
         }
 
         public override void ConnectToSoundProtocol()
@@ -134,25 +138,12 @@ namespace Sound
                 return;
             }
 
-            AsioChannel = new BassAsioHandler(SoundCard, 0, Channel);
-            if (OutputChannels.Length > 1)
+            AsioChannel = new BassAsioHandler(0, 0, Channel);
+            /*if (OutputChannels.Length > 1)
                 for ( int i = 1; i < OutputChannels.Length; i++)    
-                    AsioChannel.SetMirror(OutputChannels[i]);
-        }
-
-        protected override void MethodPlay()
-        {
-            AsioChannel.Start(0,0);
-        }
-
-        protected override void MethodPause()
-        {
-            AsioChannel.Pause(true);
-        }
-
-        protected override void MethodStop()
-        {
-            AsioChannel.Stop();
+                    AsioChannel.SetMirror(OutputChannels[i]);*/
+            AsioChannel.Volume = Volume;
+            AsioChannel.VolumeMirror = Volume;
         }
     }
 }

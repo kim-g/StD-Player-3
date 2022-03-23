@@ -78,24 +78,6 @@ namespace Sound
         public abstract void ConnectToSoundProtocol();
 
         /// <summary>
-        /// Запуск воспроизведения для конкретной реализации класса
-        /// </summary>
-        /// <param name="Channel"></param>
-        protected abstract void MethodPlay();
-
-        /// <summary>
-        /// Приостановка воспроизведения для конкретной реализации класса
-        /// </summary>
-        /// <param name="Channel"></param>
-        protected abstract void MethodPause();
-
-        /// <summary>
-        /// Остановка воспроизведения для конкретной реализации класса
-        /// </summary>
-        /// <param name="Channel"></param>
-        protected abstract void MethodStop();
-
-        /// <summary>
         /// Определяет позицию трека в промилле (десятые процента)
         /// </summary>
         public int Position
@@ -244,7 +226,7 @@ namespace Sound
         public void Play()
         {
             if (Channel == 0) return;
-            MethodPlay();
+            ChannelPlay(Channel, false);
             State = true;
             DoOnPlay(null);
         }
@@ -258,13 +240,13 @@ namespace Sound
         {
             if (State)
             {
-                MethodPause();
+                ChannelPause(Channel);
                 State = false;
                 DoOnPause(null);
             }
             else
             {
-                MethodPlay();
+                ChannelPlay(Channel, false);
                 State = true;
                 DoOnPlay(null);
             }
@@ -279,7 +261,7 @@ namespace Sound
         {
             if (State)
             {
-                MethodStop();
+                ChannelStop(Channel);
                 State = false;
             }
 

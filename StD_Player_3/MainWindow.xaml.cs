@@ -231,7 +231,7 @@ namespace StD_Player_3
         {
             switch (Config.GetConfigValue("Close"))
             {
-                case "close": Application.Current.Shutdown(); break;
+                case "close": Bass.BASS_Free(); BassAsio.BASS_ASIO_Free(); Application.Current.Shutdown(); break;
                 case "shutdown": System.Diagnostics.Process.Start("shutdown", "/s /f /t 00"); break;
                 default: Application.Current.Shutdown(); break;
             }
@@ -290,6 +290,12 @@ namespace StD_Player_3
                 case Key.Add:
                     Parameters.Set(this);
                     SetSoundCards(Channels);
+                    break;
+                case Key.Escape:
+                    Bass.BASS_Free();
+                    BassAsio.BASS_ASIO_Free();
+                    Sound.SoundChannel.Initiate();
+                    Sound.ASIO_Channel.Initiate();
                     break;
             }
         }
