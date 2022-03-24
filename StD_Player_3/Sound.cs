@@ -213,7 +213,7 @@ namespace Sound
             _hGCFile = GCHandle.Alloc(ByteStream, GCHandleType.Pinned);
             // create the stream (AddrOfPinnedObject delivers the necessary IntPtr)
             Channel = Bass.BASS_StreamCreateFile(_hGCFile.AddrOfPinnedObject(),
-                              0L, ByteStream.Length, BASSFlag.BASS_SAMPLE_FLOAT | Loop | AudioChannel);
+                              0L, ByteStream.Length, BASSFlag.BASS_SAMPLE_FLOAT /*| Loop*/ | AudioChannel);
             Bass.BASS_ErrorGetCode();
             SetOpenParameters();
 

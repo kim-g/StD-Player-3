@@ -574,7 +574,7 @@ namespace StD_Player_3
             }
 
             AudioCardType = SCType;
-            int ASIO_Output_Channel = 0;
+            int ASIO_Output_Channel = balance + 1;
             switch (AudioCardType)
             {
                 case SoundType.Standart:

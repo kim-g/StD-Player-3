@@ -233,7 +233,7 @@ namespace StD_Player_3
             {
                 case "close": Bass.BASS_Free(); BassAsio.BASS_ASIO_Free(); Application.Current.Shutdown(); break;
                 case "shutdown": System.Diagnostics.Process.Start("shutdown", "/s /f /t 00"); break;
-                default: Application.Current.Shutdown(); break;
+                default: Bass.BASS_Free(); BassAsio.BASS_ASIO_Free(); Application.Current.Shutdown(); break;
             }
         }
 
@@ -291,12 +291,6 @@ namespace StD_Player_3
                     Parameters.Set(this);
                     SetSoundCards(Channels);
                     break;
-                case Key.Escape:
-                    Bass.BASS_Free();
-                    BassAsio.BASS_ASIO_Free();
-                    Sound.SoundChannel.Initiate();
-                    Sound.ASIO_Channel.Initiate();
-                    break;
             }
         }
 
@@ -318,14 +312,27 @@ namespace StD_Player_3
             LevelsO.EndPoint = new Point(0, ScaleTo(200.0));
             LevelsI.EndPoint = new Point(0, ScaleTo(200.0));
 
-            //Sound.ASIO_Channel.Initiate();
-            for (int i = 1; i < BassAsio.BASS_ASIO_GetDeviceCount()+1; i++)
-                Sound.ASIO_Channel.Initiate(i);
+            SoundType ST = SoundType.ASIO;
+
+            switch (ST)
+            {
+                case SoundType.Standart:
+                    for (int i = 1; i < Bass.BASS_GetDeviceInfos().Length + 1; i++)
+                        Sound.SoundChannel.Initiate(i);
+                    break;
+                case SoundType.ASIO:
+                    for (int i = 0; i < BassAsio.BASS_ASIO_GetDeviceCount(); i++)
+                        Sound.ASIO_Channel.Initiate(i);
+                    break;
+            }
+            Channels = new Desk[3];
+            for (int i = 1; i < Bass.BASS_GetDeviceInfos().Length+1; i++)
+                Sound.SoundChannel.Initiate(i);
             Channels = new Desk[3];
 
-            Channels[0] = new Desk(Desk1, GetPan(1), 100, 1, Scale, -1, SoundType.ASIO);
-            Channels[1] = new Desk(Desk2, GetPan(2), 100, 2, Scale, -1, SoundType.ASIO);
-            Channels[2] = new Desk(Desk3, GetPan(2), 100, 3, Scale, -1, SoundType.ASIO);
+            Channels[0] = new Desk(Desk1, GetPan(1), 100, 1, Scale, -1, ST);
+            Channels[1] = new Desk(Desk2, GetPan(2), 100, 2, Scale, -1, ST);
+            Channels[2] = new Desk(Desk3, GetPan(2), 100, 3, Scale, -1, ST);
 
             SetSoundCards(Channels);
 

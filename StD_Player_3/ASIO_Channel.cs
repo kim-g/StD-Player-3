@@ -8,7 +8,6 @@ namespace Sound
     {
         private ASIOPROC _myAsioProc; // make it global, so that it can not be removed by the Garbage Collector
         private BassAsioHandler AsioChannel;
-        private BassAsioHandler _asio1;
 
         public int[] OutputChannels;
 
@@ -19,13 +18,13 @@ namespace Sound
         /// <param name="SoundCard"></param>
         /// <param name="BitRate"></param>
         /// <param name="DeviceProperties"></param>
-        public static void Initiate(int SoundCard = -1, int BitRate = 44100,
+        public static void Initiate(int SoundCard = -1, int BitRate = 48000,
             BASSInit DeviceProperties = BASSInit.BASS_DEVICE_DEFAULT)
         {
             Bass.BASS_Free();
             BassAsio.BASS_ASIO_Free();
             Bass.BASS_SetConfig(BASSConfig.BASS_CONFIG_UPDATEPERIOD, 0);
-            Bass.BASS_Init(0, 44100, BASSInit.BASS_DEVICE_DEFAULT, IntPtr.Zero);
+            Bass.BASS_Init(1, 48000, BASSInit.BASS_DEVICE_DEFAULT, IntPtr.Zero);
             int ASIOCard = SoundCard == -1 ? 0 : SoundCard - 1;
             BassAsio.BASS_ASIO_Init(0, BASSASIOInit.BASS_ASIO_THREAD);
             BASSError Error = BassAsio.BASS_ASIO_ErrorGetCode();
@@ -99,7 +98,8 @@ namespace Sound
         /// <returns></returns>
         protected override bool ChannelPlay(int Channel, bool repeate)
         {
-            return AsioChannel.Start(1000, 2);
+            if (!State) return AsioChannel.Pause(false);
+            return true;
         }
 
         /// <summary>
@@ -108,7 +108,7 @@ namespace Sound
         /// <returns></returns>
         protected override bool ChannelPause(int Channele)
         {
-            return AsioChannel.Pause(true);
+            return AsioChannel.Pause(State);
         }
 
         /// <summary>
@@ -117,7 +117,9 @@ namespace Sound
         /// <returns></returns>
         protected override bool ChannelStop(int Channel)
         {
-            return AsioChannel.Stop();
+            AsioChannel.Pause(true);
+            Position = 0;
+            return true;
         }
 
         /// <summary>
@@ -127,7 +129,8 @@ namespace Sound
         public override void SetVolume(int volume)
         {
             Volume = volume;
-            if (AsioChannel != null) AsioChannel.Volume = volume / 100f;
+            //if (AsioChannel != null) AsioChannel.Volume = volume / 100f;
+            if (AsioChannel != null) AsioChannel.Volume = 1;
         }
 
         public override void ConnectToSoundProtocol()
@@ -137,13 +140,14 @@ namespace Sound
                 new Exception("Ошибка файла. Файл не был загружен.");
                 return;
             }
-
-            AsioChannel = new BassAsioHandler(0, 0, Channel);
+            AsioChannel = new BassAsioHandler(0, OutputChannels[0], Channel);
+            AsioChannel.Start(0, 0);
+            AsioChannel.Pause(true);
             /*if (OutputChannels.Length > 1)
                 for ( int i = 1; i < OutputChannels.Length; i++)    
                     AsioChannel.SetMirror(OutputChannels[i]);*/
-            AsioChannel.Volume = Volume;
-            AsioChannel.VolumeMirror = Volume;
+            AsioChannel.Volume = Volume / 100f;
+            //AsioChannel.VolumeMirror = Volume;
         }
     }
 }
