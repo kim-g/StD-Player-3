@@ -38,6 +38,9 @@ namespace StD_Player_3
         public static LinearGradientBrush LevelsI;
         public static int UpdateTime = 50;
 
+        private BassAsioHandler _asio1;
+        Sound.SoundBase Music;
+
         private byte DeskCount
         {
             get
@@ -93,10 +96,10 @@ namespace StD_Player_3
 
         private void LevelsTimerTick(object sender, EventArgs e)
         {
-            foreach (Desk Channel in Channels)
+            /*foreach (Desk Channel in Channels)
                 Channel?.SetLevels();
 
-            /*Channel_1.SetLevels();
+            Channel_1.SetLevels();
             Channel_2.SetLevels();
             Channel_3.SetLevels();*/
         }
@@ -317,17 +320,14 @@ namespace StD_Player_3
             switch (ST)
             {
                 case SoundType.Standart:
-                    for (int i = 1; i < Bass.BASS_GetDeviceInfos().Length + 1; i++)
+                    for (int i = 1; i < Bass.BASS_GetDeviceInfos().Length; i++)
                         Sound.SoundChannel.Initiate(i);
                     break;
                 case SoundType.ASIO:
-                    for (int i = 0; i < BassAsio.BASS_ASIO_GetDeviceCount(); i++)
+                    for (int i = 1; i < BassAsio.BASS_ASIO_GetDeviceCount(); i++)
                         Sound.ASIO_Channel.Initiate(i);
                     break;
             }
-            Channels = new Desk[3];
-            for (int i = 1; i < Bass.BASS_GetDeviceInfos().Length+1; i++)
-                Sound.SoundChannel.Initiate(i);
             Channels = new Desk[3];
 
             Channels[0] = new Desk(Desk1, GetPan(1), 100, 1, Scale, -1, ST);
@@ -386,6 +386,9 @@ namespace StD_Player_3
             }
         }
 
-        
+        private void TimeLabel_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+
+        }
     }
 }
