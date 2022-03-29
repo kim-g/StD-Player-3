@@ -96,10 +96,10 @@ namespace StD_Player_3
 
         private void LevelsTimerTick(object sender, EventArgs e)
         {
-            /*foreach (Desk Channel in Channels)
+            foreach (Desk Channel in Channels)
                 Channel?.SetLevels();
 
-            Channel_1.SetLevels();
+            /*Channel_1.SetLevels();
             Channel_2.SetLevels();
             Channel_3.SetLevels();*/
         }

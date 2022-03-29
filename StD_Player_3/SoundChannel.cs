@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Extentions;
+using System;
 using System.Windows;
 using Un4seen.Bass;
 
@@ -111,6 +112,15 @@ namespace Sound
         public override void ConnectToSoundProtocol()
         {
             // Дополнительных операций не требуется.
+        }
+
+        public override int[] Levels()
+        {
+            int CommonLevels = Bass.BASS_ChannelGetLevel(Channel);
+            int[] levels = new int[2];
+            levels[1] = CommonLevels.HighWord();
+            levels[0] = CommonLevels.LowWord();
+            return levels;
         }
     }
 

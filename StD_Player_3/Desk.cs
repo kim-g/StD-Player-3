@@ -1082,9 +1082,9 @@ namespace StD_Player_3
         {
             if (Sound.State)
             {
-                int Levels = Bass.BASS_ChannelGetLevel(Sound.Channel);
-                Level[1] = Math.Max(Levels.HighWord(), Level[1]);
-                Level[0] = Math.Max(Levels.LowWord(), Level[0]);
+                int[] Levels =Sound.Levels();
+                Level[1] = Math.Max(Levels[1], Level[1]);
+                Level[0] = Math.Max(Levels[0], Level[0]);
             }
             else
             {

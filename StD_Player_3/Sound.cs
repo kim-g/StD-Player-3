@@ -78,6 +78,12 @@ namespace Sound
         public abstract void ConnectToSoundProtocol();
 
         /// <summary>
+        /// Определяет уровень громкости
+        /// </summary>
+        /// <returns></returns>
+        public abstract int[] Levels();
+
+        /// <summary>
         /// Определяет позицию трека в промилле (десятые процента)
         /// </summary>
         public int Position

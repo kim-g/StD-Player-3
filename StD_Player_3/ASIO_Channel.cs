@@ -147,5 +147,15 @@ namespace Sound
             AsioChannel.Volume = Volume / 100f;
             AsioChannel.VolumeMirror = AsioChannel.Volume;
         }
+
+        public override int[] Levels()
+        {
+            float Level = BassAsio.BASS_ASIO_ChannelGetLevel(false, OutputChannels[0]);
+            int[] levels = new int[2];
+            int level = Convert.ToInt32(Level * 32768);
+            levels[0] = level;
+            levels[1] = level;
+            return levels;
+        }
     }
 }
