@@ -84,6 +84,17 @@ namespace Sound
         public abstract int[] Levels();
 
         /// <summary>
+        /// Освобождение всех ресурсов и остановка воспроизведения
+        /// </summary>
+        public abstract void Free();
+
+        /// <summary>
+        /// Установка баланса
+        /// </summary>
+        /// <param name="balance"></param>
+        public abstract void SetBalance(int balance);
+
+        /// <summary>
         /// Определяет позицию трека в промилле (десятые процента)
         /// </summary>
         public int Position
@@ -324,24 +335,6 @@ namespace Sound
             int PosSecond = Convert.ToInt32(Math.Round(PosSeconds - (PosMinute * 60)));
             string Pos = PosMinute.ToString("D2") + ":" + PosSecond.ToString("D2");
             return Pos;
-        }
-
-        /// <summary>
-        /// Установка баланса
-        /// </summary>
-        /// <param name="balance"></param>
-        public void SetBalance(int balance)
-        {
-            Balance = balance;
-            Bass.BASS_ChannelSetAttribute(Channel, BASSAttribute.BASS_ATTRIB_PAN, Balance);
-            //AudioChannel = BASSFlag.BASS_SPEAKER_FRONT;
-            /*switch (Balance)
-            {
-                case -1: AudioChannel = BASSFlag.BASS_SPEAKER_FRONTLEFT; break;
-                case 0: AudioChannel = BASSFlag.BASS_SPEAKER_FRONT; break;
-                case 1: AudioChannel = BASSFlag.BASS_SPEAKER_FRONTRIGHT; break;
-
-            }*/
         }
 
         /// <summary>

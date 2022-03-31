@@ -574,14 +574,13 @@ namespace StD_Player_3
             }
 
             AudioCardType = SCType;
-            int ASIO_Output_Channel = balance + 1;
             switch (AudioCardType)
             {
                 case SoundType.Standart:
                     Sound = new SoundChannel(balance);
                     break;
                 case SoundType.ASIO:
-                    Sound = new ASIO_Channel(ASIO_Output_Channel);
+                    Sound = new ASIO_Channel(balance);
                     break;
             }
             Sound.AutoStop += AutoStop;
@@ -1055,25 +1054,36 @@ namespace StD_Player_3
         {
             Sound.SetBalance(balance);
             FreqGrid.ColumnDefinitions.Clear();
-            switch (Sound.Balance)
+            switch (AudioCardType)
             {
-                case -1:
+                case SoundType.Standart:
+                    switch (Sound.Balance)
+                    {
+                        case -1:
+                            FreqGrid.ColumnDefinitions.Add(new ColumnDefinition()
+                            { Width = new GridLength(1, GridUnitType.Star) });
+                            FreqGrid.ColumnDefinitions.Add(new ColumnDefinition()
+                            { Width = new GridLength(0, GridUnitType.Star) });
+                            break;
+                        case 0:
+                            FreqGrid.ColumnDefinitions.Add(new ColumnDefinition()
+                            { Width = new GridLength(1, GridUnitType.Star) });
+                            FreqGrid.ColumnDefinitions.Add(new ColumnDefinition()
+                            { Width = new GridLength(1, GridUnitType.Star) });
+                            break;
+                        case 1:
+                            FreqGrid.ColumnDefinitions.Add(new ColumnDefinition()
+                            { Width = new GridLength(0, GridUnitType.Star) });
+                            FreqGrid.ColumnDefinitions.Add(new ColumnDefinition()
+                            { Width = new GridLength(1, GridUnitType.Star) });
+                            break;
+                    }
+                    break;
+                case SoundType.ASIO:
                     FreqGrid.ColumnDefinitions.Add(new ColumnDefinition()
-                        { Width = new GridLength(1, GridUnitType.Star)});
+                    { Width = new GridLength(1, GridUnitType.Star) });
                     FreqGrid.ColumnDefinitions.Add(new ColumnDefinition()
                     { Width = new GridLength(0, GridUnitType.Star) });
-                    break;
-                case 0:
-                    FreqGrid.ColumnDefinitions.Add(new ColumnDefinition()
-                    { Width = new GridLength(1, GridUnitType.Star) });
-                    FreqGrid.ColumnDefinitions.Add(new ColumnDefinition()
-                    { Width = new GridLength(1, GridUnitType.Star) });
-                    break;
-                case 1:
-                    FreqGrid.ColumnDefinitions.Add(new ColumnDefinition()
-                    { Width = new GridLength(0, GridUnitType.Star) });
-                    FreqGrid.ColumnDefinitions.Add(new ColumnDefinition()
-                    { Width = new GridLength(1, GridUnitType.Star) });
                     break;
             }
         }

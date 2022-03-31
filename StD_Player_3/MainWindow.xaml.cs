@@ -19,6 +19,7 @@ using Un4seen.Bass;
 using Un4seen.BassAsio;
 using Extentions;
 using SQLite;
+using System.Reflection;
 
 namespace StD_Player_3
 {
@@ -27,44 +28,48 @@ namespace StD_Player_3
     /// </summary>
     public partial class MainWindow : Window
     {
-        Desk[] Channels;
-        DispatcherTimer timer;
-        DispatcherTimer LevelsTimer;
-        DispatcherTimer TimeTimer;
-        bool Loading = true;
+        private Desk[] Channels;
+        private DispatcherTimer timer;
+        private DispatcherTimer LevelsTimer;
+        private DispatcherTimer TimeTimer;
+        private bool Loading = true;
         public SQLiteConfig Config = new SQLiteConfig("Config.db");
         protected double Scale;
         public static LinearGradientBrush LevelsO;
         public static LinearGradientBrush LevelsI;
         public static int UpdateTime = 50;
+        private SoundType ST;
 
-        private BassAsioHandler _asio1;
-        Sound.SoundBase Music;
-
+        /// <summary>
+        /// Количество дек
+        /// </summary>
         private byte DeskCount
         {
             get
             {
-                byte Desks = 3;
                 if (Channels[2].TracksCount == 0)
                 {
                     if (Channels[1].TracksCount == 0)
-                        Desks = 1;
-                    else
-                        Desks = 2;
+                        return 1;
+                    return 2;
                 }
-
-                return Desks;
+                return 3;
             }
+        }
+
+        protected string Theme 
+        {
+            get => Config.GetConfigValue("Theme");
+            set => Config.SetConfigValue("Theme", value);
         }
 
         public MainWindow()
         {
             Application.Current.Resources.MergedDictionaries.Clear();
-            if (Config.GetConfigValue("Theme") == "")
-                Config.SetConfigValue("Theme", "light");
+            if (Theme == "")
+                Theme = "light";
             Application.Current.Resources.MergedDictionaries.Add(
-                new ResourceDictionary() { Source = new Uri($"pack://application:,,,/{Config.GetConfigValue("Theme")}.xaml") });
+                new ResourceDictionary() { Source = new Uri($"pack://application:,,,/{Theme}.xaml") });
 
             InitializeComponent();
             // Настройка цветов
@@ -98,10 +103,6 @@ namespace StD_Player_3
         {
             foreach (Desk Channel in Channels)
                 Channel?.SetLevels();
-
-            /*Channel_1.SetLevels();
-            Channel_2.SetLevels();
-            Channel_3.SetLevels();*/
         }
 
         /// <summary>
@@ -255,6 +256,7 @@ namespace StD_Player_3
 
             switch (e.Key)
             {
+                // Управление первой декой
                 case Key.S: Channels[0].Sound.Play(); Channels[0].UpdateVisualElements(); break;
                 case Key.D: Channels[0].Sound.Pause(); Channels[0].UpdateVisualElements(); break;
                 case Key.F: Channels[0].Sound.Stop(); Channels[0].UpdateVisualElements(); break;
@@ -265,6 +267,7 @@ namespace StD_Player_3
                     Channels[0].Sound.Stop(); Channels[0].CurrentTrack++;
                     Channels[0].UpdateVisualElements(); break;
 
+                // Управление второй декой
                 case Key.K: if (DeskCount < 2) return; Channels[1].Sound.Play(); Channels[1].UpdateVisualElements(); break;
                 case Key.L: if (DeskCount < 2) return; Channels[1].Sound.Pause(); Channels[1].UpdateVisualElements(); break;
                 case Key.OemSemicolon: if (DeskCount < 2) return; Channels[1].Sound.Stop(); Channels[1].UpdateVisualElements(); break;
@@ -276,13 +279,28 @@ namespace StD_Player_3
                     if (DeskCount < 2) return;
                     Channels[1].Sound.Stop(); Channels[1].CurrentTrack++;
                     Channels[1].UpdateVisualElements(); break;
+
+                // Управление третьей декой
+                case Key.NumPad4: if (DeskCount < 3) return; Channels[2].Sound.Play(); Channels[2].UpdateVisualElements(); break;
+                case Key.NumPad5: if (DeskCount < 3) return; Channels[2].Sound.Pause(); Channels[2].UpdateVisualElements(); break;
+                case Key.NumPad6: if (DeskCount < 3) return; Channels[2].Sound.Stop(); Channels[2].UpdateVisualElements(); break;
+                case Key.NumPad8:
+                    if (DeskCount < 3) return;
+                    Channels[2].Sound.Stop(); Channels[2].CurrentTrack--;
+                    Channels[2].UpdateVisualElements(); break;
+                case Key.NumPad2:
+                    if (DeskCount < 3) return;
+                    Channels[2].Sound.Stop(); Channels[2].CurrentTrack++;
+                    Channels[2].UpdateVisualElements(); break;
+
+                // Общие элементы управления
                 case Key.Tab:
-                    if (Config.GetConfigValue("Theme") == "dark")
-                        Config.SetConfigValue("Theme", "light");
-                    else Config.SetConfigValue("Theme", "dark");
+                    if (Theme == "dark")
+                        Theme = "light";
+                    else Theme = "dark";
                     Application.Current.Resources.MergedDictionaries.Clear();
                     Application.Current.Resources.MergedDictionaries.Add(
-                        new ResourceDictionary() { Source = new Uri($"pack://application:,,,/{Config.GetConfigValue("Theme")}.xaml") });
+                        new ResourceDictionary() { Source = new Uri($"pack://application:,,,/{Theme}.xaml") });
                     LevelsO = (LinearGradientBrush)TryFindResource("LevelsOut");
                     LevelsI = (LinearGradientBrush)TryFindResource("LevelsOutLight");
                     LevelsO.EndPoint = new Point(0, ScaleTo(200.0));
@@ -291,8 +309,7 @@ namespace StD_Player_3
                         Channel.SetLevels(LevelsI, LevelsO);
                     break;
                 case Key.Add:
-                    Parameters.Set(this);
-                    SetSoundCards(Channels);
+                    OptionsShow();
                     break;
             }
         }
@@ -315,7 +332,13 @@ namespace StD_Player_3
             LevelsO.EndPoint = new Point(0, ScaleTo(200.0));
             LevelsI.EndPoint = new Point(0, ScaleTo(200.0));
 
-            SoundType ST = SoundType.ASIO;
+            string SoundTypeDB = Config.GetConfigValue("Device_Type");
+            switch(SoundTypeDB)
+            {
+                case "Standart": ST = SoundType.Standart; break;
+                case "ASIO": ST = SoundType.ASIO; break;
+                default: ST = SoundType.Standart; break;
+            }
 
             switch (ST)
             {
@@ -332,7 +355,7 @@ namespace StD_Player_3
 
             Channels[0] = new Desk(Desk1, GetPan(1), 100, 1, Scale, -1, ST);
             Channels[1] = new Desk(Desk2, GetPan(2), 100, 2, Scale, -1, ST);
-            Channels[2] = new Desk(Desk3, GetPan(2), 100, 3, Scale, -1, ST);
+            Channels[2] = new Desk(Desk3, GetPan(3), 100, 3, Scale, -1, ST);
 
             SetSoundCards(Channels);
 
@@ -373,22 +396,80 @@ namespace StD_Player_3
 
         private int GetPan(byte DeskN)
         {
-            switch (Config.GetConfigValue($"Desk_{DeskN}_Pan"))
+            switch (ST)
             {
-                case "left":
-                    return -1;
-                case "center":
-                    return 0;
-                case "right":
-                    return 1;
-                default:
-                    return 0;
+                case SoundType.Standart:
+                    switch (Config.GetConfigValue($"Desk_{DeskN}_Pan"))
+                    {
+                        case "left":
+                            return -1;
+                        case "center":
+                            return 0;
+                        case "right":
+                            return 1;
+                        default:
+                            return 0;
+                    }
+                case SoundType.ASIO:
+                    return Config.GetConfigValueInt($"Desk_{DeskN}_Channels");
+                default: return 0;
             }
         }
 
         private void TimeLabel_MouseDown(object sender, MouseButtonEventArgs e)
         {
+            
+        }
 
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            foreach (Desk D in Channels)
+                D.Sound.Free();
+        }
+
+        private void OptionsButton_Click(object sender, RoutedEventArgs e)
+        {
+            OptionsShow();
+        }
+
+        /// <summary>
+        /// Показывает окно настроек.
+        /// </summary>
+        public void OptionsShow()
+        {
+            SetupResult SR = SetupWindow.Open(Config);
+            if (SR == null) return;
+            if (ST != SR.Type)
+            {
+                foreach (Desk D in Channels)
+                    D.Sound.Free();
+                Bass.BASS_Free();
+                BassAsio.BASS_ASIO_Free();
+
+                Application.Current.Shutdown();
+                System.Diagnostics.Process.Start(Assembly.GetExecutingAssembly().Location);
+            }
+            switch (SR.Type)
+            {
+                case SoundType.Standart:
+
+                    foreach (Desk Channel in Channels)
+                    {
+                        Channel.Sound.SoundCard = SR.Desks[Channel.DeskN - 1].DeviceID;
+                        Channel.SetBalance((SR.Desks[Channel.DeskN - 1] as DeskOptionsStandart).Balance);
+                        Channel.CurrentTrack = Channel.CurrentTrack; // Для того, чтобы трек перезагрузился.
+                    }
+                    break;
+
+                case SoundType.ASIO:
+                    foreach (Desk Channel in Channels)
+                    {
+                        Channel.Sound.SoundCard = SR.Desks[Channel.DeskN - 1].DeviceID;
+                        Channel.SetBalance((SR.Desks[Channel.DeskN - 1] as DeskOptionsASIO).ChannelsToInt());
+                        Channel.CurrentTrack = Channel.CurrentTrack; // Для того, чтобы трек перезагрузился.
+                    }
+                    break;
+            }
         }
     }
 }

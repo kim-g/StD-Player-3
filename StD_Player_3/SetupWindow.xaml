@@ -1,0 +1,59 @@
+﻿<Window x:Class="StD_Player_3.SetupWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:StD_Player_3"
+        mc:Ignorable="d"
+        Title="Настройки" ResizeMode="NoResize" ShowInTaskbar="False" SizeToContent="WidthAndHeight" WindowStartupLocation="CenterOwner" BorderBrush="Black" WindowStyle="None" HorizontalAlignment="Left" VerticalAlignment="Top" Height="331" Width="936">
+    <Grid Background="{DynamicResource Background}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="40"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition/>
+            <RowDefinition Height="60"/>
+        </Grid.RowDefinitions>
+        <Rectangle Stroke="{DynamicResource Gray}" StrokeThickness="2" Grid.RowSpan="4"/>
+        <Grid Grid.Row="0" MouseLeftButtonDown="Grid_MouseLeftButtonDown">
+            <Rectangle x:Name="TitleRect" Margin="5,5,5,0" Fill="{DynamicResource Gray}"/>
+            <Label x:Name="TitleLabel" Foreground="{DynamicResource White}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="20" Content="Настройки"/>
+        </Grid>
+
+        <Grid Grid.Row="1">
+            <StackPanel Orientation="Horizontal">
+                <Label Foreground="{DynamicResource Foreground}" Content="Протокол передачи аудиоданных: " VerticalContentAlignment="Center"/>
+                <RadioButton x:Name="StandartRB" Content="Стандартный" VerticalContentAlignment="Center" Foreground="{DynamicResource Foreground}" Margin="0,0,15,0" Checked="StandartRB_Checked"/>
+                <RadioButton x:Name="ASIORB" Content="ASIO" VerticalContentAlignment="Center" Foreground="{DynamicResource Foreground}" Checked="ASIORB_Checked"/>
+            </StackPanel>
+        </Grid>
+
+        <Grid x:Name="StandartParametersGrid" Grid.Row="2" Visibility="Collapsed">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <local:StandartOption x:Name="Desk1" Grid.Column="0" Desk="1"/>
+            <local:StandartOption x:Name="Desk2" Grid.Column="1" Desk="2"/>
+            <local:StandartOption x:Name="Desk3" Grid.Column="2" Desk="3"/>
+        </Grid>
+
+        <Grid x:Name="ASIOParametersGrid" Grid.Row="2" Visibility="Visible">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <local:ASIO_Option x:Name="ADesk1" Grid.Column="0" Desk="1"/>
+            <local:ASIO_Option x:Name="ADesk2" Grid.Column="1" Desk="2"/>
+            <local:ASIO_Option x:Name="ADesk3" Grid.Column="2" Desk="3"/>
+        </Grid>
+
+        <Grid Grid.Row="3" Margin="10,10,10,10">
+            <StackPanel HorizontalAlignment="Center" Margin="0" VerticalAlignment="Center" Orientation="Horizontal">
+                <Button x:Name="LoadButton" Style="{DynamicResource StandartBtn}" Content="Сохранить настройки" Margin="0,0,10,0" FontSize="20" Padding="20,1" IsDefault="True" Click="LoadButton_Click"/>
+                <Button Content="Закрыть" Style="{DynamicResource StandartBtn}" Width="{Binding ActualWidth, ElementName=LoadButton, Mode=OneWay}" FontSize="20" Height="{Binding ActualHeight, ElementName=LoadButton, Mode=OneWay}" IsCancel="True" Click="Button_Click"/>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</Window>

@@ -100,7 +100,14 @@
     </ApplicationDefinition>
     <Compile Include="Animator.cs" />
     <Compile Include="ASIO_Channel.cs" />
+    <Compile Include="ASIO_Option.xaml.cs">
+      <DependentUpon>ASIO_Option.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="AudioDevice.cs" />
     <Compile Include="Desk.cs" />
+    <Compile Include="DeskOptions.cs" />
+    <Compile Include="DeskOptionsASIO.cs" />
+    <Compile Include="DeskOptionsStandart.cs" />
     <Compile Include="DeskParams.cs" />
     <Compile Include="Drag.cs" />
     <Compile Include="Extentions.cs" />
@@ -111,8 +118,19 @@
       <DependentUpon>Parameters.xaml</DependentUpon>
     </Compile>
     <Compile Include="Resources.cs" />
+    <Compile Include="SetupResult.cs" />
+    <Compile Include="SetupWindow.xaml.cs">
+      <DependentUpon>SetupWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Sound.cs" />
     <Compile Include="SoundChannel.cs" />
+    <Compile Include="StandartOption.xaml.cs">
+      <DependentUpon>StandartOption.xaml</DependentUpon>
+    </Compile>
+    <Page Include="ASIO_Option.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="dark.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -138,6 +156,14 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Parameters.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="SetupWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="StandartOption.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

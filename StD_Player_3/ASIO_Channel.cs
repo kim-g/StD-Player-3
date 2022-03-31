@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Un4seen.Bass;
 using Un4seen.BassAsio;
 
@@ -8,6 +9,7 @@ namespace Sound
     {
         private BassAsioHandler AsioChannel;
         private int Device = 0;
+        
         public int[] OutputChannels;
 
 
@@ -37,6 +39,7 @@ namespace Sound
         public ASIO_Channel(int[] outputChannels, int volume = 100) : base(0, volume)
         {
             OutputChannels =  outputChannels;
+            if (OutputChannels.Length == 0) OutputChannels = new int[1] { 8 };
             AudioChannel = BASSFlag.BASS_STREAM_DECODE;
         }
 
@@ -45,10 +48,19 @@ namespace Sound
         /// </summary>
         /// <param name="OutputChannel">Выводной канал ASIO </param>
         /// <param name="volume">Громкость</param>
-        public ASIO_Channel(int OutputChannel, int volume = 100) : base(0, volume)
+        public ASIO_Channel(int OutputChannel, int volume = 100) : base(OutputChannel, volume)
         {
-            OutputChannels = new int[1] { OutputChannel };
+            IntToChannels(OutputChannel);
+            if (OutputChannels.Length == 0) OutputChannels = new int[1] { 8 };
             AudioChannel = BASSFlag.BASS_STREAM_DECODE;
+        }
+
+        private void IntToChannels(int OutputChannel)
+        {
+            List<int> OC = new List<int>();
+            for (int i = 0; i < 8; i++)
+                if ((OutputChannel & ((int)Math.Pow(2, i))) > 0) OC.Add(i);
+            OutputChannels = OC.ToArray();
         }
 
         /// <summary>
@@ -138,6 +150,7 @@ namespace Sound
                 new Exception("Ошибка файла. Файл не был загружен.");
                 return;
             }
+
             AsioChannel = new BassAsioHandler(Device, OutputChannels[0], Channel);
             AsioChannel.Start(0, 0);
             AsioChannel.Pause(true);
@@ -156,6 +169,23 @@ namespace Sound
             levels[0] = level;
             levels[1] = level;
             return levels;
+        }
+
+        public override void Free()
+        {
+            BassAsio.BASS_ASIO_Stop();
+            Bass.BASS_Free();
+            BassAsio.BASS_ASIO_Free();
+        }
+
+        /// <summary>
+        /// Установка баланса
+        /// </summary>
+        /// <param name="balance"></param>
+        public override void SetBalance(int balance)
+        {
+            Balance = balance;
+            IntToChannels(balance);
         }
     }
 }

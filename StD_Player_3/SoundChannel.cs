@@ -122,6 +122,21 @@ namespace Sound
             levels[0] = CommonLevels.LowWord();
             return levels;
         }
+
+        public override void Free()
+        {
+            Bass.BASS_Free();
+        }
+
+        /// <summary>
+        /// Установка баланса
+        /// </summary>
+        /// <param name="balance"></param>
+        public override void SetBalance(int balance)
+        {
+            Balance = balance;
+            Bass.BASS_ChannelSetAttribute(Channel, BASSAttribute.BASS_ATTRIB_PAN, Balance);
+        }
     }
 
 }
