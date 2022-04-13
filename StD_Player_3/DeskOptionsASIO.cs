@@ -18,6 +18,16 @@ namespace StD_Player_3
         /// </summary>
         public bool[] OutputChannels { get; set; }
 
+        /// <summary>
+        /// Номер устройства воспроизведения в списке устройств
+        /// </summary>
+        public int StandartDeviceID { get; set; }
+
+        /// <summary>
+        /// Имя устройства воспроизведения для БД
+        /// </summary>
+        public string StandartDeviceName { get; set; }
+
         public DeskOptionsASIO(byte Number = 8)
         {
             ChannelsNumber = Number;

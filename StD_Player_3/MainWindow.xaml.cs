@@ -368,6 +368,7 @@ namespace StD_Player_3
         /// <param name="SoundCards">Массив звуковых карт</param>
         public void SetSoundCards(Desk[] SoundCards)
         {
+            // Настрокуа стандартной карты
             int[] Channels = new int[SoundCards.Length];
             for (int i = 0; i < Channels.Length; i++)
                 Channels[i] = -1;
@@ -376,7 +377,9 @@ namespace StD_Player_3
             {
                 if (Cards[Card].id == null) continue;
                 for (int i = 0; i < SoundCards.Length; i++)
-                    if (Cards[Card].id == Config.GetConfigValue($"Desk_{i + 1}_Sound_Card"))
+                    if (Cards[Card].id == Config.GetConfigValue(ST == SoundType.Standart 
+                        ? $"Desk_{i + 1}_Sound_Card"
+                        : $"Desk_{i + 1}_ASIO_Output_Sound_Card"))
                         Channels[i] = Card;
             }
             for (int i = 0; i < SoundCards.Length; i++)
@@ -385,6 +388,28 @@ namespace StD_Player_3
             {
                 D.SetBalance(GetPan(D.DeskN));
                 D.CurrentTrack = D.CurrentTrack;
+            }
+
+            // Настройка ASIO
+            if (ST == SoundType.ASIO)
+            {
+                for (int i = 0; i < Channels.Length; i++)
+                    Channels[i] = -1;
+                BASS_ASIO_DEVICEINFO[] ASIOCards = BassAsio.BASS_ASIO_GetDeviceInfos();
+                for (int Card = 0; Card < ASIOCards.Length; Card++)
+                {
+                    if (ASIOCards[Card].name == null) continue;
+                    for (int i = 0; i < SoundCards.Length; i++)
+                        if (ASIOCards[Card].name == Config.GetConfigValue($"Desk_{i + 1}_ASIO_Sound_Card"))
+                            Channels[i] = Card;
+                }
+                for (int i = 0; i < SoundCards.Length; i++)
+                    SoundCards[i].Sound.SoundCard = Channels[i];
+                foreach (Desk D in SoundCards)
+                {
+                    D.SetBalance(GetPan(D.DeskN));
+                    D.CurrentTrack = D.CurrentTrack;
+                }
             }
         }
 

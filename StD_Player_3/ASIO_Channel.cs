@@ -9,8 +9,19 @@ namespace Sound
     {
         private BassAsioHandler AsioChannel;
         private int Device = 0;
+        private int _OutputDevice = 0;
         
         public int[] OutputChannels;
+
+        public int OutputDevice
+        {
+            get => _OutputDevice;
+            set
+            {
+                _OutputDevice = value;
+                BassAsio.BASS_ASIO_SetDevice(_OutputDevice);
+            }
+        }
 
 
         /// <summary>
@@ -90,9 +101,7 @@ namespace Sound
         /// <returns></returns>
         protected override bool SetDevice(int device)
         {
-            Bass.BASS_SetDevice(device);
-            Device = device - 1;
-            return BassAsio.BASS_ASIO_SetDevice(Device);
+            return Bass.BASS_SetDevice(device);
         }
 
         /// <summary>
@@ -151,7 +160,7 @@ namespace Sound
                 return;
             }
 
-            AsioChannel = new BassAsioHandler(Device, OutputChannels[0], Channel);
+            AsioChannel = new BassAsioHandler(OutputDevice, OutputChannels[0], Channel);
             AsioChannel.Start(0, 0);
             AsioChannel.Pause(true);
             if (OutputChannels.Length > 1)

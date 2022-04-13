@@ -21,7 +21,8 @@ namespace StD_Player_3
     public partial class ASIO_Option : UserControl
     {
         private int _desk = 0;
-        private List<AudioDevice> _audioDevices = new List<AudioDevice>();
+        private List<AudioDevice> _ASIOaudioDevices = new List<AudioDevice>();
+        private List<AudioDevice> _BassaudioDevices = new List<AudioDevice>();
         private CheckBox[] Boxes = new CheckBox[8];
         public ASIO_Option[] OtherDesks = new ASIO_Option[2];
 
@@ -40,24 +41,45 @@ namespace StD_Player_3
         }
 
         /// <summary>
-        /// Список доступных аудиокарт
+        /// Список доступных ASIO аудиокарт
         /// </summary>
-        public List<AudioDevice> AudioDevices
+        public List<AudioDevice> ASIOAudioDevices
         {
-            get => _audioDevices;
+            get => _ASIOaudioDevices;
             set
             {
-                _audioDevices = value;
-                CardCB.ItemsSource = _audioDevices;
+                _ASIOaudioDevices = value;
+                CardCB.ItemsSource = _ASIOaudioDevices;
             }
         }
 
         /// <summary>
-        /// Выбранная аудиокарта
+        /// Выбранная ASIO аудиокарта
         /// </summary>
-        public AudioDevice SelectedDevice
+        public AudioDevice SelectedASIODevice
         {
             get => CardCB.SelectedItem as AudioDevice;
+        }
+
+        /// <summary>
+        /// Список доступных ASIO аудиокарт
+        /// </summary>
+        public List<AudioDevice> StandartAudioDevices
+        {
+            get => _BassaudioDevices;
+            set
+            {
+                _BassaudioDevices = value;
+                StandartCardCB.ItemsSource = _BassaudioDevices;
+            }
+        }
+
+        /// <summary>
+        /// Выбранная ASIO аудиокарта
+        /// </summary>
+        public AudioDevice SelectedStandartDevice
+        {
+            get => StandartCardCB.SelectedItem as AudioDevice;
         }
 
         /// <summary>
@@ -120,12 +142,21 @@ namespace StD_Player_3
         /// Установка устройства по VEN ID
         /// </summary>
         /// <param name="VEN"></param>
-        public void SetDevice(string VEN)
+        public void SetDevice(string VEN, bool ASIO = true)
         {
-            foreach (AudioDevice device in AudioDevices)
-                if (device.ADID == VEN)
-                    CardCB.SelectedItem = device;
+            if (ASIO)
+            {
+                foreach (AudioDevice device in ASIOAudioDevices)
+                    if (device.ADID == VEN)
+                        CardCB.SelectedItem = device;
+            }
+            else
+                foreach (AudioDevice Sdevice in StandartAudioDevices)
+                    if (Sdevice.ADID == VEN)
+                        StandartCardCB.SelectedItem = Sdevice;
         }
+
+
 
         /// <summary>
         /// Возвращает параметры деки.
@@ -137,6 +168,8 @@ namespace StD_Player_3
                 DeskOptionsASIO DO = new DeskOptionsASIO();
                 DO.DeviceID = (CardCB.SelectedItem as AudioDevice).ID;
                 DO.DeviceName = (CardCB.SelectedItem as AudioDevice).ADID;
+                DO.StandartDeviceID = (StandartCardCB.SelectedItem as AudioDevice).ID;
+                DO.StandartDeviceName = (StandartCardCB.SelectedItem as AudioDevice).ADID;
                 for (int i = 0; i < 8; i++)
                     DO.OutputChannels[i] = Boxes[i].IsChecked == true;
                 return DO;

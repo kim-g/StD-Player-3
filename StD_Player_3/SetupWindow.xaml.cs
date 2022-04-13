@@ -57,7 +57,8 @@ namespace StD_Player_3
         {
             SetupWindow SW = new SetupWindow() { Config = config};
 
-            List<AudioDevice> devices = new List<AudioDevice>();
+            List<AudioDevice> Standartdevices = new List<AudioDevice>();
+            List<AudioDevice> ASIOdevices = new List<AudioDevice>();
 
             switch (SW.Config.GetConfigValue($"Device_Type"))
             {
@@ -81,12 +82,12 @@ namespace StD_Player_3
                 device.ID = Card;
                 device.Name = Cards[Card].name;
                 device.ADID = Cards[Card].id;
-                devices.Add(device);
+                Standartdevices.Add(device);
             }
 
             foreach (StandartOption SO in SW.standartOptions)
             {
-                SO.AudioDevices = devices;
+                SO.AudioDevices = Standartdevices;
                 SO.SetDevice(SW.Config.GetConfigValue($"Desk_{SO.Desk}_Sound_Card"));
                 SO.Balance = SW.BalanceDic[SW.Config.GetConfigValue($"Desk_{SO.Desk}_Pan")];
             }
@@ -99,13 +100,15 @@ namespace StD_Player_3
                 device.ID = Card;
                 device.Name = ASIOCards[Card].name;
                 device.ADID = ASIOCards[Card].name;
-                devices.Add(device);
+                ASIOdevices.Add(device);
             }
 
             foreach (ASIO_Option SO in SW.ASIOOptions)
             {
-                SO.AudioDevices = devices;
+                SO.ASIOAudioDevices = ASIOdevices;
+                SO.StandartAudioDevices = Standartdevices;
                 SO.SetDevice(SW.Config.GetConfigValue($"Desk_{SO.Desk}_ASIO_Sound_Card"));
+                SO.SetDevice(SW.Config.GetConfigValue($"Desk_{SO.Desk}_ASIO_Output_Sound_Card"), false);
                 SO.Channels = SW.Config.GetConfigValueInt($"Desk_{SO.Desk}_Channels");
             }
 
@@ -132,6 +135,7 @@ namespace StD_Player_3
                     {
                         SW.Result.Desks[i] = SW.ASIOOptions[i].Options;
                         SW.Config.SetConfigValue($"Desk_{SW.ASIOOptions[i].Desk}_ASIO_Sound_Card", SW.ASIOOptions[i].Options.DeviceName);
+                        SW.Config.SetConfigValue($"Desk_{SW.ASIOOptions[i].Desk}_ASIO_Output_Sound_Card", (SW.ASIOOptions[i].Options as DeskOptionsASIO).StandartDeviceName);
                         SW.Config.SetConfigValue($"Desk_{SW.ASIOOptions[i].Desk}_Channels", SW.ASIOOptions[i].Channels);
                     }
                     return SW.Result;

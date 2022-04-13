@@ -7,34 +7,35 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid Background="{DynamicResource Background}" Margin="10,10,10,10">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
-        <Grid Grid.Row="0">
-            <Rectangle x:Name="TitleRect" Margin="5,5,5,0" Fill="{DynamicResource Gray}"/>
-            <Label x:Name="TitleLabel" Foreground="{DynamicResource White}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="20" Content="Настройки"/>
-        </Grid>
-
-        <StackPanel Grid.Row="1" Orientation="Vertical">
-            <Label Foreground="{DynamicResource Foreground}" Content="Аудио-устройство"/>
-            <ComboBox x:Name="CardCB" Foreground="{DynamicResource Foreground}"/>
-        </StackPanel>
-        <StackPanel Grid.Row="2" Orientation="Vertical">
-            <Label Foreground="{DynamicResource Foreground}" Content="Каналы воспроизведения"/>
+        <StackPanel Orientation="Vertical">
+            <Grid>
+                <Rectangle x:Name="TitleRect" Margin="5,5,5,0" Fill="{DynamicResource Gray}"/>
+                <Label x:Name="TitleLabel" Foreground="{DynamicResource White}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="20" Content="Настройки"/>
+            </Grid>
             <StackPanel Orientation="Vertical">
-                <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                    <CheckBox x:Name="C1" Content="Канал 1" Foreground="{DynamicResource Foreground}" Background="{DynamicResource White}" Margin="0,0,10,0" Checked="CheckBox_Checked" Unchecked="CheckBox_Checked"/>
-                    <CheckBox x:Name="C2" Content="Канал 2" Foreground="{DynamicResource Foreground}" Background="{DynamicResource White}" Margin="0,0,10,0" Checked="CheckBox_Checked" Unchecked="CheckBox_Checked"/>
-                    <CheckBox x:Name="C3" Content="Канал 3" Foreground="{DynamicResource Foreground}" Background="{DynamicResource White}" Margin="0,0,10,0" Checked="CheckBox_Checked" Unchecked="CheckBox_Checked"/>
-                    <CheckBox x:Name="C4" Content="Канал 4" Foreground="{DynamicResource Foreground}" Background="{DynamicResource White}" Checked="CheckBox_Checked" Unchecked="CheckBox_Checked"/>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal">
-                    <CheckBox x:Name="C5" Content="Канал 5" Foreground="{DynamicResource Foreground}" Background="{DynamicResource White}" Margin="0,0,10,0" Checked="CheckBox_Checked" Unchecked="CheckBox_Checked"/>
-                    <CheckBox x:Name="C6" Content="Канал 6" Foreground="{DynamicResource Foreground}" Background="{DynamicResource White}" Margin="0,0,10,0" Checked="CheckBox_Checked" Unchecked="CheckBox_Checked"/>
-                    <CheckBox x:Name="C7" Content="Канал 7" Foreground="{DynamicResource Foreground}" Background="{DynamicResource White}" Margin="0,0,10,0" Checked="CheckBox_Checked" Unchecked="CheckBox_Checked"/>
-                    <CheckBox x:Name="C8" Content="Канал 8" Foreground="{DynamicResource Foreground}" Background="{DynamicResource White}" Checked="CheckBox_Checked" Unchecked="CheckBox_Checked"/>
+                <Label Foreground="{DynamicResource Foreground}" Content="Устройство формирования звука"/>
+                <ComboBox x:Name="StandartCardCB" Foreground="{DynamicResource Foreground}"/>
+            </StackPanel>
+
+            <StackPanel Orientation="Vertical">
+                <Label Foreground="{DynamicResource Foreground}" Content="ASIO устройство"/>
+                <ComboBox x:Name="CardCB" Foreground="{DynamicResource Foreground}"/>
+            </StackPanel>
+            <StackPanel Orientation="Vertical">
+                <Label Foreground="{DynamicResource Foreground}" Content="Каналы воспроизведения"/>
+                <StackPanel Orientation="Vertical">
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                        <CheckBox x:Name="C1" Content="Канал 1" Foreground="{DynamicResource Foreground}" Background="{DynamicResource White}" Margin="0,0,10,0" Checked="CheckBox_Checked" Unchecked="CheckBox_Checked"/>
+                        <CheckBox x:Name="C2" Content="Канал 2" Foreground="{DynamicResource Foreground}" Background="{DynamicResource White}" Margin="0,0,10,0" Checked="CheckBox_Checked" Unchecked="CheckBox_Checked"/>
+                        <CheckBox x:Name="C3" Content="Канал 3" Foreground="{DynamicResource Foreground}" Background="{DynamicResource White}" Margin="0,0,10,0" Checked="CheckBox_Checked" Unchecked="CheckBox_Checked"/>
+                        <CheckBox x:Name="C4" Content="Канал 4" Foreground="{DynamicResource Foreground}" Background="{DynamicResource White}" Checked="CheckBox_Checked" Unchecked="CheckBox_Checked"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <CheckBox x:Name="C5" Content="Канал 5" Foreground="{DynamicResource Foreground}" Background="{DynamicResource White}" Margin="0,0,10,0" Checked="CheckBox_Checked" Unchecked="CheckBox_Checked"/>
+                        <CheckBox x:Name="C6" Content="Канал 6" Foreground="{DynamicResource Foreground}" Background="{DynamicResource White}" Margin="0,0,10,0" Checked="CheckBox_Checked" Unchecked="CheckBox_Checked"/>
+                        <CheckBox x:Name="C7" Content="Канал 7" Foreground="{DynamicResource Foreground}" Background="{DynamicResource White}" Margin="0,0,10,0" Checked="CheckBox_Checked" Unchecked="CheckBox_Checked"/>
+                        <CheckBox x:Name="C8" Content="Канал 8" Foreground="{DynamicResource Foreground}" Background="{DynamicResource White}" Checked="CheckBox_Checked" Unchecked="CheckBox_Checked"/>
+                    </StackPanel>
                 </StackPanel>
             </StackPanel>
         </StackPanel>

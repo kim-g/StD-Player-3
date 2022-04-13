@@ -135,7 +135,7 @@ namespace StD_Player_3
         /// <param name="volume">Громкость трека (0..100)</param>
         /// <param name="N">Номер деки</param>
         public Desk(Grid CurGrid, int balance, int volume, byte N, double scale, int sound_card = -1, 
-            SoundType SCType = SoundType.Standart)
+            SoundType SCType = SoundType.Standart, int ASIO_Card = 0)
         {
             // Панели
             Grid ButtonsGrid;
@@ -581,6 +581,7 @@ namespace StD_Player_3
                     break;
                 case SoundType.ASIO:
                     Sound = new ASIO_Channel(balance);
+                    (Sound as ASIO_Channel).OutputDevice = ASIO_Card;
                     break;
             }
             Sound.AutoStop += AutoStop;
