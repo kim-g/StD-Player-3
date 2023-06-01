@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29806.167
+# Visual Studio Version 17
+VisualStudioVersion = 17.3.32825.248
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StD_Player_3", "StD_Player_3\StD_Player_3.csproj", "{5E74329B-AA11-4C0E-B8BF-D51C717F28D1}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -11,10 +11,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Editor", "Editor\Editor.csproj", "{44D4953C-E6EC-4454-A2C7-EF7DD8C72A1D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SQLiteControl", "SQLiteControl\SQLiteControl.csproj", "{146EEC18-A3CB-46E9-9D2C-B3DF4FB44009}"
-EndProject
-Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "StD_Player_Installer", "StD_Player_Installer\StD_Player_Installer.vdproj", "{BAD9FF99-B39D-4FB3-B721-87009F83B19E}"
-EndProject
-Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "StD_Player (with Music)", "StD_Player (with Music)\StD_Player (with Music).vdproj", "{E2484F52-D0A1-4E4D-83AA-51063DDCEA85}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -34,10 +30,6 @@ Global
 		{146EEC18-A3CB-46E9-9D2C-B3DF4FB44009}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{146EEC18-A3CB-46E9-9D2C-B3DF4FB44009}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{146EEC18-A3CB-46E9-9D2C-B3DF4FB44009}.Release|Any CPU.Build.0 = Release|Any CPU
-		{BAD9FF99-B39D-4FB3-B721-87009F83B19E}.Debug|Any CPU.ActiveCfg = Debug
-		{BAD9FF99-B39D-4FB3-B721-87009F83B19E}.Release|Any CPU.ActiveCfg = Release
-		{E2484F52-D0A1-4E4D-83AA-51063DDCEA85}.Debug|Any CPU.ActiveCfg = Debug
-		{E2484F52-D0A1-4E4D-83AA-51063DDCEA85}.Release|Any CPU.ActiveCfg = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
