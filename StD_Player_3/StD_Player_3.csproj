@@ -110,6 +110,9 @@
     <Compile Include="DeskOptionsStandart.cs" />
     <Compile Include="DeskParams.cs" />
     <Compile Include="Drag.cs" />
+    <Compile Include="ErrorWindow.xaml.cs">
+      <DependentUpon>ErrorWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Extentions.cs" />
     <Compile Include="OpenSpectacle.xaml.cs">
       <DependentUpon>OpenSpectacle.xaml</DependentUpon>
@@ -132,6 +135,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="dark.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="ErrorWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
